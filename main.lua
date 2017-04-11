@@ -94,14 +94,16 @@ local METER = 64
 local SCREEN_WIDTH = 640
 local SCREEN_HEIGHT = 960
 local BORDER_THICKNESS = 200
+local BOTTOM_THICKNESS = 50
 local PREVIEW_SPEED = 200
 local PREVIEW_PADDING = 5
 local MIN_SPEED2 = 50
 local COL_MAIN_CATEGORY = 1
+local BASE_RADIUS = 10
 
 -- Helper functions
 function GetRandomRadius()
-  return math.floor(math.random() * 5 + 1) * 10
+  return BASE_RADIUS * (math.floor(math.random() * 3)*2 + 1)
 end
 
 function GetRandomColor()
@@ -144,6 +146,7 @@ end
 local objects = {}
 local world = nil
 local ballPreview = NewBallPreview()
+local nextBallPreview = NewBallPreview()
 local score = 0
 local combo = 0
 
@@ -165,8 +168,8 @@ function love.load()
   world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
   objects.ground = {}
-  objects.ground.body = love.physics.newBody(world, SCREEN_WIDTH/2, SCREEN_HEIGHT-BORDER_THICKNESS/2)
-  objects.ground.shape = love.physics.newRectangleShape(SCREEN_WIDTH, BORDER_THICKNESS)
+  objects.ground.body = love.physics.newBody(world, SCREEN_WIDTH/2, SCREEN_HEIGHT-BOTTOM_THICKNESS/2)
+  objects.ground.shape = love.physics.newRectangleShape(SCREEN_WIDTH, BOTTOM_THICKNESS)
   objects.ground.fixture = love.physics.newFixture(objects.ground.body, objects.ground.shape)
   objects.ground.fixture:setFriction(1)
   objects.ground.fixture:setCategory(COL_MAIN_CATEGORY)
@@ -194,7 +197,7 @@ function love.draw()
     love.graphics.circle("line", ballPreview.position.x, ballPreview.position.y, ballPreview.radius)
   end
 
-  love.graphics.setColor(72, 160, 14)
+  love.graphics.setColor(255, 255, 255)
   love.graphics.polygon("fill", objects.ground.body:getWorldPoints(objects.ground.shape:getPoints())) 
   love.graphics.polygon("fill", objects.wallL.body:getWorldPoints(objects.wallL.shape:getPoints()))
   love.graphics.polygon("fill", objects.wallR.body:getWorldPoints(objects.wallR.shape:getPoints()))
@@ -208,11 +211,20 @@ function love.draw()
   end)
 
   -- UI
-  love.graphics.setColor({255, 255, 255, 255})
+  love.graphics.setColor({255, 0, 255, 255})
   love.graphics.print(string.format("Score: %06d", tostring(score)), 10, 10)
+  love.graphics.print(string.format("Combo: x%02d", tostring(combo)), 10, 20)
+  
+  love.graphics.print("Next Ball", SCREEN_WIDTH - 150, 20)
+
+  love.graphics.setColor(nextBallPreview.color)
+  love.graphics.circle("fill", SCREEN_WIDTH - 100, 20 + 50*1, nextBallPreview.radius)
+
+  -- debug
   if DEBUG then
-    love.graphics.print(string.format("Balls: %06d", tostring(ballCount)), 10, 30)
-    love.graphics.print(string.format("ballsRemoved: %06d", tostring(ballsRemoved)), 10, 40)
+    love.graphics.setColor({255, 0, 255, 255})
+    love.graphics.print(string.format("Balls: %06d", tostring(ballCount)), 10, 50)
+    love.graphics.print(string.format("ballsRemoved: %06d", tostring(ballsRemoved)), 10, 60)
     love.graphics.print(text, 10, 50)
   end
 end
@@ -236,7 +248,13 @@ function love.update(dt)
   -- TODO: Make this more robust
   if totalSpeed2 < MIN_SPEED2 then
     if lastTotalSpeed2 >= MIN_SPEED2 then
-      ballPreview = NewBallPreview() 
+      ballPreview = nextBallPreview 
+      nextBallPreview = NewBallPreview() 
+      if not hit then
+        combo = 0
+      end
+      lastHit = hit
+      hit = false
     end
   end
 
@@ -265,6 +283,8 @@ function beginContact(a, b, coll)
     score = score + ad.radius + bd.radius
     a:setMask(COL_MAIN_CATEGORY)
     b:setMask(COL_MAIN_CATEGORY)
+    hit = true
+    combo = combo + 1
   end
 end
 
@@ -275,6 +295,8 @@ end
 function postSolve(a, b, coll, normalimpulse, tangentimpulse)
 end
 
+-- INPUT
+local INPUT_SAVE_BALL = "shift"
 function love.keypressed(key)
   if key == "space" and ballPreview then
     local newBall = {}
@@ -291,9 +313,16 @@ function love.keypressed(key)
       })
     objects.balls:add(newBall)
     
-    ballPreview = NewBallPreview(ballPreview.position.x)
-    --ballPreview = nil
+    --ballPreview = NewBallPreview(ballPreview.position.x)
+    ballPreview = nil
+
   end 
+
+  if key == INPUT_SAVE_BALL then
+    local aux = ballPreview
+    ballPreview = nextBallPreview
+    nextBallPreview = aux
+  end
 
   if key == "r" then
     objects.balls:forEach(function(ball)
