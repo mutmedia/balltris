@@ -1,3 +1,5 @@
+local DEBUG = false
+
 -- Library functions
 
 local List = {}
@@ -91,7 +93,7 @@ Vector.mt.__mul = Vector.multiply
 local METER = 64
 local SCREEN_WIDTH = 640
 local SCREEN_HEIGHT = 960
-local BORDER_THICKNESS = 50
+local BORDER_THICKNESS = 200
 local PREVIEW_SPEED = 200
 local PREVIEW_PADDING = 5
 local MIN_SPEED2 = 50
@@ -103,9 +105,9 @@ function GetRandomRadius()
 end
 
 function GetRandomColor()
-  local r = 255 --/ math.floor(math.random() * 2 + 1)
-  local g = 255 --/ math.floor(math.random() * 2 + 1)
-  local b = 255 --/ math.floor(math.random() * 2 + 1)
+  local r = 255 / math.floor(math.random() * 2 + 1)
+  local g = 255 / math.floor(math.random() * 2 + 1)
+  local b = 255 / math.floor(math.random() * 2 + 1)
   return {r, g, b, 255}
 end
 
@@ -138,12 +140,25 @@ function IsInsideScreen(x, y)
   return IsInsideRect(x, y, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 
--- Behaviour definitions
+-- Variables
 local objects = {}
 local world = nil
 local ballPreview = NewBallPreview()
 local score = 0
+local combo = 0
 
+local hit = false
+local lastHit = false
+
+local ballsRemoved = 0
+local text = ""
+local totalSpeed2 = 0
+local lastTotalSpeed2 = -1
+local time = 0
+
+-- DEBUG STUFF
+
+-- Behaviour definitions
 function love.load()
   love.physics.setMeter(METER)
   world = love.physics.newWorld(0, 9.81*METER, true)
@@ -173,41 +188,35 @@ function love.load()
   love.window.setMode(SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 
-local stateText = ""
-local deleted = 0
-local totalSpeed2 = 0
-local text = ""
 function love.draw() 
   if ballPreview then
     love.graphics.setColor(ballPreview.color)
     love.graphics.circle("line", ballPreview.position.x, ballPreview.position.y, ballPreview.radius)
   end
 
-  love.graphics.setColor(72, 160, 14) -- set the drawing color to green for the ground
-  love.graphics.polygon("fill", objects.ground.body:getWorldPoints(objects.ground.shape:getPoints())) -- draw a "filled in" polygon using the ground's coordinates
-  love.graphics.polygon("fill", objects.wallL.body:getWorldPoints(objects.wallL.shape:getPoints())) -- draw a "filled in" polygon using the ground's coordinates
-  love.graphics.polygon("fill", objects.wallR.body:getWorldPoints(objects.wallR.shape:getPoints())) -- draw a "filled in" polygon using the ground's coordinates
+  love.graphics.setColor(72, 160, 14)
+  love.graphics.polygon("fill", objects.ground.body:getWorldPoints(objects.ground.shape:getPoints())) 
+  love.graphics.polygon("fill", objects.wallL.body:getWorldPoints(objects.wallL.shape:getPoints()))
+  love.graphics.polygon("fill", objects.wallR.body:getWorldPoints(objects.wallR.shape:getPoints()))
 
   local ballCount = 0
   objects.balls:forEach(function(ball) 
     ballCount = ballCount + 1
-    love.graphics.setColor(ball.color) --set the drawing color to red for the ball
+    love.graphics.setColor(ball.color)
     love.graphics.circle("fill", ball.body:getX(), ball.body:getY(), ball.shape:getRadius())
-
     text = text.."ball: x="..ball.body:getX().." y="..ball.body:getY().."\n"
   end)
 
   -- UI
   love.graphics.setColor({255, 255, 255, 255})
   love.graphics.print(string.format("Score: %06d", tostring(score)), 10, 10)
-  love.graphics.print(string.format("State: %s %f", stateText, tostring(totalSpeed2)), 10, 20)
-  love.graphics.print(string.format("Balls: %06d", tostring(ballCount)), 10, 30)
-  love.graphics.print(string.format("Deleted: %06d", tostring(deleted)), 10, 40)
-  love.graphics.print(text, 10, 50)
+  if DEBUG then
+    love.graphics.print(string.format("Balls: %06d", tostring(ballCount)), 10, 30)
+    love.graphics.print(string.format("ballsRemoved: %06d", tostring(ballsRemoved)), 10, 40)
+    love.graphics.print(text, 10, 50)
+  end
 end
 
-local time = 0
-local lastTotalSpeed2 = -1
 function love.update(dt)
   world:update(dt)
   text = ""
@@ -220,14 +229,13 @@ function love.update(dt)
     -- TODO: create max radius variable
     if not IsInsideScreen(px, py) then
       objects.balls:SetToDelete(ball)
-      deleted = deleted + 1
+      ballsRemoved = ballsRemoved + 1
     end
   end)
 
   -- TODO: Make this more robust
   if totalSpeed2 < MIN_SPEED2 then
     if lastTotalSpeed2 >= MIN_SPEED2 then
-      stateText = "Static"
       ballPreview = NewBallPreview() 
     end
   end
@@ -272,7 +280,7 @@ function love.keypressed(key)
     local newBall = {}
     newBall.color = ballPreview.color
     newBall.body = love.physics.newBody(world, ballPreview.position.x, ballPreview.position.y, "dynamic")
-    newBall.body:setFixedRotation(true)
+    --newBall.body:setFixedRotation(false)
     newBall.shape = love.physics.newCircleShape(ballPreview.radius)
     newBall.fixture = love.physics.newFixture(newBall.body, newBall.shape)
     newBall.fixture:setCategory(COL_MAIN_CATEGORY)
@@ -282,7 +290,9 @@ function love.keypressed(key)
         radius = ballPreview.radius,
       })
     objects.balls:add(newBall)
-    ballPreview = nil
+    
+    ballPreview = NewBallPreview(ballPreview.position.x)
+    --ballPreview = nil
   end 
 
   if key == "r" then
