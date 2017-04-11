@@ -1,2 +1,4 @@
+*.love
 *.swp
-
+*.exe
+build/

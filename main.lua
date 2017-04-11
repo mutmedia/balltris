@@ -99,11 +99,12 @@ local PREVIEW_SPEED = 200
 local PREVIEW_PADDING = 5
 local MIN_SPEED2 = 50
 local COL_MAIN_CATEGORY = 1
-local BASE_RADIUS = 10
+local BASE_RADIUS = 25
+local RADIUS_MULTIPLIERS = {1, 1.69, 2.23}
 
 -- Helper functions
 function GetRandomRadius()
-  return BASE_RADIUS * (math.floor(math.random() * 3)*2 + 1)
+  return BASE_RADIUS * RADIUS_MULTIPLIERS[math.random(#RADIUS_MULTIPLIERS)]
 end
 
 function GetRandomColor()
@@ -147,8 +148,9 @@ local objects = {}
 local world = nil
 local ballPreview = NewBallPreview()
 local nextBallPreview = NewBallPreview()
-local score = 0
-local combo = 0
+local scoreCombo = 0
+local scoreBalls = 0
+local combo = 1
 
 local hit = false
 local lastHit = false
@@ -203,22 +205,41 @@ function love.draw()
   love.graphics.polygon("fill", objects.wallR.body:getWorldPoints(objects.wallR.shape:getPoints()))
 
   local ballCount = 0
+  local BALL_SPEED_STRETCH = 0.2
   objects.balls:forEach(function(ball) 
     ballCount = ballCount + 1
+    local vx, vy = ball.body:getLinearVelocity()
+    local s = BALL_SPEED_STRETCH * math.sqrt(vx * vx + vy * vy)
+    local rot = math.atan2(vy, vx)
     love.graphics.setColor(ball.color)
+    love.graphics.push()
+
+    --love.graphics.rotate(rot)
+    --love.graphics.scale(1+s, 1-s)
     love.graphics.circle("fill", ball.body:getX(), ball.body:getY(), ball.shape:getRadius())
+    love.graphics.pop()
     text = text.."ball: x="..ball.body:getX().." y="..ball.body:getY().."\n"
   end)
 
   -- UI
-  love.graphics.setColor({255, 0, 255, 255})
-  love.graphics.print(string.format("Score: %06d", tostring(score)), 10, 10)
-  love.graphics.print(string.format("Combo: x%02d", tostring(combo)), 10, 20)
+  love.graphics.setColor({0, 0, 0, 255})
+  love.graphics.print(string.format([[
+      Score: %04d
+      %04d(balls)+%04d(combo)
+      Combo: x%02d]],
+      tostring(scoreCombo + scoreBalls),
+      tostring(scoreBalls),
+      tostring(scoreCombo),
+      tostring(combo)),
+      0, 10)
   
   love.graphics.print("Next Ball", SCREEN_WIDTH - 150, 20)
 
+  local containerSize = BASE_RADIUS * RADIUS_MULTIPLIERS[#RADIUS_MULTIPLIERS] * 1.1
+  love.graphics.setColor(0, 0, 0)
+  love.graphics.rectangle("fill", SCREEN_WIDTH - 100 - containerSize, 20 + 20, 2*containerSize, 2*containerSize) 
   love.graphics.setColor(nextBallPreview.color)
-  love.graphics.circle("fill", SCREEN_WIDTH - 100, 20 + 50*1, nextBallPreview.radius)
+  love.graphics.circle("fill", SCREEN_WIDTH - 100, 20 + 20 + containerSize, nextBallPreview.radius)
 
   -- debug
   if DEBUG then
@@ -248,10 +269,12 @@ function love.update(dt)
   -- TODO: Make this more robust
   if totalSpeed2 < MIN_SPEED2 then
     if lastTotalSpeed2 >= MIN_SPEED2 then
-      ballPreview = nextBallPreview 
-      nextBallPreview = NewBallPreview() 
+      if not ballPreview then
+        ballPreview = nextBallPreview 
+        nextBallPreview = NewBallPreview() 
+      end
       if not hit then
-        combo = 0
+        combo = 1
       end
       lastHit = hit
       hit = false
@@ -276,15 +299,18 @@ function love.update(dt)
 end
 
 function beginContact(a, b, coll)
-  local ad = a:getUserData()
-  local bd = b:getUserData()
-  if not ad or not bd then return end
-  if ad.color[1] == bd.color[1] and ad.color[2] == bd.color[2] and ad.color[3] == bd.color[3] then
-    score = score + ad.radius + bd.radius
+  local aref = a:getUserData() and a:getUserData().ref
+  local bref = b:getUserData() and b:getUserData().ref
+  if not aref or not bref then return end
+  if aref.color[1] == bref.color[1] and aref.color[2] == bref.color[2] and aref.color[3] == bref.color[3] then
+    scoreBalls = scoreBalls + 2
+    scoreCombo = scoreCombo + 2 * combo
     a:setMask(COL_MAIN_CATEGORY)
     b:setMask(COL_MAIN_CATEGORY)
     hit = true
     combo = combo + 1
+    aref.color[4] = 120
+    bref.color[4] = 120
   end
 end
 
@@ -296,10 +322,11 @@ function postSolve(a, b, coll, normalimpulse, tangentimpulse)
 end
 
 -- INPUT
-local INPUT_SAVE_BALL = "shift"
+local INPUT_SAVE_BALL = "c"
 function love.keypressed(key)
   if key == "space" and ballPreview then
     local newBall = {}
+    newBall.radius = ballPreview.radius
     newBall.color = ballPreview.color
     newBall.body = love.physics.newBody(world, ballPreview.position.x, ballPreview.position.y, "dynamic")
     --newBall.body:setFixedRotation(false)
@@ -308,8 +335,7 @@ function love.keypressed(key)
     newBall.fixture:setCategory(COL_MAIN_CATEGORY)
     newBall.fixture:setRestitution(0)
     newBall.fixture:setUserData({
-        color = ballPreview.color,
-        radius = ballPreview.radius,
+        ref = newBall,
       })
     objects.balls:add(newBall)
     
@@ -330,7 +356,7 @@ function love.keypressed(key)
       ball.body:destroy()
     end)
     objects.balls = List.new()
-    ballPreview = NewBallPreview(ballPreview.position.x)
+    ballPreview = NewBallPreview()
   end
 
 end
