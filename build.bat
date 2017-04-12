@@ -6,4 +6,4 @@ rd /s /q temp
 
 xcopy /s /e data\*.lua build\data\
 
-7z a -tzip win_game.zip .\build\*
+7z a -tzip build\win_game.zip .\build\*
