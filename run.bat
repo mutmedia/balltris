@@ -1,1 +1,1 @@
-"c:\Program Files\LOVE\love.exe" .
+"c:\Program Files\LOVE\love.exe" .\game

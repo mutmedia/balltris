@@ -10,7 +10,7 @@ game.touch = {}
 game.UI = List.new()
 function game.UI.initialize()
   game.UI:Clear()
-  dofile('data/ui_data.lua')
+  require('data_ui')
 end
 
 function game.UI.rectangle(params)

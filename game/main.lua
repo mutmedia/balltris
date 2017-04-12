@@ -8,7 +8,7 @@ local Vector = require 'vector2d'
 -- Game Files
 require 'touch_input'
 require 'events'
-require 'data/constants'
+require 'data_constants'
 
 -- Helper functions
 function GetRandomRadius()
@@ -311,7 +311,7 @@ function love.mousereleased(x, y, button)
   end
 end
 
-function love.touchpressed(id, x, y)
+--[[function love.touchpressed(id, x, y)
   game.touch.pressed(x, y)
 end
 
@@ -321,4 +321,4 @@ end
 
 function love.touchreleased(id, x, y)
   game.touch.released(x, y)
-end
+end]]--

@@ -1,4 +1,4 @@
-require 'data/constants'
+require 'data_constants'
 require 'events'
 local Rectangle = game.UI.rectangle
 
