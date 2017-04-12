@@ -8,28 +8,49 @@ local Vector = require 'vector2d'
 -- Game Files
 require 'touch_input'
 require 'events'
-require 'constants'
+require 'data/constants'
 
 -- Helper functions
 function GetRandomRadius()
   return BASE_RADIUS * RADIUS_MULTIPLIERS[math.random(#RADIUS_MULTIPLIERS)]
 end
 
-function GetRandomColor()
-  local r = 255 / math.floor(math.random() * 2 + 1)
-  local g = 255 / math.floor(math.random() * 2 + 1)
-  local b = 255 / math.floor(math.random() * 2 + 1)
+function GetColor(number)
+  local h = number * math.floor(360/NUM_COLORS)
+  local s = BALL_SATURATION
+  local v = BALL_VALUE
+
+  local c = v * s
+  local x = c * (1-math.abs((h/60)%2 -1))
+  local m = v - c
+  local hdiv = math.floor(h/60)
+
+  local HSVtoRGBt = {
+    {c, x, 0},
+    {x, c, 0},
+    {0, c, x},
+    {0, x, c},
+    {x, 0, c},
+    {c, 0, x}
+  }
+
+  local rr, gg, bb = unpack(HSVtoRGBt[hdiv + 1])
+
+  local r = (rr + m) * 255
+  local g = (gg + m) * 255
+  local b = (bb + m) * 255
   return {r, g, b, 255}
 end
 
 function NewBallPreview(initialX)
-  local radius = GetRandomRadius()
-  local color = GetRandomColor()
+  local number = math.random(#RADIUS_MULTIPLIERS * NUM_COLORS)
+  local radius = BASE_RADIUS * RADIUS_MULTIPLIERS[1 + (number % #RADIUS_MULTIPLIERS)]
+  local getColor = function() return GetColor((number % NUM_COLORS)) end
   local position = Vector.new{x=initialX or SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING}
   return {
     position = position,
     radius = radius,
-    color = color,
+    getColor = getColor,
   }
 end
 
@@ -80,7 +101,11 @@ function love.load()
   objects.wallR.fixture:setCategory(COL_MAIN_CATEGORY)
 
 
-  objects.balls = List.new()
+  objects.balls = List.new(function(ball)
+    ball.fixture:destroy()
+    ball.body:destroy()
+    ball = nil
+  end)
   love.window.setMode(SCREEN_WIDTH, SCREEN_HEIGHT)
 
   -- UI
@@ -98,7 +123,7 @@ end
 
 function love.draw() 
   if ballPreview then
-    love.graphics.setColor(ballPreview.color)
+    love.graphics.setColor(ballPreview.getColor())
     love.graphics.circle('line', ballPreview.position.x, ballPreview.position.y, ballPreview.radius)
   end
 
@@ -114,7 +139,7 @@ function love.draw()
     local vx, vy = ball.body:getLinearVelocity()
     local s = BALL_SPEED_STRETCH * math.sqrt(vx * vx + vy * vy)
     local rot = math.atan2(vy, vx)
-    love.graphics.setColor(ball.color)
+    love.graphics.setColor(ball.getColor())
     love.graphics.push()
 
     --love.graphics.rotate(rot)
@@ -139,7 +164,7 @@ function love.draw()
 
   love.graphics.setColor(0, 0, 0)
   love.graphics.rectangle('fill', SCREEN_WIDTH - 100 - MAX_RADIUS*1.1, 20 + 20, 2*MAX_RADIUS*1.1, 2*MAX_RADIUS*1.1) 
-  love.graphics.setColor(nextBallPreview.color)
+  love.graphics.setColor(nextBallPreview.getColor())
   love.graphics.circle('fill', SCREEN_WIDTH - 100, 20 + 20 + MAX_RADIUS*1.1, nextBallPreview.radius)
 
   game.UI.draw()
@@ -189,16 +214,16 @@ function love.update(dt)
 
   lastTotalSpeed2 = totalSpeed2
 
-  objects.balls:Clean(function(ball)
-    --ball.body:destroy()
-    --ball = nil
-  end)
+  objects.balls:Clean()
+  game.UI:Clean()
 end
 
 function beginContact(a, b, coll)
   local aref = a:getUserData() and a:getUserData().ref
   local bref = b:getUserData() and b:getUserData().ref
   if not aref or not bref then return end
+  aref.color = aref.getColor()
+  bref.color = bref.getColor()
   if aref.color[1] == bref.color[1] and aref.color[2] == bref.color[2] and aref.color[3] == bref.color[3] then
     scoreBalls = scoreBalls + 2
     scoreCombo = scoreCombo + 2 * combo
@@ -222,7 +247,7 @@ function ReleaseBall()
   if not ballPreview then return end
   local newBall = {}
   newBall.radius = ballPreview.radius
-  newBall.color = ballPreview.color
+  newBall.getColor = ballPreview.getColor
   newBall.body = love.physics.newBody(world, ballPreview.position.x, ballPreview.position.y, 'dynamic')
   --newBall.body:setFixedRotation(false)
   newBall.shape = love.physics.newCircleShape(ballPreview.radius)
@@ -256,11 +281,15 @@ function love.keypressed(key)
   end
 
   if key == 'r' then
-    DEBUGGER.line('UI Reloaded')
+    DEBUGGER.line('Reloaded UI and constants')
     game.UI:Clear()
     game.UI:initialize()
+    dofile('data/constants.lua')
   end
 
+  if key == 't' then
+    objects.balls:Clear()
+  end
   if key == 'e' then
     DEBUGGER.clear()
   end

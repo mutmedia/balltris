@@ -1,4 +1,4 @@
-require 'constants'
+require 'data/constants'
 require 'events'
 local Rectangle = game.UI.rectangle
 
@@ -6,7 +6,7 @@ Rectangle{
   x=BORDER_THICKNESS,
   y=0,
   width=SCREEN_WIDTH - 2*BORDER_THICKNESS,
-  height=2*MAX_RADIUS + 2*PREVIEW_PADDING,
+  height=SCREEN_HEIGHT,
   color={255, 0, 0, 255},
   drawMode='line',
   pressed = function(self, x, y)
