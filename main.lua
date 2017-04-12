@@ -54,18 +54,17 @@ local totalSpeed2 = 0
 local lastTotalSpeed2 = -1
 local time = 0
 
-
 -- Behaviour definitions
 function love.load()
   love.physics.setMeter(METER)
-  world = love.physics.newWorld(0, 9.81*METER, true)
+  world = love.physics.newWorld(0, GRAVITY, true)
   world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
   objects.ground = {}
   objects.ground.body = love.physics.newBody(world, SCREEN_WIDTH/2, SCREEN_HEIGHT-BOTTOM_THICKNESS/2)
   objects.ground.shape = love.physics.newRectangleShape(SCREEN_WIDTH, BOTTOM_THICKNESS)
   objects.ground.fixture = love.physics.newFixture(objects.ground.body, objects.ground.shape)
-  objects.ground.fixture:setFriction(1)
+  --objects.ground.fixture:setFriction(1)
   objects.ground.fixture:setCategory(COL_MAIN_CATEGORY)
 
   objects.wallL = {}
@@ -229,7 +228,7 @@ function ReleaseBall()
   newBall.shape = love.physics.newCircleShape(ballPreview.radius)
   newBall.fixture = love.physics.newFixture(newBall.body, newBall.shape)
   newBall.fixture:setCategory(COL_MAIN_CATEGORY)
-  newBall.fixture:setRestitution(0)
+  --newBall.fixture:setRestitution(0)
   newBall.fixture:setUserData({
       ref = newBall,
     })
@@ -247,14 +246,12 @@ function SwitchBall()
 end
 
 -- INPUT
-local INPUT_SWITCH_BALL = 'c'
-local INPUT_RELEASE_BALL = 'space'
 function love.keypressed(key)
   if key == INPUT_RELEASE_BALL then
     ReleaseBall() 
   end 
 
-  if key == INPUT_sWITCH_BALL then
+  if key == INPUT_SWITCH_BALL then
     SwitchBall()
   end
 
@@ -285,3 +282,14 @@ function love.mousereleased(x, y, button)
   end
 end
 
+function love.touchpressed(id, x, y)
+  game.touch.pressed(x, y)
+end
+
+function love.touchmoved(id, x, y, dx, dy)
+  game.touch.moved(x, y, dx, dy)
+end
+
+function love.touchreleased(id, x, y)
+  game.touch.released(x, y)
+end

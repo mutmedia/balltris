@@ -1,4 +1,5 @@
 METER = 64
+GRAVITY = 10 * METER
 
 -- Screen
 SCREEN_WIDTH = 640
@@ -20,3 +21,7 @@ MIN_SPEED2 = 50
 
 -- Collision
 COL_MAIN_CATEGORY = 1
+
+--Input
+INPUT_SWITCH_BALL = 'c'
+INPUT_RELEASE_BALL = 'space'
