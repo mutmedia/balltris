@@ -1,7 +1,10 @@
+Bola branca que nao dá pra destruir nunca, o que faz o jogo eventualmente aglomerar e 
+encher a tela
+
 COMBOS
 
 more balls in a chain
-give some small time to check for multiple collisions
+  give some small time to check for multiple collisions
 extruded ball could clean others
 
 game could start with a bed of colored balls
@@ -16,3 +19,6 @@ bolinhas explodirem com tinta
 modo de construir e modo de destruir
 
 bolinhas dao 
+
+cores relacionadas e tamanhos
+

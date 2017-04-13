@@ -43,26 +43,27 @@ function GetColor(number)
 end
 
 function NewBallPreview(initialX)
-  local number = math.random(#RADIUS_MULTIPLIERS * NUM_COLORS)
-  local radius = BASE_RADIUS * RADIUS_MULTIPLIERS[1 + (number % #RADIUS_MULTIPLIERS)]
+  local number = math.random(NUM_COLORS)
+  local radius = GetRandomRadius()
   local getColor = function() return GetColor((number % NUM_COLORS)) end
-  local position = Vector.new{x=initialX or SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING}
+  local position = Vector.new{x=initialX or BASE_SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING}
   return {
     position = position,
     radius = radius,
     getColor = getColor,
+    drawStyle = 'line'
   }
 end
 
 function IsInsideScreen(x, y)
-  return utils.isInsideRect(x, y, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+  return utils.isInsideRect(x, y, 0, 0, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT)
 end
 
 -- Variables
 local objects = {}
+local ballPreview
+local nextBallPreview
 local world = nil
-local ballPreview = NewBallPreview()
-local nextBallPreview = NewBallPreview()
 local scoreCombo = 0
 local scoreBalls = 0
 local combo = 1
@@ -77,43 +78,52 @@ local time = 0
 
 -- Behaviour definitions
 function love.load()
+  math.randomseed( os.time() )
+  ballPreview = NewBallPreview()
+  nextBallPreview = NewBallPreview()
+
+  love.window.setTitle(TITLE)
+  love.window.setMode(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, {resizable=true})
+
+  -- Physics
   love.physics.setMeter(METER)
   world = love.physics.newWorld(0, GRAVITY, true)
   world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
+  -- Initial objects
   objects.ground = {}
-  objects.ground.body = love.physics.newBody(world, SCREEN_WIDTH/2, SCREEN_HEIGHT-BOTTOM_THICKNESS/2)
-  objects.ground.shape = love.physics.newRectangleShape(SCREEN_WIDTH, BOTTOM_THICKNESS)
+  objects.ground.body = love.physics.newBody(world, BASE_SCREEN_WIDTH/2, BASE_SCREEN_HEIGHT-BOTTOM_THICKNESS/2)
+  objects.ground.shape = love.physics.newRectangleShape(BASE_SCREEN_WIDTH, BOTTOM_THICKNESS)
   objects.ground.fixture = love.physics.newFixture(objects.ground.body, objects.ground.shape)
   --objects.ground.fixture:setFriction(1)
   objects.ground.fixture:setCategory(COL_MAIN_CATEGORY)
 
   objects.wallL = {}
-  objects.wallL.body = love.physics.newBody(world, SCREEN_WIDTH-BORDER_THICKNESS/2, SCREEN_HEIGHT/2)
-  objects.wallL.shape = love.physics.newRectangleShape(BORDER_THICKNESS, SCREEN_HEIGHT)
+  objects.wallL.body = love.physics.newBody(world, BASE_SCREEN_WIDTH-BORDER_THICKNESS/2, BASE_SCREEN_HEIGHT/2)
+  objects.wallL.shape = love.physics.newRectangleShape(BORDER_THICKNESS, BASE_SCREEN_HEIGHT)
   objects.wallL.fixture = love.physics.newFixture(objects.wallL.body, objects.wallL.shape)
   objects.wallL.fixture:setCategory(COL_MAIN_CATEGORY)
 
   objects.wallR = {}
-  objects.wallR.body = love.physics.newBody(world, BORDER_THICKNESS/2, SCREEN_HEIGHT/2)
-  objects.wallR.shape = love.physics.newRectangleShape(BORDER_THICKNESS, SCREEN_HEIGHT)
+  objects.wallR.body = love.physics.newBody(world, BORDER_THICKNESS/2, BASE_SCREEN_HEIGHT/2)
+  objects.wallR.shape = love.physics.newRectangleShape(BORDER_THICKNESS, BASE_SCREEN_HEIGHT)
   objects.wallR.fixture = love.physics.newFixture(objects.wallR.body, objects.wallR.shape)
   objects.wallR.fixture:setCategory(COL_MAIN_CATEGORY)
-
 
   objects.balls = List.new(function(ball)
     ball.fixture:destroy()
     ball.body:destroy()
     ball = nil
   end)
-  love.window.setMode(SCREEN_WIDTH, SCREEN_HEIGHT)
 
   -- UI
   game.UI.initialize()
 
+  -- Events
   game.events:add(EVENT_MOVED_PREVIEW, function(x, y, dx, dy)
     if ballPreview then
-      ballPreview.position.x = utils.clamp(x, BORDER_THICKNESS + ballPreview.radius, SCREEN_WIDTH - (BORDER_THICKNESS + ballPreview.radius))
+      ballPreview.drawStyle = 'fill'
+      ballPreview.position.x = utils.clamp(x, BORDER_THICKNESS + ballPreview.radius, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + ballPreview.radius))
     end
   end)
 
@@ -122,9 +132,24 @@ function love.load()
 end
 
 function love.draw() 
+  local screenWidth, screenHeight = love.window.getMode()
+  local aspectRatio = screenWidth/screenHeight
+  local drawWidth, drawHeight
+  if aspectRatio > ASPECT_RATIO then
+    drawHeight = screenHeight
+    drawWidth = drawHeight * ASPECT_RATIO
+  else
+    drawWidth = screenWidth
+    drawHeight = drawWidth / ASPECT_RATIO
+  end
+
+  game.UI.adjust((screenWidth-drawWidth)/2, (screenHeight-drawHeight), drawWidth/BASE_SCREEN_WIDTH, drawHeight/BASE_SCREEN_HEIGHT)
+  love.graphics.translate(game.UI.deltaX, game.UI.deltaY)
+  love.graphics.scale(game.UI.scaleX, game.UI.scaleY)
+
   if ballPreview then
     love.graphics.setColor(ballPreview.getColor())
-    love.graphics.circle('line', ballPreview.position.x, ballPreview.position.y, ballPreview.radius)
+    love.graphics.circle(ballPreview.drawStyle, ballPreview.position.x, ballPreview.position.y, ballPreview.radius)
   end
 
   love.graphics.setColor(255, 255, 255)
@@ -160,12 +185,14 @@ function love.draw()
       tostring(combo)),
     0, 10)]]--
 
-  love.graphics.print('Next Ball (Click to swap)', SCREEN_WIDTH - 180, 20)
+  love.graphics.print('Next Ball (Click to swap)', BASE_SCREEN_WIDTH - 180, 20)
 
   love.graphics.setColor(0, 0, 0)
-  love.graphics.rectangle('fill', SCREEN_WIDTH - 100 - MAX_RADIUS*1.1, 20 + 20, 2*MAX_RADIUS*1.1, 2*MAX_RADIUS*1.1) 
+  love.graphics.rectangle('fill', BASE_SCREEN_WIDTH
+    - 100 - MAX_RADIUS*1.1, 20 + 20, 2*MAX_RADIUS*1.1, 2*MAX_RADIUS*1.1) 
   love.graphics.setColor(nextBallPreview.getColor())
-  love.graphics.circle('fill', SCREEN_WIDTH - 100, 20 + 20 + MAX_RADIUS*1.1, nextBallPreview.radius)
+  love.graphics.circle('fill', BASE_SCREEN_WIDTH
+    - 100, 20 + 20 + MAX_RADIUS*1.1, nextBallPreview.radius)
 
   game.UI.draw()
 
@@ -209,7 +236,7 @@ function love.update(dt)
     elseif love.keyboard.isDown('left') then
       ballPreview.position.x = ballPreview.position.x - PREVIEW_SPEED * dt
     end
-    ballPreview.position.x = utils.clamp(ballPreview.position.x, BORDER_THICKNESS + ballPreview.radius, SCREEN_WIDTH - (BORDER_THICKNESS + ballPreview.radius))
+    ballPreview.position.x = utils.clamp(ballPreview.position.x, BORDER_THICKNESS + ballPreview.radius, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + ballPreview.radius))
   end
 
   lastTotalSpeed2 = totalSpeed2
@@ -296,19 +323,20 @@ function love.keypressed(key)
 end
 
 function love.mousepressed(x, y)
+  -- TODO: remove
   game.touch.pressed(x, y)
 end
 
 function love.mousemoved(x, y, dx, dy)
-  if love.mouse.isDown(1) then
-    game.touch.moved(x, y, dx, dy)
+  -- TODO: remove
+  if ballPreview then
+    ballPreview.drawStyle = 'line'
   end
+  game.touch.moved(x, y, dx, dy)
 end
 
 function love.mousereleased(x, y, button)
-  if button == 1 then
-    game.touch.released(x, y)
-  end
+  game.touch.released(x, y)
 end
 
 --[[function love.touchpressed(id, x, y)

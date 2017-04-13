@@ -1,6 +1,14 @@
+UI - fazer x e y serem centralizados
+UX - fazer a bolinha ficar cheia quando for jogar
 
-Stretch and squash
-Fix static bug
-fix list free
+
+BUGS:
+  bolas do mesmo tamanho tem a mesma cor
+
+
 End condition
-
+  White ball
+  top of screen
+Fix static bug
+Stretch and squash
+Shaders
