@@ -44,14 +44,16 @@ end
 
 function NewBallPreview(initialX)
   local number = math.random(NUM_COLORS)
+  local indestructable = math.random() > 0.9
   local radius = GetRandomRadius()
-  local getColor = function() return GetColor((number % NUM_COLORS)) end
+  local getColor = function() return indestructable and {255, 255, 255} or GetColor((number % NUM_COLORS)) end
   local position = Vector.new{x=initialX or BASE_SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING}
   return {
     position = position,
     radius = radius,
     getColor = getColor,
-    drawStyle = 'line'
+    drawStyle = 'line',
+    indestructable = indestructable
   }
 end
 
@@ -76,6 +78,8 @@ local totalSpeed2 = 0
 local lastTotalSpeed2 = -1
 local time = 0
 
+local gameOver = false
+
 -- Behaviour definitions
 function love.load()
   math.randomseed( os.time() )
@@ -95,7 +99,6 @@ function love.load()
   objects.ground.body = love.physics.newBody(world, BASE_SCREEN_WIDTH/2, BASE_SCREEN_HEIGHT-BOTTOM_THICKNESS/2)
   objects.ground.shape = love.physics.newRectangleShape(BASE_SCREEN_WIDTH, BOTTOM_THICKNESS)
   objects.ground.fixture = love.physics.newFixture(objects.ground.body, objects.ground.shape)
-  --objects.ground.fixture:setFriction(1)
   objects.ground.fixture:setCategory(COL_MAIN_CATEGORY)
 
   objects.wallL = {}
@@ -150,6 +153,12 @@ function love.draw()
   if ballPreview then
     love.graphics.setColor(ballPreview.getColor())
     love.graphics.circle(ballPreview.drawStyle, ballPreview.position.x, ballPreview.position.y, ballPreview.radius)
+    if ballPreview.indestructable then
+      love.graphics.setColor(WHITE_BALL_BORDER_COLOR)
+      love.graphics.setLineWidth(WHITE_BALL_BORDER_WIDTH)
+      love.graphics.circle('line', ballPreview.position.x, ballPreview.position.y, ballPreview.radius - 0.99*WHITE_BALL_BORDER_WIDTH/2)
+    end
+    love.graphics.reset()
   end
 
   love.graphics.setColor(255, 255, 255)
@@ -164,13 +173,18 @@ function love.draw()
     local vx, vy = ball.body:getLinearVelocity()
     local s = BALL_SPEED_STRETCH * math.sqrt(vx * vx + vy * vy)
     local rot = math.atan2(vy, vx)
-    love.graphics.setColor(ball.getColor())
     love.graphics.push()
-
+    love.graphics.setColor(ball.getColor())
     --love.graphics.rotate(rot)
     --love.graphics.scale(1+s, 1-s)
     love.graphics.circle('fill', ball.body:getX(), ball.body:getY(), ball.shape:getRadius())
+    if ball.indestructable then
+      love.graphics.setColor(WHITE_BALL_BORDER_COLOR)
+      love.graphics.setLineWidth(WHITE_BALL_BORDER_WIDTH)
+      love.graphics.circle('line', ball.body:getX(), ball.body:getY(), ball.shape:getRadius() - 0.99*WHITE_BALL_BORDER_WIDTH/2)
+    end
     love.graphics.pop()
+    love.graphics.reset()
     --DEBUGGER.line('ball: x='..ball.body:getX()..' y='..ball.body:getY()..'\n')
   end)
 
@@ -193,14 +207,30 @@ function love.draw()
   love.graphics.setColor(nextBallPreview.getColor())
   love.graphics.circle('fill', BASE_SCREEN_WIDTH
     - 100, 20 + 20 + MAX_RADIUS*1.1, nextBallPreview.radius)
+  if nextBallPreview.indestructable then
+    love.graphics.setColor(WHITE_BALL_BORDER_COLOR)
+    love.graphics.setLineWidth(WHITE_BALL_BORDER_WIDTH)
+    love.graphics.circle('line', BASE_SCREEN_WIDTH
+      - 100, 20 + 20 + MAX_RADIUS*1.1, nextBallPreview.radius - 0.99*WHITE_BALL_BORDER_WIDTH/2)
+  end
+  love.graphics.reset()
 
   game.UI.draw()
+
+  if gameOver then
+    love.graphics.setColor({200, 0, 0, 255})
+    love.graphics.print('GAME OVER\n'..
+      'Press r to restart', BASE_SCREEN_WIDTH/2 - 50, BASE_SCREEN_HEIGHT/2 - 50)
+  end
 
   -- debug
   DEBUGGER.draw()
 end
 
 function love.update(dt)
+  if gameOver then
+    return
+  end
   world:update(dt)
 
   totalSpeed2 = 0
@@ -218,6 +248,15 @@ function love.update(dt)
   -- TODO: Make this more robust
   if totalSpeed2 < MIN_SPEED2 then
     if lastTotalSpeed2 >= MIN_SPEED2 then
+      local ballsTooHigh = false
+      objects.balls:forEach(function(ball)
+        if ball.body:getY() < MIN_DISTANCE_TO_TOP then
+          ballsTooHigh = true
+        end
+      end)
+      if ballsTooHigh then
+        gameOver = true
+      end
       if not ballPreview then
         ballPreview = nextBallPreview 
         nextBallPreview = NewBallPreview() 
@@ -251,6 +290,7 @@ function beginContact(a, b, coll)
   if not aref or not bref then return end
   aref.color = aref.getColor()
   bref.color = bref.getColor()
+  if aref.indestructable or bref.indestructable then return end
   if aref.color[1] == bref.color[1] and aref.color[2] == bref.color[2] and aref.color[3] == bref.color[3] then
     scoreBalls = scoreBalls + 2
     scoreCombo = scoreCombo + 2 * combo
@@ -272,9 +312,8 @@ end
 
 function ReleaseBall()
   if not ballPreview then return end
-  local newBall = {}
-  newBall.radius = ballPreview.radius
-  newBall.getColor = ballPreview.getColor
+  local newBall = ballPreview
+
   newBall.body = love.physics.newBody(world, ballPreview.position.x, ballPreview.position.y, 'dynamic')
   --newBall.body:setFixedRotation(false)
   newBall.shape = love.physics.newCircleShape(ballPreview.radius)
@@ -286,8 +325,8 @@ function ReleaseBall()
     })
   objects.balls:add(newBall)
 
-  --ballPreview = NewBallPreview(ballPreview.position.x)
   ballPreview = nil
+  --ballPreview = NewBallPreview(ballPreview.position.x)
 end
 
 function SwitchBall()
@@ -299,23 +338,34 @@ end
 
 -- INPUT
 function love.keypressed(key)
-  if key == INPUT_RELEASE_BALL then
-    ReleaseBall() 
-  end 
+  if not gameOver then
+    if key == INPUT_RELEASE_BALL then
+      ReleaseBall() 
+    end 
 
-  if key == INPUT_SWITCH_BALL then
-    SwitchBall()
+    if key == INPUT_SWITCH_BALL then
+      SwitchBall()
+    end
   end
 
-  if key == 'r' then
+  -- DEBUG input
+  if key == 'u' then
     DEBUGGER.line('Reloaded UI and constants')
     game.UI:Clear()
     game.UI:initialize()
-    dofile('data/constants.lua')
+    dofile('game/data_ui.lua')
+    dofile('game/data_constants.lua')
   end
 
-  if key == 't' then
+  if key == 'o' then
+    gameOver = true
+  end
+
+  if key == 'r' then
     objects.balls:Clear()
+    gameOver = false
+    ballPreview = NewBallPreview()
+    nextBallPreview = NewBallPreview()
   end
   if key == 'e' then
     DEBUGGER.clear()
@@ -329,6 +379,7 @@ end
 
 function love.mousemoved(x, y, dx, dy)
   -- TODO: remove
+  if not love.mouse.isDown(1) then return end
   if ballPreview then
     ballPreview.drawStyle = 'line'
   end
