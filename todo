@@ -1,14 +1,5 @@
 UI - fazer x e y serem centralizados
-UX - fazer a bolinha ficar cheia quando for jogar
-
-
-BUGS:
-  bolas do mesmo tamanho tem a mesma cor
-
-
-End condition
-  White ball
-  top of screen
 Fix static bug
+Delay destruction to allow multiple collisions
 Stretch and squash
 Shaders

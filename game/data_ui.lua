@@ -3,9 +3,9 @@ require 'events'
 local Rectangle = game.UI.rectangle
 
 Rectangle{
-  x=BORDER_THICKNESS - 0.15*(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)/2,
+  x=BORDER_THICKNESS - 0.05*(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)/2,
   y=0,
-  width=(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)*1.15,
+  width=(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)*1.05,
   height=BASE_SCREEN_HEIGHT,
   color={255, 0, 0, 255},
   drawMode='line',
@@ -19,6 +19,16 @@ Rectangle{
     self.color = {255, 0, 0, 255}
     game.events:fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
+}
+
+-- Line
+Rectangle{
+  x=BORDER_THICKNESS,
+  y=MIN_DISTANCE_TO_TOP,
+  width=BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS,
+  height=2,
+  color={255, 0, 0, 255},
+  drawMode='line',
 }
 
 -- Container

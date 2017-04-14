@@ -6,6 +6,7 @@ local List = require 'doubly_linked_list'
 EVENT_MOVED_PREVIEW = 'previewMoved'
 EVENT_RELEASED_PREVIEW = 'previewReleased'
 EVENT_PRESSED_SWITCH = 'switchReleased'
+EVENT_ON_BALLS_STATIC = 'ballsStatic'
 
 game = game or {}
 

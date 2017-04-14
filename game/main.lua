@@ -16,7 +16,7 @@ function GetRandomRadius()
 end
 
 function GetColor(number)
-  local h = number * math.floor(360/NUM_COLORS)
+  local h = (number * math.floor(360/NUM_COLORS) + BALL_HUE_OFFSET) % 360
   local s = BALL_SATURATION
   local v = BALL_VALUE
 
@@ -44,16 +44,17 @@ end
 
 function NewBallPreview(initialX)
   local number = math.random(NUM_COLORS)
-  local indestructable = math.random() > 0.9
+  local indestructible = math.random() > 0.9
   local radius = GetRandomRadius()
-  local getColor = function() return indestructable and {255, 255, 255} or GetColor((number % NUM_COLORS)) end
+  local getColor = function() return indestructible and {255, 255, 255} or GetColor((number % NUM_COLORS)) end
   local position = Vector.new{x=initialX or BASE_SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING}
   return {
     position = position,
     radius = radius,
     getColor = getColor,
     drawStyle = 'line',
-    indestructable = indestructable
+    indestructible = indestructible,
+    transparency = 255,
   }
 end
 
@@ -67,8 +68,7 @@ local ballPreview
 local nextBallPreview
 local world = nil
 local scoreCombo = 0
-local scoreBalls = 0
-local combo = 1
+local combo = 0
 
 local hit = false
 local lastHit = false
@@ -132,6 +132,7 @@ function love.load()
 
   game.events:add(EVENT_RELEASED_PREVIEW, ReleaseBall)
   game.events:add(EVENT_PRESSED_SWITCH, SwitchBall)
+  game.events:add(EVENT_ON_BALLS_STATIC, OnBallsStatic)
 end
 
 function love.draw() 
@@ -153,7 +154,7 @@ function love.draw()
   if ballPreview then
     love.graphics.setColor(ballPreview.getColor())
     love.graphics.circle(ballPreview.drawStyle, ballPreview.position.x, ballPreview.position.y, ballPreview.radius)
-    if ballPreview.indestructable then
+    if ballPreview.indestructible then
       love.graphics.setColor(WHITE_BALL_BORDER_COLOR)
       love.graphics.setLineWidth(WHITE_BALL_BORDER_WIDTH)
       love.graphics.circle('line', ballPreview.position.x, ballPreview.position.y, ballPreview.radius - 0.99*WHITE_BALL_BORDER_WIDTH/2)
@@ -174,11 +175,13 @@ function love.draw()
     local s = BALL_SPEED_STRETCH * math.sqrt(vx * vx + vy * vy)
     local rot = math.atan2(vy, vx)
     love.graphics.push()
-    love.graphics.setColor(ball.getColor())
+    local color = ball.getColor()
+    color[4] = ball.transparency 
+    love.graphics.setColor(color)
     --love.graphics.rotate(rot)
     --love.graphics.scale(1+s, 1-s)
     love.graphics.circle('fill', ball.body:getX(), ball.body:getY(), ball.shape:getRadius())
-    if ball.indestructable then
+    if ball.indestructible then
       love.graphics.setColor(WHITE_BALL_BORDER_COLOR)
       love.graphics.setLineWidth(WHITE_BALL_BORDER_WIDTH)
       love.graphics.circle('line', ball.body:getX(), ball.body:getY(), ball.shape:getRadius() - 0.99*WHITE_BALL_BORDER_WIDTH/2)
@@ -190,14 +193,15 @@ function love.draw()
 
   -- UI
   love.graphics.setColor({0, 0, 0, 255})
-  --[[love.graphics.print(string.format('Score: %04d\n'..
-      '%04d(balls)+%04d(combo)\n'..
-      'Combo: x%02d\n',
-      tostring(scoreCombo + scoreBalls),
-      tostring(scoreBalls),
+  love.graphics.print(string.format('Score: %04d\n'..
+      --'%04d(balls)+%04d(combo)\n'..
+      'Last Combo: x%02d (%04d)\n',
+      --tostring(scoreCombo + scoreBalls),
+      --tostring(scoreBalls),
       tostring(scoreCombo),
-      tostring(combo)),
-    0, 10)]]--
+      tostring(combo),
+      tostring(ComboMultiplier(combo))),
+    0, 10)
 
   love.graphics.print('Next Ball (Click to swap)', BASE_SCREEN_WIDTH - 180, 20)
 
@@ -207,7 +211,7 @@ function love.draw()
   love.graphics.setColor(nextBallPreview.getColor())
   love.graphics.circle('fill', BASE_SCREEN_WIDTH
     - 100, 20 + 20 + MAX_RADIUS*1.1, nextBallPreview.radius)
-  if nextBallPreview.indestructable then
+  if nextBallPreview.indestructible then
     love.graphics.setColor(WHITE_BALL_BORDER_COLOR)
     love.graphics.setLineWidth(WHITE_BALL_BORDER_WIDTH)
     love.graphics.circle('line', BASE_SCREEN_WIDTH
@@ -218,19 +222,39 @@ function love.draw()
   game.UI.draw()
 
   if gameOver then
-    love.graphics.setColor({200, 0, 0, 255})
-    love.graphics.print('GAME OVER\n'..
-      'Press r to restart', BASE_SCREEN_WIDTH/2 - 50, BASE_SCREEN_HEIGHT/2 - 50)
+    love.graphics.setNewFont(22)
+    love.graphics.setColor({200, 50, 0, 255})
+    love.graphics.print(string.format('GAME OVER\n'..
+      'Final Score: %04d\n',
+      scoreCombo), BASE_SCREEN_WIDTH/2 - 100, BASE_SCREEN_HEIGHT/2 - 50)
   end
 
   -- debug
   DEBUGGER.draw()
 end
 
-function love.update(dt)
-  if gameOver then
-    return
+local staticFrameCount = 0
+
+function OnBallsStatic()
+  local ballsTooHigh = false
+  objects.balls:forEach(function(ball)
+    if ball.body:getY() < MIN_DISTANCE_TO_TOP then
+      ballsTooHigh = true
+    end
+  end)
+  if ballsTooHigh then
+    GameOver()
   end
+  if not ballPreview then
+    ballPreview = nextBallPreview 
+    nextBallPreview = NewBallPreview() 
+  end
+  lastHit = hit
+  hit = false
+
+end
+
+function love.update(dt)
   world:update(dt)
 
   totalSpeed2 = 0
@@ -247,26 +271,16 @@ function love.update(dt)
 
   -- TODO: Make this more robust
   if totalSpeed2 < MIN_SPEED2 then
-    if lastTotalSpeed2 >= MIN_SPEED2 then
-      local ballsTooHigh = false
-      objects.balls:forEach(function(ball)
-        if ball.body:getY() < MIN_DISTANCE_TO_TOP then
-          ballsTooHigh = true
-        end
-      end)
-      if ballsTooHigh then
-        gameOver = true
-      end
-      if not ballPreview then
-        ballPreview = nextBallPreview 
-        nextBallPreview = NewBallPreview() 
-      end
-      if not hit then
-        combo = 1
-      end
-      lastHit = hit
-      hit = false
+    staticFrameCount = staticFrameCount + 1
+    if staticFrameCount == FRAMES_TO_STATIC then
+      game.events:fire(EVENT_ON_BALLS_STATIC)
     end
+  else
+    staticFrameCount = 0
+  end
+
+  if gameOver then
+    return
   end
 
   if ballPreview then
@@ -284,20 +298,32 @@ function love.update(dt)
   game.UI:Clean()
 end
 
+function ComboMultiplier(combo)
+  if combo == 0 then return 0 end
+  return math.pow(2, combo)
+end
+
+function GameOver()
+  objects.balls:forEach(function(ball)
+    if not ball.indestructible then return end
+    DestroyBall(ball)
+  end)
+  gameOver = true
+end
+
 function beginContact(a, b, coll)
   local aref = a:getUserData() and a:getUserData().ref
   local bref = b:getUserData() and b:getUserData().ref
   if not aref or not bref then return end
   aref.color = aref.getColor()
   bref.color = bref.getColor()
-  if aref.indestructable or bref.indestructable then return end
+  if aref.indestructible or bref.indestructible then return end
   if aref.color[1] == bref.color[1] and aref.color[2] == bref.color[2] and aref.color[3] == bref.color[3] then
-    scoreBalls = scoreBalls + 2
-    scoreCombo = scoreCombo + 2 * combo
-    a:setMask(COL_MAIN_CATEGORY)
-    b:setMask(COL_MAIN_CATEGORY)
-    hit = true
     combo = combo + 1
+    scoreCombo = scoreCombo + ComboMultiplier(combo)
+    DestroyBall(aref)
+    DestroyBall(bref)
+    hit = true
     aref.color[4] = 120
     bref.color[4] = 120
   end
@@ -313,6 +339,7 @@ end
 function ReleaseBall()
   if not ballPreview then return end
   local newBall = ballPreview
+  combo = 0
 
   newBall.body = love.physics.newBody(world, ballPreview.position.x, ballPreview.position.y, 'dynamic')
   --newBall.body:setFixedRotation(false)
@@ -334,6 +361,11 @@ function SwitchBall()
   local aux = ballPreview
   ballPreview = nextBallPreview
   nextBallPreview = aux
+end
+
+function DestroyBall(ball)
+  ball.transparency = BALL_DESTROY_TRANSPARENCY
+  ball.fixture:setMask(COL_MAIN_CATEGORY)
 end
 
 -- INPUT
@@ -358,7 +390,7 @@ function love.keypressed(key)
   end
 
   if key == 'o' then
-    gameOver = true
+    GameOver()
   end
 
   if key == 'r' then
