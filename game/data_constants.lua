@@ -33,7 +33,7 @@ PREVIEW_SPEED = 200
 PREVIEW_PADDING = 5
 
 -- Minimum value definitions
-FRAMES_TO_STATIC = 30
+FRAMES_TO_STATIC = 25
 MIN_SPEED2 = 20
 
 -- Collision

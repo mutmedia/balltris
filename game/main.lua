@@ -239,9 +239,11 @@ end
 local staticFrameCount = 0
 
 function OnBallsStatic()
+  DEBUGGER.line('static')
   local ballsTooHigh = false
   objects.balls:forEach(function(ball)
-    if not ball.Ingame then return end
+    if not ball.inGame then return end
+    DEBUGGER.line('counded ball')
     if ball.body:getY() < MIN_DISTANCE_TO_TOP + ball.radius then
       ballsTooHigh = true
     end
@@ -260,7 +262,6 @@ function love.update(dt)
   world:update(dt)
 
   totalSpeed2 = 0
-  local ballsCount = 0
   objects.balls:forEach(function(ball)
     local px, py = ball.body:getPosition() 
     if not IsInsideScreen(px, py) then
