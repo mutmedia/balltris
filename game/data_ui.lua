@@ -7,16 +7,16 @@ Rectangle{
   y=0,
   width=(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)*1.05,
   height=BASE_SCREEN_HEIGHT,
-  color={255, 0, 0, 255},
+  color={255, 0, 0, 0},
   drawMode='line',
   pressed = function(self, x, y)
-    self.color = {0, 255, 0, 255}
+    --self.color = {0, 255, 0, 255}
   end,
   moved = function(self, x, y, dx, dy)
     game.events:fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
   end,
   released = function(self, x, y)
-    self.color = {255, 0, 0, 255}
+    --self.color = {255, 0, 0, 255}
     game.events:fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
 }
@@ -26,13 +26,13 @@ Rectangle{
   x=BORDER_THICKNESS,
   y=MIN_DISTANCE_TO_TOP,
   width=BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS,
-  height=2,
+  height=1,
   color={255, 0, 0, 255},
   drawMode='line',
 }
 
 -- Container
-Rectangle{
+--[[Rectangle{
   x=BASE_SCREEN_WIDTH - 100 - 1.1*MAX_RADIUS,
   y=20 + 20,
   width=2*1.1*MAX_RADIUS,
@@ -46,7 +46,7 @@ Rectangle{
     game.events:fire(EVENT_PRESSED_SWITCH)
     self.color = {255, 0, 0, 255}
   end,
-}
+}]]--
 
 --Circle{
 --  x=BASE_SCREEN_WIDTH - 100,

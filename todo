@@ -1,5 +1,8 @@
 UI - fazer x e y serem centralizados
+UI - fazer evento de quando input sair do quadrado
+
+
+event when exit ui region
 Fix static bug
-Delay destruction to allow multiple collisions
 Stretch and squash
 Shaders

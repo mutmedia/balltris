@@ -7,6 +7,7 @@ EVENT_MOVED_PREVIEW = 'previewMoved'
 EVENT_RELEASED_PREVIEW = 'previewReleased'
 EVENT_PRESSED_SWITCH = 'switchReleased'
 EVENT_ON_BALLS_STATIC = 'ballsStatic'
+EVENT_SAFE_TO_DROP = 'safeToDrop'
 
 game = game or {}
 
