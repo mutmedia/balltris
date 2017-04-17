@@ -1,3 +1,4 @@
+bit32 = require("bit") 
 require 'game_debug'
 
 require 'math_utils'
@@ -32,7 +33,11 @@ function game.UI.rectangle(params)
 end
 
 function game.UI.draw()
-  game.UI:forEach(function(elem) elem:draw() end)
+  game.UI:forEach(function(elem) 
+    if not elem.stateMask or bit32.band(elem.stateMask, game.state) ~= 0 then
+      elem:draw() 
+    end
+  end)
 end
 
 game.UI.deltaX = 0
@@ -46,33 +51,27 @@ function game.UI.adjust(deltaX, deltaY, scaleX, scaleY)
   game.UI.scaleY = scaleY
 end
 
-function game.touch.pressed(x, y)
+function touchAction(x, y, actionName)
   local tx = (x - game.UI.deltaX) / game.UI.scaleX
   local ty = (y - game.UI.deltaY) / game.UI.scaleY
   game.UI:forEach(function(elem)
-    if elem:contains(tx, ty) and elem.pressed then
-      elem:pressed(tx, ty)
+    if elem.stateMask and bit32.band(elem.stateMask, game.state) == 0 then return end
+    if elem:contains(tx, ty) and elem[actionName] then
+      elem[actionName](elem, tx, ty)
     end
   end)
+end
+
+
+function game.touch.pressed(x, y)
+  touchAction(x, y, 'pressed')
 end
 
 function game.touch.moved(x, y, dx, dy)
-  local tx = (x - game.UI.deltaX) / game.UI.scaleX
-  local ty = (y - game.UI.deltaY) / game.UI.scaleY
-  game.UI:forEach(function(elem)
-    if elem:contains(tx, ty) and elem.moved then
-      elem:moved(tx, ty, dx, dy)
-    end
-  end)
+  touchAction(x, y, 'moved')
 end
 
 function game.touch.released(x, y)
-  local tx = (x - game.UI.deltaX) / game.UI.scaleX
-  local ty = (y - game.UI.deltaY) / game.UI.scaleY
-  game.UI:forEach(function(elem)
-    if elem:contains(tx, ty) and elem.released then
-      elem:released(tx, ty, dx, dy)
-    end
-  end)
+  touchAction(x, y, 'released')
 end
 

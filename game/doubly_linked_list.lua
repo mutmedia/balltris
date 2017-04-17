@@ -8,7 +8,7 @@ end
 
 function List:add(elem)
   local new = {next=self.list, prev=nil, val=elem}
-  new.val.ref = new
+  new.val._ref = new
   if self.list then
     self.list.prev = new
   end
@@ -27,7 +27,7 @@ function List:SetToDelete(elem)
   if not self.toDelete then
     self.toDelete = List.new()
   end
-  self.toDelete:add(elem.ref)
+  self.toDelete:add(elem._ref)
 end
 
 function List:Clean(free)
@@ -51,7 +51,7 @@ function List:Clean(free)
   self.toDelete = nil
 end
 
-function List:Clear(free)
+function List:Clear()
   self:forEach(function(del)
     self:SetToDelete(del)
   end)

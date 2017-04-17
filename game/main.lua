@@ -3,10 +3,11 @@ require 'game_debug'
 -- Libraries
 require 'math_utils'
 local List = require 'doubly_linked_list'
+local Queue = require 'queue'
 local Vector = require 'vector2d'
 
 -- Game Files
-require 'touch_input'
+require 'ui'
 require 'events'
 require 'data_constants'
 
@@ -42,18 +43,21 @@ function GetColor(number)
   return {r, g, b, 255}
 end
 
-function NewBallPreview(initialX)
+function NewBallPreview(initialData)
+  initialData = initialData or {
+    indestructible = false,
+  }
   local number = math.random(NUM_COLORS)
-  local indestructible = math.random() > 0.9
+  --local indestructible = math.random() > 0.9
   local radius = GetRandomRadius()
-  local getColor = function() return indestructible and {255, 255, 255} or GetColor((number % NUM_COLORS)) end
-  local position = Vector.new{x=initialX or BASE_SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING}
+  local getColor = function() return initialData.indestructible and {255, 255, 255} or GetColor((number % NUM_COLORS)) end
+  local position = Vector.new{x=BASE_SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING}
   return {
     position = position,
     radius = radius,
     getColor = getColor,
     drawStyle = 'line',
-    indestructible = indestructible,
+    indestructible = initialData.indestructible,
     transparency = 255,
   }
 end
@@ -63,9 +67,8 @@ function IsInsideScreen(x, y)
 end
 
 -- Variables
-local objects = {}
 local ballPreview
-local nextBallPreview
+local nextBallPreviews = Queue.new()
 local lastDroppedBall
 local world = nil
 local scoreCombo = 0
@@ -80,13 +83,21 @@ local totalSpeed2 = 0
 local lastTotalSpeed2 = -1
 local time = 0
 
-local gameOver = false
+game = game or {}
+game.objects = {}
+game.state = STATE_GAME_RUNNING
 
 -- Behaviour definitions
 function love.load()
+  game.state = STATE_GAME_RUNNING
+
   math.randomseed( os.time() )
   ballPreview = NewBallPreview()
-  nextBallPreview = NewBallPreview()
+
+  -- Initialize Previews
+  for _=1,NUM_BALL_PREVIEWS do
+    nextBallPreviews:enqueue(NewBallPreview())
+  end
 
   love.window.setTitle(TITLE)
   love.window.setMode(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, {resizable=true})
@@ -97,27 +108,27 @@ function love.load()
   world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
   -- Initial objects
-  objects.ground = {}
-  objects.ground.body = love.physics.newBody(world, BASE_SCREEN_WIDTH/2, BASE_SCREEN_HEIGHT-BOTTOM_THICKNESS/2)
-  objects.ground.shape = love.physics.newRectangleShape(BASE_SCREEN_WIDTH, BOTTOM_THICKNESS)
-  objects.ground.fixture = love.physics.newFixture(objects.ground.body, objects.ground.shape)
-  objects.ground.fixture:setCategory(COL_MAIN_CATEGORY)
+  game.objects.ground = {}
+  game.objects.ground.body = love.physics.newBody(world, BASE_SCREEN_WIDTH/2, BASE_SCREEN_HEIGHT-BOTTOM_THICKNESS/2)
+  game.objects.ground.shape = love.physics.newRectangleShape(BASE_SCREEN_WIDTH, BOTTOM_THICKNESS)
+  game.objects.ground.fixture = love.physics.newFixture(game.objects.ground.body, game.objects.ground.shape)
+  game.objects.ground.fixture:setCategory(COL_MAIN_CATEGORY)
 
-  objects.wallL = {}
-  objects.wallL.body = love.physics.newBody(world, BASE_SCREEN_WIDTH-BORDER_THICKNESS/2, BASE_SCREEN_HEIGHT/2)
-  objects.wallL.shape = love.physics.newRectangleShape(BORDER_THICKNESS, BASE_SCREEN_HEIGHT)
-  objects.wallL.fixture = love.physics.newFixture(objects.wallL.body, objects.wallL.shape)
-  objects.wallL.fixture:setCategory(COL_MAIN_CATEGORY)
+  game.objects.wallL = {}
+  game.objects.wallL.body = love.physics.newBody(world, BASE_SCREEN_WIDTH-BORDER_THICKNESS/2, BASE_SCREEN_HEIGHT/2)
+  game.objects.wallL.shape = love.physics.newRectangleShape(BORDER_THICKNESS, BASE_SCREEN_HEIGHT)
+  game.objects.wallL.fixture = love.physics.newFixture(game.objects.wallL.body, game.objects.wallL.shape)
+  game.objects.wallL.fixture:setCategory(COL_MAIN_CATEGORY)
 
-  objects.wallR = {}
-  objects.wallR.body = love.physics.newBody(world, BORDER_THICKNESS/2, BASE_SCREEN_HEIGHT/2)
-  objects.wallR.shape = love.physics.newRectangleShape(BORDER_THICKNESS, BASE_SCREEN_HEIGHT)
-  objects.wallR.fixture = love.physics.newFixture(objects.wallR.body, objects.wallR.shape)
-  objects.wallR.fixture:setCategory(COL_MAIN_CATEGORY)
+  game.objects.wallR = {}
+  game.objects.wallR.body = love.physics.newBody(world, BORDER_THICKNESS/2, BASE_SCREEN_HEIGHT/2)
+  game.objects.wallR.shape = love.physics.newRectangleShape(BORDER_THICKNESS, BASE_SCREEN_HEIGHT)
+  game.objects.wallR.fixture = love.physics.newFixture(game.objects.wallR.body, game.objects.wallR.shape)
+  game.objects.wallR.fixture:setCategory(COL_MAIN_CATEGORY)
 
-  objects.balls = List.new(function(ball)
-    ball.fixture:destroy()
-    ball.body:destroy()
+  game.objects.balls = List.new(function(ball)
+    if ball.fixture and not ball.fixture:isDestroyed() then ball.fixture:destroy() end
+    if ball.body and not ball.body:isDestroyed() then ball.body:destroy() end
     ball = nil
   end)
 
@@ -150,29 +161,39 @@ function love.draw()
     drawHeight = drawWidth / ASPECT_RATIO
   end
 
+  love.graphics.setNewFont(12)
+
   game.UI.adjust((screenWidth-drawWidth)/2, (screenHeight-drawHeight), drawWidth/BASE_SCREEN_WIDTH, drawHeight/BASE_SCREEN_HEIGHT)
   love.graphics.translate(game.UI.deltaX, game.UI.deltaY)
   love.graphics.scale(game.UI.scaleX, game.UI.scaleY)
 
-  if ballPreview and ballPreview.drawStyle ~= 'none'then
-    love.graphics.setColor(ballPreview.getColor())
-    love.graphics.circle(ballPreview.drawStyle, ballPreview.position.x, ballPreview.position.y, ballPreview.radius)
-    if ballPreview.indestructible then
-      --love.graphics.setColor(WHITE_BALL_BORDER_COLOR)
-      --love.graphics.setLineWidth(WHITE_BALL_BORDER_WIDTH)
-      --love.graphics.circle('line', ballPreview.position.x, ballPreview.position.y, ballPreview.radius - 0.99*WHITE_BALL_BORDER_WIDTH/2)
-    end
-    --love.graphics.reset()
-  end
 
   love.graphics.setColor(255, 255, 255)
-  love.graphics.polygon('fill', objects.ground.body:getWorldPoints(objects.ground.shape:getPoints())) 
-  love.graphics.polygon('fill', objects.wallL.body:getWorldPoints(objects.wallL.shape:getPoints()))
-  love.graphics.polygon('fill', objects.wallR.body:getWorldPoints(objects.wallR.shape:getPoints()))
+  love.graphics.polygon('fill', game.objects.ground.body:getWorldPoints(game.objects.ground.shape:getPoints())) 
+  love.graphics.polygon('fill', game.objects.wallL.body:getWorldPoints(game.objects.wallL.shape:getPoints()))
+  love.graphics.polygon('fill', game.objects.wallR.body:getWorldPoints(game.objects.wallR.shape:getPoints()))
 
+  -- Stage BG
+  love.graphics.setLineWidth(1)
+  love.graphics.setColor(255, 255, 255)
+  love.graphics.rectangle('fill', BORDER_THICKNESS, -10, HOLE_WIDTH, HOLE_DEPTH + 10)
+  love.graphics.setColor(0, 0, 0)
+  love.graphics.rectangle('line', BORDER_THICKNESS, -10, HOLE_WIDTH, HOLE_DEPTH + 10)
+
+  -- Ball Preview
+  if ballPreview and ballPreview.drawStyle ~= 'none' then
+    love.graphics.setColor(ballPreview.getColor())
+    love.graphics.circle('fill', ballPreview.position.x, ballPreview.position.y, ballPreview.radius)
+    love.graphics.setLineWidth(1)
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.circle('line', ballPreview.position.x, ballPreview.position.y, ballPreview.radius)
+  end
+
+  -- Balls
   local ballCount = 0
   local BALL_SPEED_STRETCH = 0.2
-  objects.balls:forEach(function(ball) 
+  love.graphics.setLineWidth(1)
+  game.objects.balls:forEach(function(ball) 
     ballCount = ballCount + 1
     local vx, vy = ball.body:getLinearVelocity()
     local s = BALL_SPEED_STRETCH * math.sqrt(vx * vx + vy * vy)
@@ -183,53 +204,64 @@ function love.draw()
     love.graphics.setColor(color)
     --love.graphics.rotate(rot)
     --love.graphics.scale(1+s, 1-s)
-    love.graphics.circle(ball.inGame and 'fill' or 'line', ball.body:getX(), ball.body:getY(), ball.shape:getRadius())
-    if ball.indestructible then
-      --love.graphics.setColor(WHITE_BALL_BORDER_COLOR)
-      --love.graphics.setLineWidth(WHITE_BALL_BORDER_WIDTH)
-      --love.graphics.circle('line', ball.body:getX(), ball.body:getY(), ball.shape:getRadius() - 0.99*WHITE_BALL_BORDER_WIDTH/2)
-    end
+    love.graphics.circle('fill', ball.body:getX(), ball.body:getY(), ball.shape:getRadius())
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.circle('line', ball.body:getX(), ball.body:getY(), ball.shape:getRadius())
     love.graphics.pop()
     --love.graphics.reset()
     --DEBUGGER.line('ball: x='..ball.body:getX()..' y='..ball.body:getY()..'\n')
+  end)
+
+  --[[
+  -- Preview box
+  love.graphics.setColor(0, 0, 0)
+  love.graphics.rectangle('fill', BASE_SCREEN_WIDTH
+    - 100 - MAX_RADIUS*1.1, 20 + 20, 2*MAX_RADIUS*1.1, 2*MAX_RADIUS*1.1) 
+  ]]--
+
+  -- Next balls
+  local ballPreviewNum = 1
+  local ballPreviewHeight = 40
+  local ballPreviewX = BASE_SCREEN_WIDTH - (BORDER_THICKNESS)/2
+  love.graphics.setLineWidth(1)
+  nextBallPreviews:forEach(function(nextBallPreview)
+    ballPreviewHeight = ballPreviewHeight + nextBallPreview.radius
+    love.graphics.setColor(nextBallPreview.getColor())
+    love.graphics.circle('fill', ballPreviewX, ballPreviewHeight, nextBallPreview.radius)
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.circle('line', ballPreviewX, ballPreviewHeight, nextBallPreview.radius)
+    ballPreviewNum = ballPreviewNum + 1
+
+    ballPreviewHeight = ballPreviewHeight + nextBallPreview.radius + 5
   end)
 
   -- UI
   love.graphics.setColor({0, 0, 0, 255})
   love.graphics.print(string.format('Score: %04d\n'..
       --'%04d(balls)+%04d(combo)\n'..
-      'Last Combo: x%02d (%04d)\n',
+      'Last Combo: x%02d (%04d)\n'..
+      'Max Combo: x%02d (%04d)\n',
       --tostring(scoreCombo + scoreBalls),
       --tostring(scoreBalls),
       tostring(scoreCombo),
       tostring(combo),
-      tostring(ComboMultiplier(combo))),
-    0, 10)
+      tostring(ComboMultiplier(combo)),
+      tostring(maxCombo),
+      tostring(ComboMultiplier(maxCombo))),
+    5, 15)
 
-  love.graphics.print('Next Ball (Click to swap)', BASE_SCREEN_WIDTH - 180, 20)
-
-  love.graphics.setColor(0, 0, 0)
-  love.graphics.rectangle('fill', BASE_SCREEN_WIDTH
-    - 100 - MAX_RADIUS*1.1, 20 + 20, 2*MAX_RADIUS*1.1, 2*MAX_RADIUS*1.1) 
-  love.graphics.setColor(nextBallPreview.getColor())
-  love.graphics.circle('fill', BASE_SCREEN_WIDTH
-    - 100, 20 + 20 + MAX_RADIUS*1.1, nextBallPreview.radius)
-  if nextBallPreview.indestructible then
-    --love.graphics.setColor(WHITE_BALL_BORDER_COLOR)
-    --love.graphics.setLineWidth(WHITE_BALL_BORDER_WIDTH)
-    --love.graphics.circle('line', BASE_SCREEN_WIDTH
-      --- 100, 20 + 20 + MAX_RADIUS*1.1, nextBallPreview.radius - 0.99*WHITE_BALL_BORDER_WIDTH/2)
-  end
-  --love.graphics.reset()
+  love.graphics.print('Next Balls:', BASE_SCREEN_WIDTH - 150, 20)
 
   game.UI.draw()
 
-  if gameOver then
-    love.graphics.setNewFont(22)
+  if game.state == STATE_GAME_OVER then
+    love.graphics.setNewFont(25)
     love.graphics.setColor({200, 50, 0, 255})
     love.graphics.print(string.format('GAME OVER\n'..
-      'Final Score: %04d\n',
-      scoreCombo), BASE_SCREEN_WIDTH/2 - 100, BASE_SCREEN_HEIGHT/2 - 50)
+        'Final Score: %04d\n'..
+        'Max Combo: %02d\n\n'..
+        'Restart',
+      scoreCombo, maxCombo), BASE_SCREEN_WIDTH/2 - 100, BASE_SCREEN_HEIGHT/2 - 115)
   end
 
   -- debug
@@ -241,9 +273,8 @@ local staticFrameCount = 0
 function OnBallsStatic()
   DEBUGGER.line('static')
   local ballsTooHigh = false
-  objects.balls:forEach(function(ball)
+  game.objects.balls:forEach(function(ball)
     if not ball.inGame then return end
-    DEBUGGER.line('counded ball')
     if ball.body:getY() < MIN_DISTANCE_TO_TOP + ball.radius then
       ballsTooHigh = true
     end
@@ -262,10 +293,10 @@ function love.update(dt)
   world:update(dt)
 
   totalSpeed2 = 0
-  objects.balls:forEach(function(ball)
+  game.objects.balls:forEach(function(ball)
     local px, py = ball.body:getPosition() 
     if not IsInsideScreen(px, py) then
-      objects.balls:SetToDelete(ball)
+      game.objects.balls:SetToDelete(ball)
       ballsRemoved = ballsRemoved + 1
     end
 
@@ -294,22 +325,22 @@ function love.update(dt)
     end
   end
 
-  if gameOver then
+  if game.state == STATE_GAME_OVER then
     return
   end
 
-  if ballPreview then
+  --[[if ballPreview then
     if love.keyboard.isDown('right') then --press the right arrow key to push the ball to the right
       ballPreview.position.x = ballPreview.position.x + PREVIEW_SPEED * dt
     elseif love.keyboard.isDown('left') then
       ballPreview.position.x = ballPreview.position.x - PREVIEW_SPEED * dt
     end
     ballPreview.position.x = utils.clamp(ballPreview.position.x, BORDER_THICKNESS + ballPreview.radius + 1, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + ballPreview.radius) - 1)
-  end
+  end]]--
 
   lastTotalSpeed2 = totalSpeed2
 
-  objects.balls:Clean()
+  game.objects.balls:Clean()
   game.UI:Clean()
 end
 
@@ -319,11 +350,11 @@ function ComboMultiplier(combo)
 end
 
 function GameOver()
-  objects.balls:forEach(function(ball)
+  game.objects.balls:forEach(function(ball)
     if not ball.indestructible then return end
     DestroyBall(ball)
   end)
-  gameOver = true
+  game.state = STATE_GAME_OVER
 end
 
 function beginContact(a, b, coll)
@@ -368,19 +399,12 @@ function ReleaseBall()
   newBall.fixture:setUserData({
       ref = newBall,
     })
-  objects.balls:add(newBall)
+  game.objects.balls:add(newBall)
 
   ballPreview = nil
   --ballPreview = NewBallPreview(ballPreview.position.x)
   lastDroppedBall = newBall
 
-  end
-
-function SwitchBall()
-  if not ballPreview then return end
-  local aux = ballPreview
-  ballPreview = nextBallPreview
-  nextBallPreview = aux
 end
 
 function DestroyBall(ball)
@@ -391,13 +415,24 @@ end
 
 function GetNextBall() 
   if not ballPreview then
-    ballPreview = nextBallPreview 
-    nextBallPreview = NewBallPreview() 
+    ballPreview = nextBallPreviews:dequeue()
+    local hasWhiteBalls = false
+    nextBallPreviews:forEach(function(ball)
+      if ball.indestructible then
+        hasWhiteBalls = true
+        DEBUGGER.line('White balls')
+      end
+    end)
+    if hasWhiteBalls then 
+      nextBallPreviews:enqueue(NewBallPreview())
+    else
+      nextBallPreviews:enqueue(NewBallPreview({indestructible = true}))
+    end
   end
 end
 -- INPUT
 function love.keypressed(key)
-  if not gameOver then
+  if game.state == STATE_GAME_RUNNING then
     if key == INPUT_RELEASE_BALL then
       ReleaseBall() 
     end 
@@ -421,10 +456,11 @@ function love.keypressed(key)
   end
 
   if key == 'r' then
-    objects.balls:Clear()
-    gameOver = false
+    game.objects.balls:Clear()
+    game.state = STATE_GAME_RUNNING
     ballPreview = NewBallPreview()
-    nextBallPreview = NewBallPreview()
+    nextBallPreviews:Clear()
+    nextBallPreviews:enqueue(NewBallPreview())
   end
   if key == 'e' then
     DEBUGGER.clear()
@@ -432,12 +468,10 @@ function love.keypressed(key)
 end
 
 function love.mousepressed(x, y)
-  -- TODO: remove
   game.touch.pressed(x, y)
 end
 
 function love.mousemoved(x, y, dx, dy)
-  -- TODO: remove
   --if not love.mouse.isDown(1) then return end
   if ballPreview then
     ballPreview.drawStyle = 'none'

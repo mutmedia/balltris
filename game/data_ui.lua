@@ -9,6 +9,7 @@ Rectangle{
   height=BASE_SCREEN_HEIGHT,
   color={255, 0, 0, 0},
   drawMode='line',
+  stateMask=STATE_GAME_RUNNING,
   pressed = function(self, x, y)
     --self.color = {0, 255, 0, 255}
   end,
@@ -21,11 +22,28 @@ Rectangle{
   end,
 }
 
+-- Replay button
+Rectangle{
+  x=BORDER_THICKNESS + HOLE_WIDTH * 0.1,
+  y=BASE_SCREEN_HEIGHT/2,
+  width=HOLE_WIDTH * 0.8,
+  height=30,
+  color={255, 0, 255, 255},
+  drawMode='fill',
+  stateMask= STATE_GAME_OVER,
+  released = function(self, x, y)
+    game.objects.balls:Clear()
+    game.state = STATE_GAME_RUNNING
+    ballPreview = NewBallPreview()
+    nextBallPreview = NewBallPreview()
+  end,
+}
+
 -- Line
 Rectangle{
   x=BORDER_THICKNESS,
   y=MIN_DISTANCE_TO_TOP,
-  width=BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS,
+  width=HOLE_WIDTH,
   height=1,
   color={255, 0, 0, 255},
   drawMode='line',
