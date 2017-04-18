@@ -1,6 +1,8 @@
 require 'data_constants'
 require 'events'
-local Rectangle = game.UI.rectangle
+local UI = require 'ui'
+local Rectangle = UI.rectangle
+local Game = require 'game'
 
 Rectangle{
   x=BORDER_THICKNESS - 0.05*(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)/2,
@@ -14,11 +16,11 @@ Rectangle{
     --self.color = {0, 255, 0, 255}
   end,
   moved = function(self, x, y, dx, dy)
-    game.events:fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
+    Game.events:fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
   end,
   released = function(self, x, y)
     --self.color = {255, 0, 0, 255}
-    game.events:fire(EVENT_RELEASED_PREVIEW, x, y)
+    Game.events:fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
 }
 
@@ -32,10 +34,7 @@ Rectangle{
   drawMode='fill',
   stateMask= STATE_GAME_OVER,
   released = function(self, x, y)
-    game.objects.balls:Clear()
-    game.state = STATE_GAME_RUNNING
-    ballPreview = NewBallPreview()
-    nextBallPreview = NewBallPreview()
+    Game.start()
   end,
 }
 

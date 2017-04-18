@@ -9,11 +9,9 @@ EVENT_PRESSED_SWITCH = 'switchReleased'
 EVENT_ON_BALLS_STATIC = 'ballsStatic'
 EVENT_SAFE_TO_DROP = 'safeToDrop'
 
-game = game or {}
+Events = {}
 
-game.events = {}
-
-function game.events:add(eventName, callback)
+function Events:add(eventName, callback)
   if not self[eventName] then
     self[eventName] = List.new()
   end
@@ -23,7 +21,7 @@ function game.events:add(eventName, callback)
   self[eventName]:add(callbackObject)
 end
 
-function game.events:fire(eventName, ...)
+function Events:fire(eventName, ...)
   local arg = {...}
   if not self[eventName] then 
     DEBUGGER.line('No event named: '..eventName)
@@ -43,4 +41,10 @@ function game.events:fire(eventName, ...)
     callback.call(unpack(arg))
   end)
 end
+
+function Events:clear()
+  Events = {}
+end
+
+return Events
 

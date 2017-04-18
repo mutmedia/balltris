@@ -2,8 +2,10 @@ UI - fazer x e y serem centralizados
 UI - fazer evento de quando input sair do quadrado
 
 
-BUG: make events 'release' only work on thing where press started
+Better random (bag?)
 event when exit ui region
 Fix static bug
 Stretch and squash
 Shaders
+
+Vertical Prediction line
