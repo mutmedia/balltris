@@ -24,17 +24,17 @@ function List:forEach(func)
 end
 
 function List:SetToDelete(elem)
-  if not self.toDelete then
-    self.toDelete = List.new()
+  if not self._toDelete then
+    self._toDelete = List.new()
   end
-  self.toDelete:add(elem._ref)
+  self._toDelete:add(elem._ref)
 end
 
 function List:Clean(free)
-  if not self.toDelete then
+  if not self._toDelete then
     return
   end
-  self.toDelete:forEach(function(del)
+  self._toDelete:forEach(function(del)
     if del == self.list then
       self.list = del.next
     end
@@ -48,7 +48,7 @@ function List:Clean(free)
     self.__free(del.val)
     del = nil
   end)
-  self.toDelete = nil
+  self._toDelete = nil
 end
 
 function List:Clear()

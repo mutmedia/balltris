@@ -5,6 +5,7 @@ require 'math_utils'
 local List = require 'doubly_linked_list'
 local Queue = require 'queue'
 local Vector = require 'vector2d'
+local Scheduler = require 'Scheduler'
 
 -- Game Files
 local Game = require 'game'
@@ -260,6 +261,7 @@ end
 
 
 function love.update(dt)
+  Scheduler.update(dt)
   Game.world:update(dt)
 
   totalSpeed2 = 0
@@ -333,16 +335,25 @@ function beginContact(a, b, coll)
   if aref then aref.inGame = true end
   if bref then bref.inGame = true end
   if not aref or not bref then return end
-  aref.color = aref.getColor()
-  bref.color = bref.getColor()
 
   if aref.indestructible or bref.indestructible then return end
   if aref.number == bref.number then
+    -- Combo stuff
     Game.combo = Game.combo + 1
     Game.score = Game.score + ComboMultiplier(Game.combo)
-    DestroyBall(aref)
-    DestroyBall(bref)
     hit = true
+
+    -- Ball destruction
+    if not aref.willDestroy then
+      Scheduler.add(function() DestroyBall(aref) end, TIME_TO_DESTROY)
+    end
+    aref.willDestroy = true
+
+    if not bref.willDestroy then
+      Scheduler.add(function() DestroyBall(bref) end, TIME_TO_DESTROY)
+    end
+    bref.willDestroy = true
+
   end
 end
 
@@ -376,7 +387,7 @@ function ReleaseBall()
 end
 
 function DestroyBall(ball)
-  ball.inGame = true
+  ball.inGame = false
   ball.destroyed = true
   ball.timeDestroyed = love.timer.getTime() - startTime
   ball.fixture:setMask(COL_MAIN_CATEGORY)

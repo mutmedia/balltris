@@ -1,4 +1,4 @@
-local DEBUGGER_MODE = false
+local DEBUGGER_MODE = true
 local MAX_LINES = 10
 
 DEBUGGER = {
