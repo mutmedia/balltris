@@ -1,12 +1,14 @@
-UI - fazer x e y serem centralizados
-UI - fazer evento de quando input sair do quadrado
+wip
+colision delay (more than one ball per collision)
+event when exit ui region
 
 
 Better random (bag?)
-event when exit ui region
+Better but still simple HUD. (show combos)
 Fix static bug
 Stretch and squash
-Shaders
-
-colision delay (more than one)
+Next ball list update animation
+Better ball drop animation
 Vertical Prediction line
+
+Make UI x and y be anchored on center

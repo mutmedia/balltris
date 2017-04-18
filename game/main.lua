@@ -94,7 +94,7 @@ function love.load()
 
   -- Game Canvas
   gameCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT)
-  postFxCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT)
+  postFxCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
 
   Game.start()
 end
@@ -106,19 +106,20 @@ function love.draw()
   love.graphics.setCanvas(gameCanvas)
   --love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
   --love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
+
+  -- Stage BG
   love.graphics.setColor(255, 255, 255)
   love.graphics.polygon('fill', Game.objects.ground.body:getWorldPoints(Game.objects.ground.shape:getPoints())) 
   love.graphics.polygon('fill', Game.objects.wallL.body:getWorldPoints(Game.objects.wallL.shape:getPoints()))
   love.graphics.polygon('fill', Game.objects.wallR.body:getWorldPoints(Game.objects.wallR.shape:getPoints()))
 
-  -- Stage BG
-  love.graphics.setLineWidth(1)
+  love.graphics.setLineWidth(3)
   --love.graphics.setColor(0, 0, 0)
   love.graphics.setColor(255, 255, 255)
   love.graphics.rectangle('fill', BORDER_THICKNESS, -10, HOLE_WIDTH, HOLE_DEPTH + 10)
   love.graphics.setColor(0, 0, 0)
   love.graphics.rectangle('line', BORDER_THICKNESS, -10, HOLE_WIDTH, HOLE_DEPTH + 10)
-
+  love.graphics.setLineWidth(1)
   -- Balls
 
   -- Ball Preview
@@ -193,9 +194,9 @@ function love.draw()
 
   love.graphics.setCanvas(postFxCanvas)
   love.graphics.setColor(255, 255, 255)
-  love.graphics.setShader(PostEffectsShader)
+  --love.graphics.setShader(PostEffectsShader)
   love.graphics.draw(gameCanvas)
-  love.graphics.setShader()
+  --love.graphics.setShader()
 
   -- switch canvas and draw with new shader
   love.graphics.setCanvas()
@@ -205,6 +206,7 @@ function love.draw()
 
   love.graphics.draw(postFxCanvas)
 
+  
   -- UI
   love.graphics.setColor(0, 0, 0)
   love.graphics.print(string.format('Score: %04d\n'..

@@ -16,7 +16,7 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)
 
   vec3 color3 = vec3(textureColor);
   float h = fract(mix(-0.1, 0.5, point.y) + 1.0);
-  vec3 color_mult = hsv2rgb(vec3(h, 0.3, 0.5));
+  vec3 color_mult = hsv2rgb(vec3(h, 0.05, 0.9));
 
   vec3 checkered = vec3(1.0);
   if (mod(floor(screen_coords.x/2.0 + 1000.0*point.y + 50.0 * rand(10.0*point.x + point.y)), 2.0) == 0.0) {

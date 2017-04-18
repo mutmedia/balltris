@@ -6,7 +6,7 @@ uniform float time_destroyed;
 
 float material_kd = 1.5;
 
-const float TIME_TO_DESTROY = 0.2;
+const float TIME_TO_DESTROY = 0.4;
 vec3 rgb2hsv(vec3 c)
 {
     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -38,7 +38,8 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)
   float visibleRadius = radius;
   if (time_destroyed > 0.0 && time > time_destroyed) {
     float deltaTime = (time - time_destroyed) / TIME_TO_DESTROY;
-    visibleRadius = radius * (1.0 - deltaTime);
+    float timeInfluence = pow(deltaTime, 5.0);
+    visibleRadius = radius * (1.0 - timeInfluence);
     alpha = step(length(point-center), visibleRadius);
     colorDestroyed = vec3(alpha);
   }

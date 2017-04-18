@@ -44,7 +44,7 @@ Rectangle{
   y=MIN_DISTANCE_TO_TOP,
   width=HOLE_WIDTH,
   height=1,
-  color={255, 0, 0, 255},
+  color={100, 100, 100, 255},
   drawMode='line',
 }
 
