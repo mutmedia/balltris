@@ -3,7 +3,7 @@ SET LOVE_PATH=C:\Program Files\LOVE
 
 rd /s /q build
 xcopy /s "%LOVE_PATH%\*.dll" build\
-pushd game & 7z a -tzip ..\build\game.love *.lua & popd
+pushd game & 7z a -tzip ..\build\game.love *.** & popd
 copy /b "%LOVE_PATH%\love.exe"+build\game.love build\game.exe
 
 copy build\game.love "%LOVE_ANDROID%\assets\"

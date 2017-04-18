@@ -1,4 +1,4 @@
-require 'Game_debug'
+require 'game_debug'
 
 -- Libraries
 require 'math_utils'
@@ -59,6 +59,7 @@ local PostEffectsShader
 local BallShader
 local lightDirection = {1, 1, 3}
 local gameCanvas
+local postFxCanvas
 
 local startTime = love.timer.getTime()
 
@@ -92,20 +93,19 @@ function love.load()
   PostEffectsShader = love.graphics.newShader('postfx.fs')
 
   -- Game Canvas
-  gameCanvas = love.graphics.newCanvas(screenWidth, screenHeight)
+  gameCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT)
+  postFxCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT)
 
   Game.start()
 end
 
 function love.draw() 
-  love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
-  love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
   love.graphics.setNewFont(12)
 
   -- Move to new canvas
   love.graphics.setCanvas(gameCanvas)
-  love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
-  love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
+  --love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
+  --love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
   love.graphics.setColor(255, 255, 255)
   love.graphics.polygon('fill', Game.objects.ground.body:getWorldPoints(Game.objects.ground.shape:getPoints())) 
   love.graphics.polygon('fill', Game.objects.wallL.body:getWorldPoints(Game.objects.wallL.shape:getPoints()))
@@ -189,13 +189,21 @@ function love.draw()
   end)
   love.graphics.setShader()
 
+  -- Switch to game post fx
 
-  -- switch canvas and draw with new shader
-  love.graphics.setCanvas()
+  love.graphics.setCanvas(postFxCanvas)
   love.graphics.setColor(255, 255, 255)
   love.graphics.setShader(PostEffectsShader)
   love.graphics.draw(gameCanvas)
   love.graphics.setShader()
+
+  -- switch canvas and draw with new shader
+  love.graphics.setCanvas()
+  love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
+  love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
+  love.graphics.setColor(255, 255, 255)
+
+  love.graphics.draw(postFxCanvas)
 
   -- UI
   love.graphics.setColor(0, 0, 0)
