@@ -12,37 +12,128 @@ UI = {
   _layers = {},
 }
 
+function UI.object(params)
+  local obj = params
+
+  obj.x = (obj.x + BASE_SCREEN_WIDTH) % BASE_SCREEN_WIDTH
+  obj.y = (obj.y + BASE_SCREEN_HEIGHT) % BASE_SCREEN_HEIGHT
+
+  table.insert(UI._layers[obj.layer], obj)
+  obj._state = {
+    pressed = false,
+    inside = false,
+  }
+  obj._lastState = {}
+
+  return obj
+end
+
+
+function UI.rectangle(params)
+  local rect = UI.object(params)
+
+  rect.contains = function(self, x, y)
+    return utils.isInsideRect(x, y, self.x - self.width/2, self.y - self.height/2, self.x + self.width/2, self.y + self.height/2)
+  end
+
+  rect.draw = function(self)
+    love.graphics.setColor(self.color or {0, 0, 0, 0})
+    love.graphics.rectangle(
+      'fill',
+      self.x - self.width/2,
+      self.y - self.height/2,
+      self.width,
+      self.height) 
+    if self.lineWidth then
+      love.graphics.setColor(self.lineColor or {0, 0, 0})
+      love.graphics.setLineWidth(self.lineWidth)
+      love.graphics.rectangle(
+        'line',
+        self.x - self.width/2,
+        self.y - self.height/2,
+        self.width,
+        self.height) 
+    end
+  end
+
+  return rect
+end
+
+function UI.text(params)
+  local text = UI.object(params)
+
+  text.contains = function(self, x, y)
+    return false
+  end
+
+  text.draw = function(self)
+    love.graphics.setColor(self.color or {0, 0, 0})
+    love.graphics.setFont(self.font)
+    love.graphics.printf(
+      self.getText(),
+      self.x - self.width/2,
+      self.y,
+      self.width,
+      'center',
+      self.orientation,
+      self.scale,
+      self.scale,
+      self.offsetX,
+      self.offsetY)
+  end
+
+  return rect
+end
+
+function UI.button(params)
+  local btn = UI.object(params)
+
+  btn.contains = function(self, x, y)
+    return utils.isInsideRect(x, y, self.x - self.width/2, self.y - self.height/2, self.x + self.width/2, self.y + self.height/2)
+  end
+
+  btn.draw = function(self)
+    love.graphics.setColor(self.color or {0, 0, 0, 0})
+    love.graphics.rectangle(
+      'fill',
+      self.x - self.width/2,
+      self.y - self.height/2,
+      self.width,
+      self.height) 
+    if self.lineWidth then
+      love.graphics.setColor(self.lineColor or {0, 0, 0})
+      love.graphics.setLineWidth(self.lineWidth)
+      love.graphics.rectangle(
+        'line',
+        self.x - self.width/2,
+        self.y - self.height/2,
+        self.width,
+        self.height) 
+    end
+
+    love.graphics.setColor(self.color or {0, 0, 0})
+    love.graphics.setFont(self.font)
+    love.graphics.printf(
+      self.getText(),
+      self.x - self.width/2,
+      self.y - self.height/4, -- TODO: make this shift based on font height
+      self.width,
+      'center',
+      self.orientation,
+      1,
+      1,
+      self.offsetX,
+      self.offsetY)
+  end
+end
+
+
 function UI.initialize()
   UI._layers = {}
   for i=1,#GAME_LAYERS do
     UI._layers[GAME_LAYERS[i]] = {}
   end
   require('data_ui')
-end
-
-function UI.rectangle(params)
-  DEBUGGER.line('added new rectangle')
-  local rect = {}
-  rect = params
-
-  rect.contains = function(self, x, y)
-    return utils.isInsideRect(x, y, self.x, self.y, self.x + self.width, self.y + self.height)
-  end
-
-  rect.draw = function(self)
-    love.graphics.setColor(self.color)
-    love.graphics.rectangle(self.drawMode, self.x, self.y, self.width, self.height) 
-  end
-
-
-  table.insert(UI._layers[rect.layer], rect)
-  rect._state = {
-    pressed = false,
-    inside = false,
-  }
-  rect._lastState = {}
-
-  return rect
 end
 
 function UI.draw()

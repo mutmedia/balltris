@@ -166,7 +166,7 @@ function love.draw()
 
   -- Next balls
   local ballPreviewNum = 1
-  local ballPreviewHeight = 40
+  local ballPreviewHeight = 80
   local ballPreviewX = BASE_SCREEN_WIDTH - (BORDER_THICKNESS)/2
   love.graphics.setLineWidth(1)
   Game.objects.nextBallPreviews:forEach(function(nextBallPreview)
@@ -207,30 +207,7 @@ function love.draw()
 
 
   -- UI
-  love.graphics.setColor(0, 0, 0)
-  love.graphics.print(string.format('Score: %04d\n'..
-      'Last Combo: x%02d (%04d)\n'..
-      'Max Combo: x%02d (%04d)\n',
-      tostring(Game.score),
-      tostring(Game.combo),
-      tostring(ComboMultiplier(Game.combo)),
-      tostring(Game.maxCombo),
-      tostring(ComboMultiplier(Game.maxCombo))),
-    5, 15)
-
-  love.graphics.print('Next Balls:', BASE_SCREEN_WIDTH - 150, 20)
-
-  Game.UI.draw()
-
-  if Game.state == STATE_GAME_OVER then
-    love.graphics.setNewFont(25)
-    love.graphics.setColor(200, 50, 0)
-    love.graphics.print(string.format('Game OVER\n'..
-        'Final Score: %04d\n'..
-        'Max Combo: %02d\n\n'..
-        'Restart',
-      Game.score, Game.maxCombo), BASE_SCREEN_WIDTH/2 - 100, BASE_SCREEN_HEIGHT/2 - 115)
-  end
+ Game.UI.draw()
 
   -- debug
   DEBUGGER.draw()
@@ -423,7 +400,6 @@ function love.keypressed(key)
   -- DEBUG input
   if key == 'u' then
     DEBUGGER.line('Reloaded UI and constants')
-    Game.UI:Clear()
     Game.UI:initialize()
     dofile('Game/data_ui.lua')
     dofile('Game/data_constants.lua')
