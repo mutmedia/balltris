@@ -1,5 +1,6 @@
 local List = require 'doubly_linked_list'
 local Queue = require 'queue'
+local RandomBag = require 'randombag'
 
 Game = {}
 Game.UI = require 'ui'
@@ -12,6 +13,9 @@ Game.world = nil
 Game.score = 0
 Game.combo = 0
 Game.maxCombo = 0
+
+-- TODO: move to ballpreview.lua
+local ballChances
 
 function Game.start()
   Game.state = STATE_GAME_RUNNING
@@ -73,6 +77,22 @@ function Game.start()
   Game.combo = 0
   Game.maxCombo = 0
 
+  -- Ball chances
+  ballChances = RandomBag.new(#BALL_COLORS, BALL_CHANCE_MODIFIER)
+end
+
+local lastBallNumber
+-- TODO: remove from game
+-- move to ballpreview file
+function Game.GetBallNumber() 
+  while true do
+    local ballNumber = ballChances.get()
+    if ballNumber ~= lastBallNumber then
+      --lastBallNumber = ballNumber
+      ballChances.update(ballNumber)
+      return ballNumber
+    end
+  end
 end
 
 return Game
