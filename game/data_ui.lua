@@ -5,7 +5,7 @@ local UI = require 'ui'
 local Rectangle = UI.rectangle
 local Game = require 'game'
 
-local DEBUG_UI = true
+--local DEBUG_UI = true
 
 Rectangle{
   name='Preview box',

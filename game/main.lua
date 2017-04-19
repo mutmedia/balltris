@@ -5,7 +5,7 @@ require 'math_utils'
 local List = require 'doubly_linked_list'
 local Queue = require 'queue'
 local Vector = require 'vector2d'
-local Scheduler = require 'Scheduler'
+local Scheduler = require 'scheduler'
 
 -- Game Files
 local Game = require 'game'
@@ -16,59 +16,14 @@ function GetRandomRadius()
   return BASE_RADIUS * RADIUS_MULTIPLIERS[math.random(#RADIUS_MULTIPLIERS)]
 end
 
-local lastBallNumber
-local ballChances = {}
-for i=1, #BALL_COLORS do
-  ballChances[i] = 1/#BALL_COLORS
-end
---ballChances[1] = 1000000
---ballChances[5] = 100000000
 
-BALL_CHANCE_MODIFIER = 0.1
-function ballChances.get()
-  local randomnum = math.random()
-  local acc = 0
-  for i=1, #BALL_COLORS do
-    acc = acc + ballChances[i]
-    if acc > randomnum then
-      return i
-    end
-  end
-end
-
-function ballChances.normalize()
-  local sum = 0
-  for i=1, #BALL_COLORS do
-    sum = sum + ballChances[i]
-  end
-  for i=1, #BALL_COLORS do
-    ballChances[i] = ballChances[i]/sum
-  end
-end
-ballChances.normalize()
-
-function ballChances.update(num)
-  ballChances[num] = ballChances[num] * BALL_CHANCE_MODIFIER
-  ballChances.normalize()
-end
-
-function GetBallNumber() 
-  while true do
-    local ballNumber = ballChances.get()
-    if ballNumber ~= lastBallNumber then
-      --lastBallNumber = ballNumber
-      ballChances.update(ballNumber)
-      return ballNumber
-    end
-  end
-end
 
 
 function NewBallPreview(initialData)
   initialData = initialData or {
     indestructible = false,
   }
-  local number = GetBallNumber()
+  local number = Game.GetBallNumber()
   --local indestructible = math.random() > 0.9
   local radius = GetRandomRadius()
   local getColor = function() return initialData.indestructible and {255, 255, 255} or BALL_COLORS[number] end

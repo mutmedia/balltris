@@ -15,7 +15,8 @@ Game.combo = 0
 Game.maxCombo = 0
 
 -- TODO: move to ballpreview.lua
-local ballChances
+local ballChances = RandomBag.new(#BALL_COLORS, BALL_CHANCE_MODIFIER)
+
 
 function Game.start()
   Game.state = STATE_GAME_RUNNING
@@ -86,10 +87,10 @@ local lastBallNumber
 -- move to ballpreview file
 function Game.GetBallNumber() 
   while true do
-    local ballNumber = ballChances.get()
+    local ballNumber = ballChances:get()
     if ballNumber ~= lastBallNumber then
       --lastBallNumber = ballNumber
-      ballChances.update(ballNumber)
+      ballChances:update(ballNumber)
       return ballNumber
     end
   end

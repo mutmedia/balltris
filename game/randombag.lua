@@ -34,8 +34,8 @@ function RandomBag:normalize()
 end
 
 function RandomBag:update(num)
-  self[num] = self[num] * rb.modifier
-  self.normalize()
+  self[num] = self[num] * self.modifier
+  self:normalize()
 end
 
 return RandomBag
