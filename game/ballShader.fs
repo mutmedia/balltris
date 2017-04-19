@@ -39,13 +39,13 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)
   if (time_destroyed > 0.0 && time > time_destroyed) {
     float deltaTime = (time - time_destroyed) / TIME_TO_DESTROY;
     float timeInfluence = pow(deltaTime, 5.0);
-    visibleRadius = radius * (timeInfluence);
-    alpha = 1.0 - step(length(point-center), visibleRadius);
+    visibleRadius = radius * (1.0 - timeInfluence);
+    alpha = step(length(point-center), visibleRadius);
     colorDestroyed = vec3(alpha);
   }
 
   vec3 color3 = vec3(color);
-  float color_mult = (radius - length(point-center)) < 3.0 ? 0.3 : 1.0;
+  float color_mult = (visibleRadius - length(point-center)) < 3.0 ? 0.3 : 1.0;
   
   color3 *= color_mult;
   //vec3 color3hsv = rgb2hsv(color3);

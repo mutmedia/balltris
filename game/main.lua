@@ -313,7 +313,7 @@ function love.update(dt)
   lastTotalSpeed2 = totalSpeed2
 
   Game.objects.balls:Clean()
-  Game.UI:Clean()
+  --Game.UI:Clean()
 end
 
 function ComboMultiplier(combo)

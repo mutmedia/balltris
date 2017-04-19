@@ -1,31 +1,40 @@
+require 'game_debug' 
 require 'data_constants'
 require 'events'
 local UI = require 'ui'
 local Rectangle = UI.rectangle
 local Game = require 'game'
 
+local DEBUG_UI = true
+
 Rectangle{
-  x=BORDER_THICKNESS - 0.05*(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)/2,
+  name='Preview box',
+  layer=LAYER_GAME,
+  x=BORDER_THICKNESS - 0.2*(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)/2,
   y=0,
-  width=(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)*1.05,
+  width=(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)*1.2,
   height=BASE_SCREEN_HEIGHT,
-  color={255, 0, 0, 0},
+  color={0, 0, 0, DEBUG_UI and 255 or 0},
   drawMode='line',
   stateMask=STATE_GAME_RUNNING,
-  pressed = function(self, x, y)
-    --self.color = {0, 255, 0, 255}
-  end,
-  moved = function(self, x, y, dx, dy)
+  onMove = function(self, x, y, dx, dy)
+    if DEBUG_UI then self.color = {0, 255, 0, 255} end
     Game.events:fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
   end,
-  released = function(self, x, y)
-    --self.color = {255, 0, 0, 255}
+  onEnter = function(self, x, y)
+    Game.events:fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
+  end,
+  onExit = function(self, x, y)
+
+    if DEBUG_UI then self.color = {0, 0, 255, 255} end
     Game.events:fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
 }
 
 -- Replay button
 Rectangle{
+  name='Replay button',
+  layer=LAYER_MENUS,
   x=BORDER_THICKNESS + HOLE_WIDTH * 0.1,
   y=BASE_SCREEN_HEIGHT/2,
   width=HOLE_WIDTH * 0.8,
@@ -33,13 +42,14 @@ Rectangle{
   color={255, 0, 255, 255},
   drawMode='fill',
   stateMask= STATE_GAME_OVER,
-  released = function(self, x, y)
+  onPress = function(self, x, y)
     Game.start()
   end,
 }
 
 -- Line
 Rectangle{
+  layer=LAYER_HUD,
   x=BORDER_THICKNESS,
   y=MIN_DISTANCE_TO_TOP,
   width=HOLE_WIDTH,

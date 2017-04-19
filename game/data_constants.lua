@@ -25,10 +25,10 @@ NUM_COLORS = 5
 --BALL_HUE_OFFSET = 50
 BALL_COLORS = {
   {255, 179, 186},
-  --{255, 223, 186},
-  --{255, 255, 186},
-  --{186, 255, 201},
-  --{186, 225, 255},
+  {255, 223, 186},
+  {255, 255, 186},
+  {186, 255, 201},
+  {186, 225, 255},
 }
 
 WHITE_BALL_BORDER_COLOR = {99, 99, 99}
@@ -60,3 +60,17 @@ MIN_DISTANCE_TO_TOP = 2 * MAX_RADIUS
 -- Game states
 STATE_GAME_RUNNING = 1
 STATE_GAME_OVER  = 2
+
+-- Layers
+LAYER_BACKGROUND = 'background'
+LAYER_GAME = 'game'
+LAYER_HUD = 'hud'
+LAYER_MENUS = 'menus'
+
+GAME_LAYERS = {
+  LAYER_BACKGROUND,
+  LAYER_GAME,
+  LAYER_HUD,
+  LAYER_MENUS,
+}
+
