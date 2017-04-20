@@ -111,7 +111,7 @@ function UI.button(params)
         self.height) 
     end
 
-    love.graphics.setColor(self.color or {0, 0, 0})
+    love.graphics.setColor(self.textColor or {0, 0, 0})
     love.graphics.setFont(self.font)
     love.graphics.printf(
       self.getText(),

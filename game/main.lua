@@ -26,7 +26,7 @@ function NewBallPreview(initialData)
   local number = Game.GetBallNumber()
   --local indestructible = math.random() > 0.9
   local radius = GetRandomRadius()
-  local getColor = function() return initialData.indestructible and {255, 255, 255} or BALL_COLORS[number] end
+  local getColor = function() return initialData.indestructible and WHITE_BALL_COLOR or BALL_COLORS[number] end
   local position = Vector.new{x=BASE_SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING}
   return {
     number = number,
@@ -54,11 +54,14 @@ local totalSpeed2 = 0
 local lastTotalSpeed2 = -1
 local time = 0
 
-local PostEffectsShader
+local GaussianBlurShader
+local EdgeShader
 local BallShader
+local BlackWhiteShader
 local lightDirection = {1, 1, 3}
 local gameCanvas
-local postFxCanvas
+local auxCanvas1
+local auxCanvas2
 
 local startTime = love.timer.getTime()
 
@@ -88,12 +91,16 @@ function love.load()
   Game.UI.initialize()
 
   -- Shaders
-  BallShader = love.graphics.newShader('ballShader.fs')
-  PostEffectsShader = love.graphics.newShader('postfx.fs')
+  BallShader = love.graphics.newShader('shaders/ballShader.fs')
+  GaussianBlurShader = (require 'shaders/gaussianblur')(0.5)
+  EdgeShader = love.graphics.newShader('shaders/edgeshader.fs', 'shaders/edgeshader.vs')
+  BlackWhiteShader = love.graphics.newShader('shaders/blackandwhite.fs')
+
 
   -- Game Canvas
-  gameCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT)
-  postFxCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
+  gameCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
+  auxCanvas1 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
+  auxCanvas2 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
 
   Game.start()
 end
@@ -103,6 +110,7 @@ function love.draw()
 
   -- Move to new canvas
   love.graphics.setCanvas(gameCanvas)
+  love.graphics.clear()
   --love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
   --love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
 
@@ -135,12 +143,12 @@ function love.draw()
 
 
     love.graphics.setColor(Game.objects.ballPreview.getColor())
-    love.graphics.circle('fill', center[1], center[2], radius)
+    love.graphics.circle('fill', center[1], center[2], radius * BALL_DRAW_INCREASE)
 
   end
 
   local ballCount = 0
-  local BALL_SPEED_STRETCH = 0.2
+  local BALL_SPEED_STRETCH = 0.0001
   Game.objects.balls:forEach(function(ball) 
     local center = {ball.body:getX(), ball.body:getY()}
     local radius = ball.radius
@@ -156,9 +164,10 @@ function love.draw()
     local color = ball.getColor()
     --color[4] = ball.transparency 
     love.graphics.setColor(color)
-    --love.graphics.rotate(rot)
-    --love.graphics.scale(1+s, 1-s)
-    love.graphics.circle('fill', center[1], center[2], radius)
+    love.graphics.translate(center[1], center[2])
+    love.graphics.rotate(rot)
+    love.graphics.scale(1+s, 1-s)
+    love.graphics.circle('fill', 0, 0, radius * BALL_DRAW_INCREASE)
     love.graphics.pop()
     --love.graphics.reset()
     --DEBUGGER.line('ball: x='..ball.body:getX()..' y='..ball.body:getY()..'\n')
@@ -181,7 +190,7 @@ function love.draw()
 
     love.graphics.setColor(nextBallPreview.getColor())
 
-    love.graphics.circle('fill', center[1], center[2], radius)
+    love.graphics.circle('fill', center[1], center[2], radius * BALL_DRAW_INCREASE)
 
     ballPreviewNum = ballPreviewNum + 1
 
@@ -191,23 +200,74 @@ function love.draw()
 
   -- Switch to game post fx
 
-  love.graphics.setCanvas(postFxCanvas)
+  love.graphics.setCanvas(auxCanvas1)
+  love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
-  --love.graphics.setShader(PostEffectsShader)
   love.graphics.draw(gameCanvas)
-  --love.graphics.setShader()
+
+  love.graphics.setCanvas(auxCanvas2)
+  love.graphics.clear()
+  love.graphics.setColor(255, 255, 255)
+  love.graphics.setShader(BlackWhiteShader)
+  love.graphics.draw(auxCanvas1)
+  love.graphics.setShader()
+
+  love.graphics.setCanvas(auxCanvas1)
+  love.graphics.clear()
+  love.graphics.setColor(255, 255, 255)
+  GaussianBlurShader:send('direction', {1 / love.graphics.getWidth(), 0})
+  love.graphics.setShader(GaussianBlurShader)
+  love.graphics.draw(auxCanvas2)
+  love.graphics.setShader()
+
+  love.graphics.setCanvas(auxCanvas2)
+  love.graphics.clear()
+  love.graphics.setColor(255, 255, 255)
+  GaussianBlurShader:send('direction', {0, 1 / love.graphics.getHeight()})
+  love.graphics.setShader(GaussianBlurShader)
+  love.graphics.draw(auxCanvas1)
+  love.graphics.setShader()
+
+  love.graphics.setCanvas(auxCanvas1)
+  love.graphics.clear()
+  love.graphics.setColor(255, 255, 255)
+  EdgeShader:send('imageHeightFactor', 1/love.graphics.getHeight())
+  EdgeShader:send('imageWidthFactor', 1/love.graphics.getWidth())
+  love.graphics.setShader(EdgeShader)
+  love.graphics.draw(auxCanvas2)
+  love.graphics.setShader()
+  
+  love.graphics.setCanvas(auxCanvas2)
+  love.graphics.clear()
+  love.graphics.setColor(255, 255, 255)
+  GaussianBlurShader:send('direction', {1 / love.graphics.getWidth(), 0})
+  love.graphics.setShader(GaussianBlurShader)
+  love.graphics.draw(gameCanvas)
+  love.graphics.setShader()
+
+  love.graphics.setCanvas(gameCanvas)
+  love.graphics.clear()
+  love.graphics.setColor(255, 255, 255)
+  GaussianBlurShader:send('direction', {0, 1 / love.graphics.getHeight()})
+  love.graphics.setShader(GaussianBlurShader)
+  love.graphics.draw(auxCanvas2)
+  love.graphics.setShader()
 
   -- switch canvas and draw with new shader
   love.graphics.setCanvas()
+  love.graphics.clear()
+  love.graphics.setColor(255, 255, 255)
   love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
   love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
   love.graphics.setColor(255, 255, 255)
 
-  love.graphics.draw(postFxCanvas)
+
+  love.graphics.draw(gameCanvas)
+  love.graphics.draw(auxCanvas1)
 
 
   -- UI
- Game.UI.draw()
+  Game.UI.draw()
 
   -- debug
   DEBUGGER.draw()

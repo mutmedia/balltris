@@ -45,9 +45,9 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)
   }
 
   vec3 color3 = vec3(color);
-  float color_mult = (visibleRadius - length(point-center)) < 3.0 ? 0.3 : 1.0;
+  //float color_mult = (visibleRadius - length(point-center)) < 3.0 ? 0.3 : 1.0;
   
-  color3 *= color_mult;
+  //color3 *= color_mult;
   //vec3 color3hsv = rgb2hsv(color3);
   //color3 = hsv2rgb(color3hsv);
 

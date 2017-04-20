@@ -52,10 +52,10 @@ Text{
   layer=LAYER_HUD,
   x=80,
   y=50,
-  font=love.graphics.newFont(MAIN_UI_FONT, 30),
+  font=love.graphics.newFont(MAIN_UI_FONT, 40),
   width=100,
   getText = function()
-    return string.format('%05d', Game.score)
+    return string.format('%04d', Game.score)
   end,
 }
 
@@ -64,7 +64,7 @@ Text{
   layer=LAYER_HUD,
   x=80,
   y=100,
-  font=love.graphics.newFont(MAIN_UI_FONT, 20),
+  font=love.graphics.newFont(MAIN_UI_FONT, 30),
   width=100,
   getText = function()
     return 'Combo: x'..Game.combo
@@ -76,10 +76,10 @@ Text{
   layer=LAYER_HUD,
   x=-BORDER_THICKNESS/2,
   y=30,
-  font=love.graphics.newFont(MAIN_UI_FONT, 20),
+  font=love.graphics.newFont(MAIN_UI_FONT, 28),
   width=1000,
   getText = function()
-    return 'Next Balls:'
+    return 'Next Balls'
   end,
 }
 
@@ -103,7 +103,7 @@ Text{
   stateMask=STATE_GAME_OVER,
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 - 000 - 100,
-  font=love.graphics.newFont(MAIN_UI_FONT, 20),
+  font=love.graphics.newFont(MAIN_UI_FONT, 30),
   color={0, 0, 0},
   width=400,
   getText = function()
@@ -112,12 +112,12 @@ Text{
 }
 
 Text{
-  name='finalscore',
+  name='maxcombo',
   layer=LAYER_MENUS,
   stateMask=STATE_GAME_OVER,
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 + 50 - 100,
-  font=love.graphics.newFont(MAIN_UI_FONT, 20),
+  font=love.graphics.newFont(MAIN_UI_FONT, 30),
   color={0, 0, 0},
   width=400,
   getText = function()
@@ -132,10 +132,12 @@ Button{
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 + 50,
   width=HOLE_WIDTH * 0.8,
-  height=50,
+  height=80,
+  color={255, 255, 255},
+  --textColor={0, 0, 0},
   --lineColor={0, 0, 0},
   lineWidth=3,
-  font=love.graphics.newFont(MAIN_UI_FONT, 30),
+  font=love.graphics.newFont(MAIN_UI_FONT, 35),
   getText = function() 
     return 'Play Again?'
   end,
