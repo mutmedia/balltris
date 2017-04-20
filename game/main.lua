@@ -102,6 +102,9 @@ function love.load()
   auxCanvas1 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
   auxCanvas2 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
 
+  Game.load()
+
+  -- TODO: move to plave where game actually starts
   Game.start()
 end
 
@@ -148,7 +151,6 @@ function love.draw()
   end
 
   local ballCount = 0
-  local BALL_SPEED_STRETCH = 0.0001
   Game.objects.balls:forEach(function(ball) 
     local center = {ball.body:getX(), ball.body:getY()}
     local radius = ball.radius
@@ -253,7 +255,7 @@ function love.draw()
   love.graphics.draw(auxCanvas2)
   love.graphics.setShader()
 
-  -- switch canvas and draw with new shader
+  -- Switch to final canvas
   love.graphics.setCanvas()
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
@@ -274,27 +276,6 @@ function love.draw()
 end
 
 local staticFrameCount = 0
-
-function OnBallsStatic()
-  DEBUGGER.line('static')
-  local ballsTooHigh = false
-  Game.objects.balls:forEach(function(ball)
-    if not ball.inGame then return end
-    if ball.body:getY() < MIN_DISTANCE_TO_TOP + ball.radius then
-      ballsTooHigh = true
-    end
-  end)
-  if ballsTooHigh then
-    GameOver()
-  end
-  lastHit = hit
-  hit = false
-  if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo return end
-  Game.combo = 0
-
-end
-
-
 function love.update(dt)
   Scheduler.update(dt)
   Game.world:update(dt)
@@ -318,7 +299,7 @@ function love.update(dt)
   if totalSpeed2 < MIN_SPEED2 then
     staticFrameCount = staticFrameCount + 1
     if staticFrameCount == FRAMES_TO_STATIC then
-      Game.events:fire(EVENT_ON_BALLS_STATIC)
+      Game.events.fire(EVENT_ON_BALLS_STATIC)
     end
   else
     staticFrameCount = 0
@@ -327,23 +308,10 @@ function love.update(dt)
 
   if lastDroppedBall then
     if lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + lastDroppedBall.radius then
-      Game.events:fire(EVENT_SAFE_TO_DROP)
+      Game.events.fire(EVENT_SAFE_TO_DROP)
       lastDroppedBall = nil
     end
   end
-
-  if Game.state == STATE_GAME_OVER then
-    return
-  end
-
-  --[[if Game.objects.ballPreview then
-    if love.keyboard.isDown('right') then --press the right arrow key to push the ball to the right
-      Game.objects.ballPreview.position.x = Game.objects.ballPreview.position.x + PREVIEW_SPEED * dt
-    elseif love.keyboard.isDown('left') then
-      Game.objects.ballPreview.position.x = Game.objects.ballPreview.position.x - PREVIEW_SPEED * dt
-    end
-    Game.objects.ballPreview.position.x = utils.clamp(Game.objects.ballPreview.position.x, BORDER_THICKNESS + Game.objects.ballPreview.radius + 1, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + Game.objects.ballPreview.radius) - 1)
-  end]]--
 
   lastTotalSpeed2 = totalSpeed2
 
@@ -356,13 +324,7 @@ function ComboMultiplier(combo)
   return math.pow(2, combo)
 end
 
-function GameOver()
-  Game.objects.balls:forEach(function(ball)
-    if not ball.indestructible then return end
-    DestroyBall(ball)
-  end)
-  Game.state = STATE_GAME_OVER
-end
+
 
 function beginContact(a, b, coll)
   local aref = a:getUserData() and a:getUserData().ref
@@ -435,7 +397,6 @@ function GetNextBall()
     Game.objects.nextBallPreviews:forEach(function(ball)
       if ball.indestructible then
         hasWhiteBalls = true
-        DEBUGGER.line('White balls')
       end
     end)
     if hasWhiteBalls then 
@@ -466,7 +427,7 @@ function love.keypressed(key)
   end
 
   if key == 'o' then
-    GameOver()
+    Game.gameOver()
   end
 
   if key == 'r' then

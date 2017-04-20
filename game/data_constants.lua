@@ -31,6 +31,8 @@ BALL_COLORS = {
   {186, 225, 255},
 }
 
+BALL_SPEED_STRETCH = 0.0001
+
 WHITE_BALL_COLOR = {150, 150, 150}
 WHITE_BALL_BORDER_COLOR = {99, 99, 99}
 WHITE_BALL_BORDER_WIDTH = 5
@@ -64,7 +66,8 @@ MIN_DISTANCE_TO_TOP = 2 * MAX_RADIUS
 
 -- Game states
 STATE_GAME_RUNNING = 1
-STATE_GAME_OVER  = 2
+STATE_GAME_LOST = 2 -- When balls cross the line
+STATE_GAME_OVER  = 4 -- When everything ends
 
 -- Layers
 LAYER_BACKGROUND = 'background'

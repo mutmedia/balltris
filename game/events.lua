@@ -8,42 +8,38 @@ EVENT_RELEASED_PREVIEW = 'previewReleased'
 EVENT_PRESSED_SWITCH = 'switchReleased'
 EVENT_ON_BALLS_STATIC = 'ballsStatic'
 EVENT_SAFE_TO_DROP = 'safeToDrop'
+EVENT_BALLS_TOO_HIGH = 'ballsTooHigh'
 
-Events = {}
+Events = {
+  _callBacks = {},
+}
 
-function Events:add(eventName, callback)
-  if not self[eventName] then
-    self[eventName] = List.new()
+function Events.add(eventName, callback)
+  if not Events._callBacks[eventName] then
+    DEBUGGER.line('New event type')
+    Events._callBacks[eventName] = List.new()
   end
   local callbackObject = {
     call = callback
   }
-  self[eventName]:add(callbackObject)
+  Events._callBacks[eventName]:add(callbackObject)
 end
 
-function Events:fire(eventName, ...)
+function Events.fire(eventName, ...)
   local arg = {...}
-  if not self[eventName] then 
+  if not Events._callBacks[eventName] then 
     DEBUGGER.line('No event named: '..eventName)
     return 
   end
   
   --DEBUGGER.line('Firing event: '..eventName)
-  local argstr = ''
-  for k, v in pairs(arg) do
-    argstr = argstr..tostring(k)..'='..tostring(v)..'; '
-  end
-
-  --DEBUGGER.line('args: '..argstr)
-
-
-  self[eventName]:forEach(function(callback)
+  Events._callBacks[eventName]:forEach(function(callback)
     callback.call(unpack(arg))
   end)
 end
 
-function Events:clear()
-  Events = {}
+function Events.clear()
+  --Events._callBacks = {}
 end
 
 return Events

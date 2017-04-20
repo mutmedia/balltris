@@ -11,12 +11,40 @@ Game.state = STATE_GAME_RUNNING
 Game.world = nil
 
 Game.score = 0
+Game.highScore = 0
+Game.newHighScore = false
 Game.combo = 0
 Game.maxCombo = 0
+
+-- Initialize game
 
 -- TODO: move to ballpreview.lua
 local ballChances = RandomBag.new(#BALL_COLORS, BALL_CHANCE_MODIFIER)
 
+function Game.load()
+  Game.savePath = 'save.lua'
+  DEBUGGER.line(Game.savePath)
+  if love.filesystem.exists(Game.savePath) then
+    local loadChunk = love.filesystem.load(Game.savePath)
+    loadChunk()
+  end
+end
+
+function Game.save()
+  DEBUGGER.line('Saving game')
+  local file, errorstr = love.filesystem.newFile(Game.savePath, 'w') 
+  if errorstr then 
+    DEBUGGER.line('Error file: '..errorstr)
+    return 
+  end
+  local savestring = [[
+      Game.highScore = %d
+      ]]
+  savestring = savestring:format(Game.highScore)
+  local s, err = file:write(savestring)
+
+  DEBUGGER.line('Write: '..(s and 'true' or 'false')..' '..(err or 'nil'))
+end
 
 function Game.start()
   Game.state = STATE_GAME_RUNNING
@@ -59,28 +87,71 @@ function Game.start()
   end)
 
   -- Events
-  Game.events:clear()
-  Game.events:add(EVENT_MOVED_PREVIEW, function(x, y, dx, dy)
+  Game.events.clear()
+  Game.events.add(EVENT_MOVED_PREVIEW, function(x, y, dx, dy)
     if Game.objects.ballPreview then
       Game.objects.ballPreview.drawStyle = 'line'
       Game.objects.ballPreview.position.x = utils.clamp(x, BORDER_THICKNESS + Game.objects.ballPreview.radius + 1, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + Game.objects.ballPreview.radius) - 1)
     end
   end)
 
-  Game.events:add(EVENT_RELEASED_PREVIEW, ReleaseBall)
-  Game.events:add(EVENT_PRESSED_SWITCH, SwitchBall)
-  Game.events:add(EVENT_ON_BALLS_STATIC, OnBallsStatic)
-  Game.events:add(EVENT_SAFE_TO_DROP, GetNextBall)
-
+  Game.events.add(EVENT_RELEASED_PREVIEW, ReleaseBall)
+  Game.events.add(EVENT_ON_BALLS_STATIC, Game.onBallsStatic)
+  Game.events.add(EVENT_SAFE_TO_DROP, GetNextBall)
+  Game.events.add(EVENT_BALLS_TOO_HIGH, function()
+    Game.objects.balls:forEach(function(ball)
+      if not ball.indestructible then return end
+      DestroyBall(ball)
+    end)
+    Game.state = STATE_GAME_LOST
+    DEBUGGER.line('balls too high')
+    Game.events.add(EVENT_ON_BALLS_STATIC, Game.gameOver)
+  end)
 
   -- Score
   Game.score = 0
   Game.combo = 0
   Game.maxCombo = 0
+  Game.newHighScore = false
 
   -- Ball chances
   ballChances = RandomBag.new(#BALL_COLORS, BALL_CHANCE_MODIFIER)
 end
+
+local static = 0
+function Game.onBallsStatic()
+  static = static + 1
+  DEBUGGER.line('static '..static)
+  local ballsTooHigh = false
+  Game.objects.balls:forEach(function(ball)
+    if not ball.inGame then return end
+    if ball.body:getY() < MIN_DISTANCE_TO_TOP + ball.radius then
+      ballsTooHigh = true
+    end
+  end)
+  if ballsTooHigh then
+    Game.events.fire(EVENT_BALLS_TOO_HIGH)
+  end
+  lastHit = hit
+  hit = false
+  if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo return end
+  Game.combo = 0
+
+end
+
+function Game.gameOver()
+  Game.setHighScore(Game.score)
+  Game.state = STATE_GAME_OVER
+end
+
+function Game.setHighScore(score)
+  if score > Game.highScore then
+    Game.highScore = score
+    Game.save()
+    Game.newHighScore = true
+  end
+end
+
 
 local lastBallNumber
 -- TODO: remove from game

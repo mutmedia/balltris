@@ -139,7 +139,7 @@ end
 function UI.draw()
   for i=#GAME_LAYERS,1,-1 do
     for _, elem in ipairs(UI._layers[GAME_LAYERS[i]]) do
-      if not elem.stateMask or bit32.band(elem.stateMask, Game.state) ~= 0 then
+      if not elem.condition or elem.condition() then
         elem:draw() 
       end
     end
@@ -171,7 +171,7 @@ function UI.Action(x, y, actionName)
     for _, elem in ipairs(UI._layers[GAME_LAYERS[i]]) do
       elem._lastState.pressed = elem._state.pressed
       elem._lastState.inside = elem._state.inside
-      if not elem.stateMask or bit32.band(elem.stateMask, Game.state) ~= 0 then
+      if not elem.condition or elem.condition() then
         if elem:contains(tx, ty) then
           if actionName == 'pressed' then
             elem._state.pressed = true

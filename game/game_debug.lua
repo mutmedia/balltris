@@ -1,4 +1,4 @@
---local DEBUGGER_MODE = true
+local DEBUGGER_MODE = true
 local MAX_LINES = 10
 
 DEBUGGER = {
@@ -7,8 +7,9 @@ DEBUGGER = {
 
 function DEBUGGER.draw()
   if DEBUGGER_MODE then
+    love.graphics.setNewFont()
     love.graphics.setColor({255, 0, 255, 255})
-    love.graphics.print('DEBUGGER:\n'..DEBUGGER.text, 10, 150)
+    love.graphics.print('DEBUGGER:\n'..DEBUGGER.text, 10, 550)
   end
 end
 

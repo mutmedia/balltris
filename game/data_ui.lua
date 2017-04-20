@@ -12,10 +12,36 @@ local Game = require 'game'
 
 local MAIN_UI_FONT = 'content/bubblegum.ttf'
 
+function inGameState(...)
+  local gameStates = {...}
+  return function()
+    for _, state in pairs(gameStates) do
+      if Game.state == state then
+        return true
+      end
+    end
+    
+    return false
+  end
+end
+
+function conditionAnd(...)
+  local conditions = {...}
+  return function()
+    for _, cond in pairs(conditions) do
+      if not cond() then
+        return false
+      end
+    end
+
+    return true
+  end
+end
+
 Rectangle{
   name='previewbox',
   layer=LAYER_GAME,
-  stateMask=STATE_GAME_RUNNING,
+  condition=inGameState(STATE_GAME_RUNNING),
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2,
   width=(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)*1.2,
@@ -24,15 +50,15 @@ Rectangle{
   lineColor={0, 0, 0, DEBUG_UI and 255 or 0},
   onMove = function(self, x, y, dx, dy)
     if DEBUG_UI then self.lineColor = {0, 255, 0, 255} end
-    Game.events:fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
+    Game.events.fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
   end,
   onEnter = function(self, x, y)
-    Game.events:fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
+    Game.events.fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
   end,
   onExit = function(self, x, y)
 
     if DEBUG_UI then self.lineColor = {0, 0, 255, 255} end
-    Game.events:fire(EVENT_RELEASED_PREVIEW, x, y)
+    Game.events.fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
 }
 
@@ -48,24 +74,36 @@ Rectangle{
 }
 
 Text{
-  name='score',
+  name='highscore',
   layer=LAYER_HUD,
-  x=80,
-  y=50,
+  x=BORDER_THICKNESS/2,
+  y=30,
   font=love.graphics.newFont(MAIN_UI_FONT, 40),
   width=100,
   getText = function()
-    return string.format('%04d', Game.score)
+    return string.format('High: %04d', Game.highScore)
+  end,
+}
+
+Text{
+  name='score',
+  layer=LAYER_HUD,
+  x=BORDER_THICKNESS/2,
+  y=150,
+  font=love.graphics.newFont(MAIN_UI_FONT, 40),
+  width=180,
+  getText = function()
+    return string.format('Score: %04d', Game.score)
   end,
 }
 
 Text{
   name='combo',
   layer=LAYER_HUD,
-  x=80,
-  y=100,
+  x=BORDER_THICKNESS/2,
+  y=250,
   font=love.graphics.newFont(MAIN_UI_FONT, 30),
-  width=100,
+  width=180,
   getText = function()
     return 'Combo: x'..Game.combo
   end,
@@ -86,7 +124,7 @@ Text{
 Text{
   name='gameover',
   layer=LAYER_MENUS,
-  stateMask=STATE_GAME_OVER,
+  condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 - 200 - 100,
   font=love.graphics.newFont(MAIN_UI_FONT, 80),
@@ -98,9 +136,23 @@ Text{
 }
 
 Text{
+  name='newHighScore',
+  layer=LAYER_MENUS,
+  condition=conditionAnd(inGameState(STATE_GAME_OVER), function() return Game.newHighScore end),
+  x=BASE_SCREEN_WIDTH/2,
+  y=BASE_SCREEN_HEIGHT/2 -130,
+  font=love.graphics.newFont(MAIN_UI_FONT, 20),
+  width=200,
+  getText = function()
+    return 'New High Score!'
+  end,
+}
+
+
+Text{
   name='finalscore',
   layer=LAYER_MENUS,
-  stateMask=STATE_GAME_OVER,
+  condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 - 000 - 100,
   font=love.graphics.newFont(MAIN_UI_FONT, 30),
@@ -114,7 +166,7 @@ Text{
 Text{
   name='maxcombo',
   layer=LAYER_MENUS,
-  stateMask=STATE_GAME_OVER,
+  condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 + 50 - 100,
   font=love.graphics.newFont(MAIN_UI_FONT, 30),
@@ -128,7 +180,7 @@ Text{
 Button{
   name='replaybutton',
   layer=LAYER_MENUS,
-  stateMask= STATE_GAME_OVER,
+  condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 + 50,
   width=HOLE_WIDTH * 0.8,
@@ -158,7 +210,7 @@ Button{
     self.color = {0, 255, 0, 255}
   end,
   released = function(self, x, y)
-    game.events:fire(EVENT_PRESSED_SWITCH)
+    game.events.fire(EVENT_PRESSED_SWITCH)
     self.color = {255, 0, 0, 255}
   end,
 }]]--
