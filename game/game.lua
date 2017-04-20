@@ -23,7 +23,6 @@ local ballChances = RandomBag.new(#BALL_COLORS, BALL_CHANCE_MODIFIER)
 
 function Game.load()
   Game.savePath = 'save.lua'
-  DEBUGGER.line(Game.savePath)
   if love.filesystem.exists(Game.savePath) then
     local loadChunk = love.filesystem.load(Game.savePath)
     loadChunk()
@@ -31,10 +30,8 @@ function Game.load()
 end
 
 function Game.save()
-  DEBUGGER.line('Saving game')
   local file, errorstr = love.filesystem.newFile(Game.savePath, 'w') 
   if errorstr then 
-    DEBUGGER.line('Error file: '..errorstr)
     return 
   end
   local savestring = [[
@@ -43,7 +40,6 @@ function Game.save()
   savestring = savestring:format(Game.highScore)
   local s, err = file:write(savestring)
 
-  DEBUGGER.line('Write: '..(s and 'true' or 'false')..' '..(err or 'nil'))
 end
 
 function Game.start()
@@ -104,7 +100,6 @@ function Game.start()
       DestroyBall(ball)
     end)
     Game.state = STATE_GAME_LOST
-    DEBUGGER.line('balls too high')
     Game.events.add(EVENT_ON_BALLS_STATIC, Game.gameOver)
   end)
 
@@ -121,7 +116,6 @@ end
 local static = 0
 function Game.onBallsStatic()
   static = static + 1
-  DEBUGGER.line('static '..static)
   local ballsTooHigh = false
   Game.objects.balls:forEach(function(ball)
     if not ball.inGame then return end

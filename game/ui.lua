@@ -1,5 +1,3 @@
-require 'game_debug'
-
 local bit32 = require("bit") 
 
 require 'data_constants'

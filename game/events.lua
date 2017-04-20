@@ -1,5 +1,3 @@
-require 'game_debug'
-
 local List = require 'doubly_linked_list'
 
 -- Events
@@ -16,7 +14,6 @@ Events = {
 
 function Events.add(eventName, callback)
   if not Events._callBacks[eventName] then
-    DEBUGGER.line('New event type')
     Events._callBacks[eventName] = List.new()
   end
   local callbackObject = {
@@ -28,11 +25,9 @@ end
 function Events.fire(eventName, ...)
   local arg = {...}
   if not Events._callBacks[eventName] then 
-    DEBUGGER.line('No event named: '..eventName)
     return 
   end
   
-  --DEBUGGER.line('Firing event: '..eventName)
   Events._callBacks[eventName]:forEach(function(callback)
     callback.call(unpack(arg))
   end)

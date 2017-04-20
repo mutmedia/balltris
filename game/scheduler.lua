@@ -1,4 +1,3 @@
-require 'game_debug'
 local List = require 'doubly_linked_list'
 
 local Scheduler = {

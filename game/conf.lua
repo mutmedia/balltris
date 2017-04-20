@@ -1,7 +1,7 @@
 function love.conf(t)
   t.identity = 'balltris'             -- The name of the save directory (string)
   t.version = "0.10.2"                -- The LÖVE version this game was made for (string)
-  t.console = false                   -- Attach a console (boolean, Windows only)
+  t.console = true                    -- Attach a console (boolean, Windows only)
   t.accelerometerjoystick = true      -- Enable the accelerometer on iOS and Android by exposing it as a Joystick (boolean)
   t.externalstorage = true            -- True to save files (and read from the save directory) in external storage on Android (boolean) 
   t.gammacorrect = true               -- Enable gamma-correct rendering, when supported by the system (boolean)

@@ -1,5 +1,3 @@
-require 'game_debug'
-
 -- Libraries
 require 'math_utils'
 local List = require 'doubly_linked_list'
@@ -172,7 +170,6 @@ function love.draw()
     love.graphics.circle('fill', 0, 0, radius * BALL_DRAW_INCREASE)
     love.graphics.pop()
     --love.graphics.reset()
-    --DEBUGGER.line('ball: x='..ball.body:getX()..' y='..ball.body:getY()..'\n')
   end)
 
   -- Next balls
@@ -271,8 +268,6 @@ function love.draw()
   -- UI
   Game.UI.draw()
 
-  -- debug
-  DEBUGGER.draw()
 end
 
 local staticFrameCount = 0
@@ -420,7 +415,6 @@ function love.keypressed(key)
 
   -- DEBUG input
   if key == 'u' then
-    DEBUGGER.line('Reloaded UI and constants')
     Game.UI:initialize()
     dofile('Game/data_ui.lua')
     dofile('Game/data_constants.lua')
@@ -436,9 +430,6 @@ function love.keypressed(key)
     Game.objects.ballPreview = NewBallPreview()
     Game.objects.nextBallPreviews:Clear()
     Game.objects.nextBallPreviews:enqueue(NewBallPreview())
-  end
-  if key == 'e' then
-    DEBUGGER.clear()
   end
 end
 

@@ -1,4 +1,3 @@
-require 'game_debug' 
 require 'data_constants'
 require 'events'
 
