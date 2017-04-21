@@ -4,6 +4,7 @@ local List = require 'doubly_linked_list'
 local Queue = require 'queue'
 local Vector = require 'vector2d'
 local Scheduler = require 'scheduler'
+--local BackEnd = require 'playfab'
 
 -- Game Files
 local Game = require 'game'
@@ -65,6 +66,8 @@ local startTime = love.timer.getTime()
 
 -- Behaviour definitions
 function love.load()
+  --BackEnd.connect()
+
   math.randomseed( os.time() )
   love.window.setTitle(TITLE)
   love.window.setMode(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, {resizable=true})
@@ -315,8 +318,7 @@ function love.update(dt)
 end
 
 function ComboMultiplier(combo)
-  if combo == 0 then return 0 end
-  return math.pow(2, combo)
+  return combo
 end
 
 
@@ -332,7 +334,12 @@ function beginContact(a, b, coll)
   if aref.number == bref.number then
     -- Combo stuff
     Game.combo = Game.combo + 1
-    Game.score = Game.score + ComboMultiplier(Game.combo)
+    if not aref.willDestroy then
+      Game.score = Game.score + ComboMultiplier(Game.combo)
+    end
+    if not bref.willDestroy then
+      Game.score = Game.score + ComboMultiplier(Game.combo)
+    end
     hit = true
 
     -- Ball destruction

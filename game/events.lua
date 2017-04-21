@@ -34,7 +34,7 @@ function Events.fire(eventName, ...)
 end
 
 function Events.clear()
-  --Events._callBacks = {}
+  Events._callBacks = {}
 end
 
 return Events
