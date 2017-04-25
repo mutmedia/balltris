@@ -20,12 +20,35 @@ BALL_RADIUS_MULTIPLIERS = {1, 1.7, 2.5}
 BALL_MAX_RADIUS = BALL_BASE_RADIUS * BALL_RADIUS_MULTIPLIERS[#BALL_RADIUS_MULTIPLIERS]
 
 BALL_COLORS = {
+  --[[ Synthwave ]]--
+  {65, 163, 162},
+  {82, 107, 163},
+  {105, 78, 156},
+  {140, 58, 145},
+  {168, 34, 92},
+
+  --[[ Neon
+  {154, 0, 157},
+  {254, 0, 2},
+  {0, 205, 254},
+  {51, 205, 49},
+  {255, 203, 3},
+  ]]--
+  --[[ Same Luma
+  {33, 224, 3},
+  {3, 203, 213},
+  {249, 54, 252},
+  {253, 148, 103},
+  {191, 191, 3}
+  ]]--
+  --[[ Strong
   {255, 0, 0},
   {0, 255, 0},
-  {0, 0, 255},
-  {255, 0, 255},
-  {255, 255, 0}
-  --[[
+  {0, 123, 123},
+  {123, 0, 123},
+  {123, 123, 0}
+  ]]--
+  --[[ Pastel
   {255, 179, 186},
   {255, 223, 186},
   {255, 255, 186},
@@ -34,9 +57,10 @@ BALL_COLORS = {
   ]]--
 }
 
-NEON_ATTENUATION_A = 0.1
-NEON_ATTENUATION_B = 150
-NEON_INTENSITY = 0.09
+BALL_LINES_DISTANCE = 6
+BALL_LINE_WIDTH_OUT = 2
+BALL_LINE_WIDTH_IN = 2
+
 
 BALL_SPEED_STRETCH = 0.0001
 BALL_TIME_TO_DESTROY = 0.05
@@ -45,7 +69,7 @@ BALL_DRAW_SCALE = 0.99
 
 -- White Ball
 WHITE_BALL_SIZE = BALL_BASE_RADIUS * 1.7
-WHITE_BALL_COLOR = {255, 255, 255}
+WHITE_BALL_COLOR = {190, 190, 190}
 --WHITE_BALL_COLOR = {150, 150, 150}
 WHITE_BALL_BORDER_COLOR = {99, 99, 99}
 WHITE_BALL_BORDER_WIDTH = 5
