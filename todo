@@ -1,15 +1,16 @@
 wip
-SET LOVE.CONF!!
+
+
 
 Better but still simple HUD. (show combos)
   - Combos
   - Static/Dynamic
 
-Save high score online
+Menu and Main Menu functionality
 
-Move debug to console
-BUG: Fix static bug
 Next ball list update animation
 Better ball drop animation
 Vertical Prediction line
 BUG: app open through icon restarting
+
+Save high score online -- TOO HARD

@@ -21,6 +21,8 @@ Game.maxCombo = 0
 -- TODO: move to ballpreview.lua
 local ballChances = RandomBag.new(#BALL_COLORS, BALL_CHANCE_MODIFIER)
 
+local radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
+
 function Game.load()
   Game.savePath = 'save.lua'
   if love.filesystem.exists(Game.savePath) then
@@ -109,13 +111,13 @@ function Game.start()
   Game.maxCombo = 0
   Game.newHighScore = false
 
-  -- Ball chances
+  -- Random bags
   ballChances = RandomBag.new(#BALL_COLORS, BALL_CHANCE_MODIFIER)
+  radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
+
 end
 
-local static = 0
 function Game.onBallsStatic()
-  static = static + 1
   local ballsTooHigh = false
   Game.objects.balls:forEach(function(ball)
     if not ball.inGame then return end
@@ -128,13 +130,14 @@ function Game.onBallsStatic()
   end
   lastHit = hit
   hit = false
-  if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo return end
+  if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
   Game.combo = 0
 
 end
 
 function Game.gameOver()
   Game.setHighScore(Game.score)
+  Game.objects.balls:forEach(DestroyBall)
   Game.state = STATE_GAME_OVER
 end
 
@@ -145,7 +148,6 @@ function Game.setHighScore(score)
     Game.newHighScore = true
   end
 end
-
 
 local lastBallNumber
 -- TODO: remove from game
@@ -159,6 +161,12 @@ function Game.GetBallNumber()
       return ballNumber
     end
   end
+end
+
+function Game.GetBallRadius()
+  local radiusNumber = radiusChances:get()
+  radiusChances:update(radiusNumber)
+  return BALL_BASE_RADIUS * BALL_RADIUS_MULTIPLIERS[radiusNumber]
 end
 
 return Game

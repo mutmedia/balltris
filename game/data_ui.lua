@@ -99,6 +99,7 @@ Text{
 Text{
   name='combo',
   layer=LAYER_HUD,
+  condition = function() return Game.combo > 0 end,
   x=BORDER_THICKNESS/2,
   y=250,
   font=love.graphics.newFont(MAIN_UI_FONT, 30),

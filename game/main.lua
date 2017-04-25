@@ -11,20 +11,13 @@ local Game = require 'game'
 require 'data_constants'
 
 -- Helper functions
-function GetRandomRadius()
-  return BASE_RADIUS * RADIUS_MULTIPLIERS[math.random(#RADIUS_MULTIPLIERS)]
-end
-
-
-
-
 function NewBallPreview(initialData)
   initialData = initialData or {
     indestructible = false,
   }
   local number = Game.GetBallNumber()
   --local indestructible = math.random() > 0.9
-  local radius = GetRandomRadius()
+  local radius = initialData.indestructible and WHITE_BALL_SIZE or Game.GetBallRadius()
   local getColor = function() return initialData.indestructible and WHITE_BALL_COLOR or BALL_COLORS[number] end
   local position = Vector.new{x=BASE_SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING}
   return {
@@ -57,6 +50,7 @@ local GaussianBlurShader
 local EdgeShader
 local BallShader
 local BlackWhiteShader
+local NeonShader
 local lightDirection = {1, 1, 3}
 local gameCanvas
 local auxCanvas1
@@ -96,6 +90,7 @@ function love.load()
   GaussianBlurShader = (require 'shaders/gaussianblur')(0.5)
   EdgeShader = love.graphics.newShader('shaders/edgeshader.fs', 'shaders/edgeshader.vs')
   BlackWhiteShader = love.graphics.newShader('shaders/blackandwhite.fs')
+  NeonShader = love.graphics.newShader('shaders/neonshader.fs')
 
 
   -- Game Canvas
@@ -133,47 +128,66 @@ function love.draw()
   love.graphics.setLineWidth(1)
   -- Balls
 
+  local ballCount = 0
+  local radii = {}
+  local centers = {}
+  local colors = {}
+  local time_destroyed = {}
   -- Ball Preview
   local time = love.timer.getTime() - startTime
-  love.graphics.setShader(BallShader)
+  --love.graphics.setShader(BallShader)
   --BallShader:send('light_dir', lightDirection)
   if Game.objects.ballPreview and Game.objects.ballPreview.drawStyle ~= 'none' then
     local center = {Game.objects.ballPreview.position.x, Game.objects.ballPreview.position.y}
     local radius = Game.objects.ballPreview.radius
-    BallShader:send('center', center)
-    BallShader:send('radius', radius)
-    BallShader:send('time', time)
-    BallShader:send('time_destroyed', -1)
+    local color = Game.objects.ballPreview.getColor()
+    table.insert(radii, radius * BALL_DRAW_SCALE) 
+    table.insert(centers, center) 
+    table.insert(colors, color) 
+    table.insert(time_destroyed, -1)
+    --BallShader:send('center', center)
+    --BallShader:send('radius', radius)
+    --BallShader:send('time', time)
+    --BallShader:send('time_destroyed', -1)
 
 
-    love.graphics.setColor(Game.objects.ballPreview.getColor())
-    love.graphics.circle('fill', center[1], center[2], radius * BALL_DRAW_INCREASE)
-
+    --love.graphics.setColor(Game.objects.ballPreview.getColor())
+    --love.graphics.circle('fill', center[1], center[2], radius * BALL_DRAW_SCALE)
+    ballCount = ballCount + 1
   end
 
-  local ballCount = 0
   Game.objects.balls:forEach(function(ball) 
     local center = {ball.body:getX(), ball.body:getY()}
     local radius = ball.radius
+    local color = ball.getColor()
+    --[[
     BallShader:send('center', center)
     BallShader:send('radius', radius)
     BallShader:send('time', time)
     BallShader:send('time_destroyed', ball.timeDestroyed or -1)
+    ]]--
+    table.insert(radii, radius * BALL_DRAW_SCALE) 
+    table.insert(centers, center) 
+    table.insert(colors, color) 
+    table.insert(time_destroyed, ball.timeDestroyed or -1)
     ballCount = ballCount + 1
     local vx, vy = ball.body:getLinearVelocity()
     local s = BALL_SPEED_STRETCH * math.sqrt(vx * vx + vy * vy)
     local rot = math.atan2(vy, vx)
-    love.graphics.push()
-    local color = ball.getColor()
+    --love.graphics.push()
     --color[4] = ball.transparency 
-    love.graphics.setColor(color)
+    --love.graphics.setColor(color)
+    --[[
     love.graphics.translate(center[1], center[2])
     love.graphics.rotate(rot)
     love.graphics.scale(1+s, 1-s)
-    love.graphics.circle('fill', 0, 0, radius * BALL_DRAW_INCREASE)
+    love.graphics.circle('fill', 0, 0, radius * BALL_DRAW_SCALE)
     love.graphics.pop()
+    ]]--
     --love.graphics.reset()
+    ballCount = ballCount + 1
   end)
+  
 
   -- Next balls
   local ballPreviewNum = 1
@@ -185,23 +199,47 @@ function love.draw()
 
     local center = {ballPreviewX, ballPreviewHeight}
     local radius = nextBallPreview.radius
-    BallShader:send('center', center)
-    BallShader:send('radius', radius)
-    BallShader:send('time', time)
-    BallShader:send('time_destroyed', -1)
+    local color = nextBallPreview.getColor()
+    table.insert(radii, radius * BALL_DRAW_SCALE) 
+    table.insert(centers, center) 
+    table.insert(colors, color) 
+    table.insert(time_destroyed, -1)
+    --BallShader:send('center', center)
+    --BallShader:send('radius', radius)
+    --BallShader:send('time', time)
+    --BallShader:send('time_destroyed', -1)
 
-    love.graphics.setColor(nextBallPreview.getColor())
+    --love.graphics.setColor(color)
 
-    love.graphics.circle('fill', center[1], center[2], radius * BALL_DRAW_INCREASE)
+    --love.graphics.circle('fill', center[1], center[2], radius * BALL_DRAW_SCALE)
 
     ballPreviewNum = ballPreviewNum + 1
 
     ballPreviewHeight = ballPreviewHeight + nextBallPreview.radius + 5
+    ballCount = ballCount + 1
   end)
-  love.graphics.setShader()
+
+  if ballCount > 0  then 
+    NeonShader:send('centers', unpack(centers))
+    NeonShader:send('radii', unpack(radii))
+    NeonShader:send('colors', unpack(colors))
+    --NeonShader:send('time_destroyed', unpack(time_destroyed))
+    NeonShader:send('num_circles', ballCount)
+    NeonShader:send('a', NEON_ATTENUATION_A)
+    NeonShader:send('b', NEON_ATTENUATION_B)
+    NeonShader:send('intensity', NEON_INTENSITY)
+    --NeonShader:send('time', time)
+    love.graphics.setShader(NeonShader)
+    love.graphics.rectangle('fill', 0, 0, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT)
+    love.graphics.setShader()
+  end
+
+
+  --love.graphics.setShader()
 
   -- Switch to game post fx
 
+  --[[
   love.graphics.setCanvas(auxCanvas1)
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
@@ -238,7 +276,7 @@ function love.draw()
   love.graphics.setShader(EdgeShader)
   love.graphics.draw(auxCanvas2)
   love.graphics.setShader()
-  
+
   love.graphics.setCanvas(auxCanvas2)
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
@@ -254,8 +292,9 @@ function love.draw()
   love.graphics.setShader(GaussianBlurShader)
   love.graphics.draw(auxCanvas2)
   love.graphics.setShader()
-
+  ]]--
   -- Switch to final canvas
+
   love.graphics.setCanvas()
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
@@ -265,11 +304,14 @@ function love.draw()
 
 
   love.graphics.draw(gameCanvas)
-  love.graphics.draw(auxCanvas1)
+  --love.graphics.draw(auxCanvas1)
 
 
   -- UI
   Game.UI.draw()
+  love.graphics.setColor(0, 255, 0)
+  love.graphics.setNewFont(10)
+  love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
 
 end
 
@@ -315,6 +357,7 @@ function love.update(dt)
 
   Game.objects.balls:Clean()
   --Game.UI:Clean()
+
 end
 
 function ComboMultiplier(combo)
@@ -344,12 +387,12 @@ function beginContact(a, b, coll)
 
     -- Ball destruction
     if not aref.willDestroy then
-      Scheduler.add(function() DestroyBall(aref) end, TIME_TO_DESTROY)
+      Scheduler.add(function() DestroyBall(aref) end, BALL_TIME_TO_DESTROY)
     end
     aref.willDestroy = true
 
     if not bref.willDestroy then
-      Scheduler.add(function() DestroyBall(bref) end, TIME_TO_DESTROY)
+      Scheduler.add(function() DestroyBall(bref) end, BALL_TIME_TO_DESTROY)
     end
     bref.willDestroy = true
 
@@ -390,6 +433,7 @@ function DestroyBall(ball)
   ball.destroyed = true
   ball.timeDestroyed = love.timer.getTime() - startTime
   ball.fixture:setMask(COL_MAIN_CATEGORY)
+  ball.body:setActive(false)
 end
 
 function GetNextBall() 
