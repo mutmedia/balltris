@@ -123,15 +123,14 @@ function love.draw()
   love.graphics.polygon('fill', Game.objects.ground.body:getWorldPoints(Game.objects.ground.shape:getPoints())) 
   love.graphics.polygon('fill', Game.objects.wallL.body:getWorldPoints(Game.objects.wallL.shape:getPoints()))
   love.graphics.polygon('fill', Game.objects.wallR.body:getWorldPoints(Game.objects.wallR.shape:getPoints()))
-
-  love.graphics.setLineWidth(3)
-  love.graphics.setColor(0, 0, 0)
-  --love.graphics.setColor(255, 255, 255)
-  love.graphics.rectangle('fill', BORDER_THICKNESS, -10, HOLE_WIDTH, HOLE_DEPTH + 10)
-  love.graphics.setColor(0, 0, 0)
-  love.graphics.rectangle('line', BORDER_THICKNESS, -10, HOLE_WIDTH, HOLE_DEPTH + 10)
-  love.graphics.setLineWidth(1)
   ]]--
+
+  love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
+  love.graphics.setColor(WHITE_BALL_COLOR)
+  love.graphics.rectangle('line', BORDER_THICKNESS, -10, HOLE_WIDTH, HOLE_DEPTH + 10)
+  love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
+  love.graphics.rectangle('line', BORDER_THICKNESS - BALL_LINES_DISTANCE, -10 - BALL_LINES_DISTANCE, HOLE_WIDTH + 2 * BALL_LINES_DISTANCE, HOLE_DEPTH + 10 + 2 * BALL_LINES_DISTANCE)
+  love.graphics.setLineWidth(1)
   -- Balls
   love.graphics.setBlendMode('add', 'premultiplied')
   
@@ -248,11 +247,11 @@ function love.draw()
   --love.graphics.setColor(255, 255, 255)
 
 
-  love.graphics.draw(gameCanvas)
+  --love.graphics.draw(gameCanvas)
   love.graphics.setBlendMode('add')
   love.graphics.draw(auxCanvas1)
   --love.graphics.setBlendMode('add')
-  love.graphics.setColor(200, 0, 0, 120)
+  --love.graphics.setColor(200, 0, 0, 120)
   --love.graphics.circle('fill', 300, 400, 200)
   --love.graphics.setColor(0, 200, 0, 120)
   --love.graphics.circle('fill', 300, 600, 200)
