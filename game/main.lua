@@ -36,6 +36,8 @@ function IsInsideScreen(x, y)
 end
 
 -- Variables
+local DEBUG_SHOW_FPS = false
+
 local lastDroppedBall
 
 local hit = false
@@ -50,7 +52,8 @@ local GaussianBlurShader
 local EdgeShader
 local TurnOffShader
 local BlackWhiteShader
-local NeonShader
+local BarrelDistortShader
+
 local lightDirection = {1, 1, 3}
 local gameCanvas
 local auxCanvas1
@@ -87,10 +90,11 @@ function love.load()
 
   -- Shaders
   TurnOffShader = love.graphics.newShader('shaders/turnOffShader.fs')
-  GaussianBlurShader = love.graphics.newShader('shaders/gaussianblur.vs', 'shaders/gaussianblur.fs')
+  --GaussianBlurShader = love.graphics.newShader('shaders/gaussianblur.vs', 'shaders/gaussianblur.fs')
+  GaussianBlurShader = require('shaders/gaussianblur')(5)
   EdgeShader = love.graphics.newShader('shaders/edgeshader.fs', 'shaders/edgeshader.vs')
   BlackWhiteShader = love.graphics.newShader('shaders/blackandwhite.fs')
-  NeonShader = love.graphics.newShader('shaders/neonshader.fs')
+  BarrelDistortShader = love.graphics.newShader('shaders/barreldistort.fs')
   --love.graphics.setBlendMode('add')
 
 
@@ -133,7 +137,7 @@ function love.draw()
   love.graphics.setLineWidth(1)
   -- Balls
   love.graphics.setBlendMode('add', 'premultiplied')
-  
+
   -- Move this to load when final value set
   TurnOffShader:send('time_to_destroy', BALL_TIME_TO_DESTROY)
 
@@ -155,7 +159,6 @@ function love.draw()
 
   end
 
-  love.graphics.setShader(TurnOffShader)
   Game.objects.balls:forEach(function(ball) 
     local center = {ball.body:getX(), ball.body:getY()}
     local radius = ball.radius
@@ -214,6 +217,9 @@ function love.draw()
 
   love.graphics.setShader()
 
+  -- UI
+  Game.UI.draw()
+
   -- Switch to game post fx
 
   love.graphics.setCanvas(auxCanvas1)
@@ -226,24 +232,22 @@ function love.draw()
   love.graphics.setCanvas(auxCanvas2)
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
-  GaussianBlurShader:send('offset_direction', {1 / love.graphics.getWidth(), 0})
+  GaussianBlurShader:send('offset_direction', {1.3 / auxCanvas2:getWidth(), 0})
   love.graphics.setShader(GaussianBlurShader)
   love.graphics.draw(auxCanvas1, 0, 0)
 
   love.graphics.setCanvas(auxCanvas1)
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
-  GaussianBlurShader:send('offset_direction', {0, 1 / love.graphics.getHeight()})
+  GaussianBlurShader:send('offset_direction', {0, 1.3 / auxCanvas1:getHeight()})
   love.graphics.draw(auxCanvas2, 0, 0)
 
   love.graphics.setShader()
   love.graphics.setBlendMode(b)
 
-  love.graphics.setCanvas()
+  love.graphics.setCanvas(auxCanvas2)
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
-  love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
-  love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
   --love.graphics.setColor(255, 255, 255)
 
 
@@ -257,13 +261,24 @@ function love.draw()
   --love.graphics.circle('fill', 300, 600, 200)
   love.graphics.setBlendMode(b)
 
+  love.graphics.setCanvas(auxCanvas1)
+  love.graphics.setShader(BarrelDistortShader)
+  BarrelDistortShader:send('distortion', EFFECT_CRT_DISTORTION)
+  love.graphics.draw(auxCanvas2)
+  love.graphics.setShader()
 
-  -- UI
-  Game.UI.draw()
+
+  -- Final draw
+  love.graphics.setCanvas()
+  love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
+  love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
+  love.graphics.draw(auxCanvas1)
+
   love.graphics.setColor(0, 255, 0)
   love.graphics.setNewFont(10)
-  love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
-
+  if DEBUG_SHOW_FPS then
+    love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+  end
 end
 
 local staticFrameCount = 0
@@ -428,6 +443,10 @@ function love.keypressed(key)
 
   if key == 'o' then
     Game.gameOver()
+  end
+
+  if key == 'f' then
+    DEBUG_SHOW_FPS = not DEBUG_SHOW_FPS
   end
 
   if key == 'r' then

@@ -38,6 +38,13 @@ vec4 effect(vec4 color2, Image texture, vec2 texture_coords, vec2 screen_coords)
     }
 
     color = color * field;
+    /*if(time_destroyed[n] > 0.0) {
+      color *= (1.0 - 0.75 * smoothstep(time_destroyed[n] + 0.00, time_destroyed[n] + 0.05, time)
+                    + 0.25 * smoothstep(time_destroyed[n] + 0.10, time_destroyed[n] + 0.15, time)
+                    - 0.5 * smoothstep(time_destroyed[n] + 0.20, time_destroyed[n] + 0.25, time)
+                    //- 0.25 * smoothstep(time_destroyed[n] + 0.30, time_destroyed[n] + 0.35, time)
+                    );
+    }
     final_color += color;
   }
 

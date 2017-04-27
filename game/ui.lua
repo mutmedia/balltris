@@ -8,6 +8,7 @@ local List = require 'doubly_linked_list'
 
 UI = {
   _layers = {},
+  DEFAULT_FONT_COLOR = {0, 0, 0},
 }
 
 function UI.object(params)
@@ -65,7 +66,7 @@ function UI.text(params)
   end
 
   text.draw = function(self)
-    love.graphics.setColor(self.color or {0, 0, 0})
+    love.graphics.setColor(self.color or UI.DEFAULT_FONT_COLOR)
     love.graphics.setFont(self.font)
     love.graphics.printf(
       self.getText(),
@@ -91,13 +92,15 @@ function UI.button(params)
   end
 
   btn.draw = function(self)
-    love.graphics.setColor(self.color or {0, 0, 0, 0})
-    love.graphics.rectangle(
-      'fill',
-      self.x - self.width/2,
-      self.y - self.height/2,
-      self.width,
-      self.height) 
+    if self.color ~= {0, 0, 0, 0} then
+      love.graphics.setColor(self.color or {0, 0, 0, 0})
+      love.graphics.rectangle(
+        'fill',
+        self.x - self.width/2,
+        self.y - self.height/2,
+        self.width,
+        self.height) 
+    end
     if self.lineWidth then
       love.graphics.setColor(self.lineColor or {0, 0, 0})
       love.graphics.setLineWidth(self.lineWidth)
@@ -109,7 +112,7 @@ function UI.button(params)
         self.height) 
     end
 
-    love.graphics.setColor(self.textColor or {0, 0, 0})
+    love.graphics.setColor(self.textColor or UI.DEFAULT_FONT_COLOR)
     love.graphics.setFont(self.font)
     love.graphics.printf(
       self.getText(),
