@@ -7,7 +7,7 @@ Game.UI = require 'ui'
 Game.events = require 'events'
 
 Game.objects = {}
-Game.state = STATE_GAME_RUNNING
+Game.state = STATE_GAME_LOADING
 Game.world = nil
 
 Game.score = 0
@@ -114,7 +114,49 @@ function Game.start()
   -- Random bags
   ballChances = RandomBag.new(#BALL_COLORS, BALL_CHANCE_MODIFIER)
   radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
+end
 
+Game.staticFrameCount = 0
+function Game.update(dt)
+  Game.world:update(dt)
+
+  totalSpeed2 = 0
+  Game.objects.balls:forEach(function(ball)
+    local px, py = ball.body:getPosition() 
+    if not IsInsideScreen(px, py) then
+      Game.objects.balls:SetToDelete(ball)
+      ballsRemoved = ballsRemoved + 1
+    end
+
+    if ball.inGame then
+      local x, y = ball.body:getLinearVelocity()
+      totalSpeed2 = totalSpeed2 + x*x + y*y
+    end
+    -- TODO: create max radius variable
+  end)
+
+  -- TODO: Make this more robust
+  if totalSpeed2 < MIN_SPEED2 then
+    Game.staticFrameCount = Game.staticFrameCount + 1
+    if Game.staticFrameCount == FRAMES_TO_STATIC then
+      Game.events.fire(EVENT_ON_BALLS_STATIC)
+    end
+  else
+    Game.staticFrameCount = 0
+  end
+
+
+  if lastDroppedBall then
+    if lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + lastDroppedBall.radius or lastDroppedBall.destroyed then
+      Game.events.fire(EVENT_SAFE_TO_DROP)
+      lastDroppedBall = nil
+    end
+  end
+
+  lastTotalSpeed2 = totalSpeed2
+
+  Game.objects.balls:Clean()
+  --Game.UI:Clean()
 end
 
 function Game.onBallsStatic()

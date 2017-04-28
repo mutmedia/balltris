@@ -1,9 +1,12 @@
 local bit32 = require("bit") 
 
-require 'data_constants'
+
 
 require 'math_utils'
 local List = require 'doubly_linked_list'
+local Load = require 'load'
+
+require 'data_constants'
 
 
 UI = {
@@ -132,12 +135,34 @@ function UI.button(params)
 end
 
 
+function UI.setFiles(...)
+  -- TODO: Make some error checking here
+  UI.files = {...}
+end
+
 function UI.initialize()
+  -- Adjust to current screen size
+  local screenWidth, screenHeight = love.window.getMode()
+  local aspectRatio = screenWidth/screenHeight
+  local drawWidth, drawHeight
+  if aspectRatio > ASPECT_RATIO then
+    drawHeight = screenHeight
+    drawWidth = drawHeight * ASPECT_RATIO
+  else
+    drawWidth = screenWidth
+    drawHeight = drawWidth / ASPECT_RATIO
+  end
+
+  UI.deltaX = (screenWidth-drawWidth)/2
+  UI.deltaY = (screenHeight-drawHeight)
+  UI.scaleX = drawWidth/BASE_SCREEN_WIDTH
+  UI.scaleY = drawHeight/BASE_SCREEN_HEIGHT 
+
   UI._layers = {}
   for i=1,#GAME_LAYERS do
     UI._layers[GAME_LAYERS[i]] = {}
   end
-  require('data_ui')
+  Load.luafiles(unpack(UI.files))
 end
 
 function UI.draw()
@@ -150,16 +175,6 @@ function UI.draw()
   end
 end
 
-UI.deltaX = 0
-UI.deltaY = 0
-UI.scaleX = 1
-UI.scaleY = 1
-function UI.adjust(deltaX, deltaY, scaleX, scaleY)
-  UI.deltaX = deltaX
-  UI.deltaY = deltaY
-  UI.scaleX = scaleX
-  UI.scaleY = scaleY
-end
 
 function UI.Action(x, y, actionName)
   local tx = (x - UI.deltaX) / UI.scaleX

@@ -36,7 +36,7 @@ function IsInsideScreen(x, y)
 end
 
 -- Variables
-local DEBUG_SHOW_FPS = false
+local DEBUG_SHOW_FPS = true
 
 local lastDroppedBall
 
@@ -48,12 +48,14 @@ local totalSpeed2 = 0
 local lastTotalSpeed2 = -1
 local time = 0
 
-local GaussianBlurShader
-local EdgeShader
-local TurnOffShader
-local BlackWhiteShader
-local BarrelDistortShader
-local ScanlinesShader
+local Shaders = {
+  GaussianBlur,
+  Edge,
+  TurnOff,
+  BlackWhite,
+  BarrelDistort,
+  Scanlines,
+}
 
 local lightDirection = {1, 1, 3}
 local gameCanvas
@@ -62,10 +64,17 @@ local auxCanvas2
 
 local startTime = love.timer.getTime()
 
+local loader
+local dataToLoadChannel
+local dataLoadedChannel
+local threadPrintChannel
+
+
+local loaded = false
+
 -- Behaviour definitions
 function love.load()
-  --BackEnd.connect()
-
+  -- Initializing logic
   math.randomseed( os.time() )
   love.window.setTitle(TITLE)
   love.window.setMode(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, {resizable=true})
@@ -73,32 +82,38 @@ function love.load()
   -- Physics
   love.physics.setMeter(METER)
 
+  -- Loading actual stuff
+  --[[
+  loader = love.thread.newThread('loader.lua')
+  dataToLoadChannel = love.thread.getChannel('data_to_load')
+  dataLoadedChannel = love.thread.getChannel('data_loaded')
+  threadPrintChannel = love.thread.getChannel('thread_print')
+  loader:start()
+  Scheduler.add(function() 
+    dataToLoadChannel:push({
+        type='shader', value={'shaders/edgeshader.fs', 'shaders/edgeshader.vs'},
+      })
+  end, 1)
+  ]]--
+
   -- UI
-  local screenWidth, screenHeight = love.window.getMode()
-  local aspectRatio = screenWidth/screenHeight
-  local drawWidth, drawHeight
-  if aspectRatio > ASPECT_RATIO then
-    drawHeight = screenHeight
-    drawWidth = drawHeight * ASPECT_RATIO
-  else
-    drawWidth = screenWidth
-    drawHeight = drawWidth / ASPECT_RATIO
-  end
-
-
-  Game.UI.adjust((screenWidth-drawWidth)/2, (screenHeight-drawHeight), drawWidth/BASE_SCREEN_WIDTH, drawHeight/BASE_SCREEN_HEIGHT)
+  Game.UI.setFiles('ui/hud.lua')
   Game.UI.initialize()
+  love.graphics.clear()
+  Game.UI.draw()
+  love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
+  love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
+  love.graphics.present()
 
   -- Shaders
-  TurnOffShader = love.graphics.newShader('shaders/turnOffShader.fs')
-  --GaussianBlurShader = love.graphics.newShader('shaders/gaussianblur.vs', 'shaders/gaussianblur.fs')
-  GaussianBlurShader = require('shaders/gaussianblur')(2) -- Making this too big crashes
-  EdgeShader = love.graphics.newShader('shaders/edgeshader.fs', 'shaders/edgeshader.vs')
-  BlackWhiteShader = love.graphics.newShader('shaders/blackandwhite.fs')
-  BarrelDistortShader = love.graphics.newShader('shaders/barreldistort.fs')
-  ScanlinesShader = love.graphics.newShader('shaders/scanlines.fs')
-  --love.graphics.setBlendMode('add')
+  Shaders.TurnOff = love.graphics.newShader('shaders/turnOffShader.fs')
 
+  --Shaders.GaussianBlur = love.graphics.newShader('shaders/gaussianblur.vs', 'shaders/gaussianblur.fs')
+  Shaders.GaussianBlur = require('shaders/gaussianblur2')(5) -- Making this too big crashes
+  Shaders.Edge = love.graphics.newShader('shaders/edgeshader.fs', 'shaders/edgeshader.vs')
+  Shaders.BlackWhite = love.graphics.newShader('shaders/blackandwhite.fs')
+  Shaders.BarrelDistort = love.graphics.newShader('shaders/barreldistort.fs')
+  Shaders.Scanlines = love.graphics.newShader('shaders/scanlines.fs')
 
   -- Game Canvas
   gameCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
@@ -107,12 +122,21 @@ function love.load()
 
   Game.load()
 
-  -- TODO: move to plave where game actually starts
-  Game.start()
+  -- TODO: move to place where game actually starts
+  Scheduler.add(function() 
+    loaded = true
+    Game.start()
+  end, 5)
 end
 
 local bv = 0
 function love.draw() 
+  -- TODO: Make this a proper state so there is a loading scene
+  if not loaded then 
+    
+    return
+  end
+
   love.graphics.setNewFont(12)
   local b = love.graphics.getBlendMode()
 
@@ -141,7 +165,7 @@ function love.draw()
   love.graphics.setBlendMode('add', 'premultiplied')
 
   -- Move this to load when final value set
-  TurnOffShader:send('time_to_destroy', BALL_TIME_TO_DESTROY)
+  Shaders.TurnOff:send('time_to_destroy', BALL_TIME_TO_DESTROY)
 
   -- Ball Preview
   local time = love.timer.getTime() - startTime
@@ -166,8 +190,8 @@ function love.draw()
     local radius = ball.radius
     local color = ball.getColor()
     if ball.timeDestroyed then
-      love.graphics.setShader(TurnOffShader)
-      TurnOffShader:send('delta_time', time - ball.timeDestroyed)
+      love.graphics.setShader(Shaders.TurnOff)
+      Shaders.TurnOff:send('delta_time', time - ball.timeDestroyed)
     else
       love.graphics.setShader()
     end
@@ -234,14 +258,14 @@ function love.draw()
   love.graphics.setCanvas(auxCanvas2)
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
-  GaussianBlurShader:send('offset_direction', {1.3 / auxCanvas2:getWidth(), 0})
-  love.graphics.setShader(GaussianBlurShader)
+  Shaders.GaussianBlur:send('offset_direction', {1.3 / auxCanvas2:getWidth(), 0})
+  love.graphics.setShader(Shaders.GaussianBlur)
   love.graphics.draw(auxCanvas1, 0, 0)
 
   love.graphics.setCanvas(auxCanvas1)
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
-  GaussianBlurShader:send('offset_direction', {0, 1.3 / auxCanvas1:getHeight()})
+  Shaders.GaussianBlur:send('offset_direction', {0, 1.3 / auxCanvas1:getHeight()})
   love.graphics.draw(auxCanvas2, 0, 0)
 
   love.graphics.setShader()
@@ -264,13 +288,13 @@ function love.draw()
   love.graphics.setBlendMode(b)
 
   love.graphics.setCanvas(auxCanvas1)
-  love.graphics.setShader(ScanlinesShader)
+  love.graphics.setShader(Shaders.Scanlines)
   love.graphics.draw(auxCanvas2)
   love.graphics.setShader()
 
   love.graphics.setCanvas(auxCanvas2)
-  love.graphics.setShader(BarrelDistortShader)
-  BarrelDistortShader:send('distortion', EFFECT_CRT_DISTORTION)
+  love.graphics.setShader(Shaders.BarrelDistort)
+  Shaders.BarrelDistort:send('distortion', EFFECT_CRT_DISTORTION)
   love.graphics.draw(auxCanvas1)
   love.graphics.setShader()
 
@@ -288,49 +312,11 @@ function love.draw()
   end
 end
 
-local staticFrameCount = 0
 function love.update(dt)
   Scheduler.update(dt)
-  Game.world:update(dt)
-
-  totalSpeed2 = 0
-  Game.objects.balls:forEach(function(ball)
-    local px, py = ball.body:getPosition() 
-    if not IsInsideScreen(px, py) then
-      Game.objects.balls:SetToDelete(ball)
-      ballsRemoved = ballsRemoved + 1
-    end
-
-    if ball.inGame then
-      local x, y = ball.body:getLinearVelocity()
-      totalSpeed2 = totalSpeed2 + x*x + y*y
-    end
-    -- TODO: create max radius variable
-  end)
-
-  -- TODO: Make this more robust
-  if totalSpeed2 < MIN_SPEED2 then
-    staticFrameCount = staticFrameCount + 1
-    if staticFrameCount == FRAMES_TO_STATIC then
-      Game.events.fire(EVENT_ON_BALLS_STATIC)
-    end
-  else
-    staticFrameCount = 0
+  if loaded then
+    Game.update(dt)
   end
-
-
-  if lastDroppedBall then
-    if lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + lastDroppedBall.radius or lastDroppedBall.destroyed then
-      Game.events.fire(EVENT_SAFE_TO_DROP)
-      lastDroppedBall = nil
-    end
-  end
-
-  lastTotalSpeed2 = totalSpeed2
-
-  Game.objects.balls:Clean()
-  --Game.UI:Clean()
-
 end
 
 function ComboMultiplier(combo)
@@ -444,7 +430,6 @@ function love.keypressed(key)
   -- DEBUG input
   if key == 'u' then
     Game.UI:initialize()
-    dofile('Game/data_ui.lua')
     dofile('Game/data_constants.lua')
   end
 

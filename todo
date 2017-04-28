@@ -1,5 +1,4 @@
 wip
-ESC CLOSES THE GAME
 
 
 
@@ -7,11 +6,16 @@ Better but still simple HUD. (show combos)
   - Combos
   - Static/Dynamic
 
-Menu and Main Menu functionality
+Loading screen
+back button opens menu android
+Main Menu functionality
 
 Next ball list update animation
 Better ball drop animation
 Vertical Prediction line
+BUG: make simulation stop when running in background (balls jump around if out of game for a while)
 BUG: app open through icon restarting
 
 Save high score online -- TOO HARD
+
+ESC CLOSES THE GAME
