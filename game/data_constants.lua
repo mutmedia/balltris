@@ -97,6 +97,7 @@ MIN_DISTANCE_TO_TOP = 2 * BALL_MAX_RADIUS * BALL_DRAW_SCALE
 STATE_GAME_RUNNING = 1
 STATE_GAME_LOST = 2 -- When balls cross the line
 STATE_GAME_OVER  = 4 -- When everything ends
+STATE_GAME_PAUSED  = 8 -- When game is paused
 
 -- Layers
 LAYER_BACKGROUND = 'background'

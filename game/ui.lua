@@ -17,6 +17,9 @@ function UI.object(params)
   obj.x = (obj.x + BASE_SCREEN_WIDTH) % BASE_SCREEN_WIDTH
   obj.y = (obj.y + BASE_SCREEN_HEIGHT) % BASE_SCREEN_HEIGHT
 
+  if not obj.layer then
+    error(string.format('Object %s has no layer.', obj.name or 'unnamed'))
+  end
   table.insert(UI._layers[obj.layer], obj)
   obj._state = {
     pressed = false,
@@ -43,9 +46,9 @@ function UI.rectangle(params)
       self.y - self.height/2,
       self.width,
       self.height) 
-    if self.lineWidth then
+    if self.lineWidth or self.lineColor then
       love.graphics.setColor(self.lineColor or {0, 0, 0})
-      love.graphics.setLineWidth(self.lineWidth)
+      love.graphics.setLineWidth(self.lineWidth or 1)
       love.graphics.rectangle(
         'line',
         self.x - self.width/2,
@@ -117,7 +120,7 @@ function UI.button(params)
     love.graphics.printf(
       self.getText(),
       self.x - self.width/2,
-      self.y - self.height/4, -- TODO: make this shift based on font height
+      self.y - self.font:getHeight()/2, -- TODO: make this shift based on font height
       self.width,
       'center',
       self.orientation,

@@ -74,10 +74,23 @@ Rectangle{
 }
 
 Text{
+  name='nextballs',
+  layer=LAYER_HUD,
+  x=-BORDER_THICKNESS/2,
+  y=30,
+  font=love.graphics.newFont(MAIN_UI_FONT, 28),
+  width=1000,
+  getText = function()
+    return 'Next Balls'
+  end,
+}
+
+-- Score stuff
+Text{
   name='highscore',
   layer=LAYER_HUD,
   x=BORDER_THICKNESS/2,
-  y=30,
+  y=120,
   font=love.graphics.newFont(MAIN_UI_FONT, 40),
   width=100,
   getText = function()
@@ -89,7 +102,7 @@ Text{
   name='score',
   layer=LAYER_HUD,
   x=BORDER_THICKNESS/2,
-  y=150,
+  y=240,
   font=love.graphics.newFont(MAIN_UI_FONT, 40),
   width=180,
   getText = function()
@@ -102,7 +115,7 @@ Text{
   layer=LAYER_HUD,
   condition = function() return Game.combo > 0 end,
   x=BORDER_THICKNESS/2,
-  y=250,
+  y=320,
   font=love.graphics.newFont(MAIN_UI_FONT, 30),
   width=180,
   getText = function()
@@ -110,18 +123,68 @@ Text{
   end,
 }
 
-Text{
-  name='nextballs',
+-- Game Menus
+Button{
+  name='openmenu',
   layer=LAYER_HUD,
-  x=-BORDER_THICKNESS/2,
-  y=30,
-  font=love.graphics.newFont(MAIN_UI_FONT, 28),
-  width=1000,
+  x=BORDER_THICKNESS/2,
+  y=40,
+  font=love.graphics.newFont(MAIN_UI_FONT, 40),
+  width=100,
+  height=50,
+  color={0, 0, 0},
+  lineWidth = 5,
+  lineColor={255, 255, 255},
+  font=love.graphics.newFont(MAIN_UI_FONT, 35),
   getText = function()
-    return 'Next Balls'
+    return 'Menu'
+  end,
+  onPress = function() 
+    Game.state = STATE_GAME_PAUSED
   end,
 }
 
+Button{
+  name='gamemenuunpouse',
+  condition=inGameState(STATE_GAME_PAUSED),
+  layer=LAYER_MENUS,
+  x=BASE_SCREEN_WIDTH/2,
+  y=BASE_SCREEN_HEIGHT/2 - 100,
+  height=80,
+  width=HOLE_WIDTH * 0.8,
+  color={0, 0, 0},
+  lineWidth = 5,
+  lineColor={255, 255, 255},
+  font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  getText = function()
+    return 'Unpause'
+  end,
+  onPress = function() 
+    Game.state = STATE_GAME_RUNNING
+  end,
+}
+
+Button{
+  name='replaybutton',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_PAUSED),
+  x=BASE_SCREEN_WIDTH/2,
+  y=BASE_SCREEN_HEIGHT/2 + 50,
+  width=HOLE_WIDTH * 0.8,
+  height=80,
+  color={0, 0, 0},
+  --textColor={0, 0, 0},
+  lineColor={255, 255, 255},
+  lineWidth=3,
+  font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  getText = function() 
+    return 'Restart'
+  end,
+  onPress = function(self, x, y)
+    Game.start()
+  end,
+}
+-- Game Over Menu
 Text{
   name='gameover',
   layer=LAYER_MENUS,

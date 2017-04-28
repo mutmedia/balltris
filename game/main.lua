@@ -53,6 +53,7 @@ local EdgeShader
 local TurnOffShader
 local BlackWhiteShader
 local BarrelDistortShader
+local ScanlinesShader
 
 local lightDirection = {1, 1, 3}
 local gameCanvas
@@ -91,10 +92,11 @@ function love.load()
   -- Shaders
   TurnOffShader = love.graphics.newShader('shaders/turnOffShader.fs')
   --GaussianBlurShader = love.graphics.newShader('shaders/gaussianblur.vs', 'shaders/gaussianblur.fs')
-  GaussianBlurShader = require('shaders/gaussianblur')(5)
+  GaussianBlurShader = require('shaders/gaussianblur')(2) -- Making this too big crashes
   EdgeShader = love.graphics.newShader('shaders/edgeshader.fs', 'shaders/edgeshader.vs')
   BlackWhiteShader = love.graphics.newShader('shaders/blackandwhite.fs')
   BarrelDistortShader = love.graphics.newShader('shaders/barreldistort.fs')
+  ScanlinesShader = love.graphics.newShader('shaders/scanlines.fs')
   --love.graphics.setBlendMode('add')
 
 
@@ -262,9 +264,14 @@ function love.draw()
   love.graphics.setBlendMode(b)
 
   love.graphics.setCanvas(auxCanvas1)
+  love.graphics.setShader(ScanlinesShader)
+  love.graphics.draw(auxCanvas2)
+  love.graphics.setShader()
+
+  love.graphics.setCanvas(auxCanvas2)
   love.graphics.setShader(BarrelDistortShader)
   BarrelDistortShader:send('distortion', EFFECT_CRT_DISTORTION)
-  love.graphics.draw(auxCanvas2)
+  love.graphics.draw(auxCanvas1)
   love.graphics.setShader()
 
 
@@ -272,7 +279,7 @@ function love.draw()
   love.graphics.setCanvas()
   love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
   love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
-  love.graphics.draw(auxCanvas1)
+  love.graphics.draw(auxCanvas2)
 
   love.graphics.setColor(0, 255, 0)
   love.graphics.setNewFont(10)
