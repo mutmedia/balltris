@@ -73,12 +73,20 @@ local threadPrintChannel
 
 local loaded = false
 
+local loadtime = love.timer.getTime()
+
 -- Behaviour definitions
 function love.load()
+  love.graphics.clear(255, 0, 255)
+  love.graphics.present()
+  --print('Time to start loading: '..love.timer.getTime() - loadtime)
   -- Initializing logic
+  loadtime = love.timer.getTime()
   math.randomseed( os.time() )
+  --print('Time to do random logic: \t\t'..love.timer.getTime() - loadtime)
+  loadtime = love.timer.getTime()
   love.window.setTitle(TITLE)
-  love.window.setMode(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, {resizable=true})
+  --print('Time to do title logic: \t\t'..love.timer.getTime() - loadtime)
 
   -- Physics
   love.physics.setMeter(METER)
@@ -98,12 +106,16 @@ function love.load()
   ]]--
 
   -- Game Canvas
-  gameCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
-  auxCanvas1 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
-  auxCanvas2 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
+  loadtime = love.timer.getTime()
   loadingCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
 
-  -- UI
+
+  love.graphics.clear(255, 0, 255)
+  love.graphics.present()
+  --print('Time to loading canvas: \t\t'..love.timer.getTime() - loadtime)
+
+  -- Loading UI
+  loadtime = love.timer.getTime()
   Game.UI.setFiles('ui/hud.lua')
   Game.UI.initialize()
   love.graphics.setCanvas(loadingCanvas)
@@ -111,25 +123,44 @@ function love.load()
   Game.UI.draw()
   drawScaled(loadingCanvas)
   love.graphics.present()
+  --print('Time to present load: \t\t\t'..love.timer.getTime() - loadtime)
+  
+  love.graphics.clear(0, 255, 255)
+
+  loadtime = love.timer.getTime()
+  gameCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
+  auxCanvas1 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
+  auxCanvas2 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
+  --print('Time to load other canvases: \t\t'..love.timer.getTime() - loadtime)
+
 
   -- Shaders
+  loadtime = love.timer.getTime()
   Shaders.TurnOff = love.graphics.newShader('shaders/turnOffShader.fs')
-
+  --print('Time to shader TurnOff: \t\t'..love.timer.getTime() - loadtime)
   --Shaders.GaussianBlur = love.graphics.newShader('shaders/gaussianblur.vs', 'shaders/gaussianblur.fs')
+  loadtime = love.timer.getTime()
   Shaders.GaussianBlur = require('shaders/gaussianblur2')(4) -- Making this too big crashes
+  --print('Time to shader GaussianBlur: \t\t'..love.timer.getTime() - loadtime)
+  loadtime = love.timer.getTime()
   Shaders.Edge = love.graphics.newShader('shaders/edgeshader.fs', 'shaders/edgeshader.vs')
+  --print('Time to shader Edge: \t\t\t'..love.timer.getTime() - loadtime)
+  loadtime = love.timer.getTime()
   Shaders.BlackWhite = love.graphics.newShader('shaders/blackandwhite.fs')
+  --print('Time to shader BlackWhite: \t\t'..love.timer.getTime() - loadtime)
+  loadtime = love.timer.getTime()
   Shaders.BarrelDistort = love.graphics.newShader('shaders/barreldistort.fs')
+  --print('Time to shader BarrelDistort: \t\t'..love.timer.getTime() - loadtime)
+  loadtime = love.timer.getTime()
   Shaders.Scanlines = love.graphics.newShader('shaders/scanlines.fs')
+  --print('Time to shader Scanlines: \t\t'..love.timer.getTime() - loadtime)
 
 
   Game.load()
 
   -- TODO: move to place where game actually starts
-  Scheduler.add(function() 
-    loaded = true
-    Game.start()
-  end, 1)
+  loaded = true
+  Game.start()
 end
 
 local bv = 0

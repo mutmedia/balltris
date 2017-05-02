@@ -117,46 +117,54 @@ function Game.start()
 end
 
 Game.staticFrameCount = 0
+local FIXED_DT = 1/60
+local accumulator = 0
 function Game.update(dt)
+
+  accumulator = accumulator + dt
+
   Game.world:update(dt)
 
-  totalSpeed2 = 0
-  Game.objects.balls:forEach(function(ball)
-    local px, py = ball.body:getPosition() 
-    if not IsInsideScreen(px, py) then
-      Game.objects.balls:SetToDelete(ball)
-      ballsRemoved = ballsRemoved + 1
+  while accumulator >= FIXED_DT do
+    totalSpeed2 = 0
+    Game.objects.balls:forEach(function(ball)
+      local px, py = ball.body:getPosition() 
+      if not IsInsideScreen(px, py) then
+        Game.objects.balls:SetToDelete(ball)
+        ballsRemoved = ballsRemoved + 1
+      end
+
+      if ball.inGame then
+        local x, y = ball.body:getLinearVelocity()
+        totalSpeed2 = totalSpeed2 + x*x + y*y
+      end
+      -- TODO: create max radius variable
+    end)
+
+    -- TODO: Make this more robust
+    if totalSpeed2 < MIN_SPEED2 then
+      Game.staticFrameCount = Game.staticFrameCount + 1
+      if Game.staticFrameCount == FRAMES_TO_STATIC then
+        Game.events.fire(EVENT_ON_BALLS_STATIC)
+      end
+    else
+      Game.staticFrameCount = 0
     end
 
-    if ball.inGame then
-      local x, y = ball.body:getLinearVelocity()
-      totalSpeed2 = totalSpeed2 + x*x + y*y
-    end
-    -- TODO: create max radius variable
-  end)
 
-  -- TODO: Make this more robust
-  if totalSpeed2 < MIN_SPEED2 then
-    Game.staticFrameCount = Game.staticFrameCount + 1
-    if Game.staticFrameCount == FRAMES_TO_STATIC then
-      Game.events.fire(EVENT_ON_BALLS_STATIC)
+    if Game.lastDroppedBall then
+      if Game.lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + Game.lastDroppedBall.radius or Game.lastDroppedBall.destroyed then
+        Game.events.fire(EVENT_SAFE_TO_DROP)
+        Game.lastDroppedBall = nil
+      end
     end
-  else
-    Game.staticFrameCount = 0
+
+    lastTotalSpeed2 = totalSpeed2
+
+    Game.objects.balls:Clean()
+    
+    accumulator = accumulator - FIXED_DT
   end
-
-
-  if Game.lastDroppedBall then
-    if Game.lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + Game.lastDroppedBall.radius or Game.lastDroppedBall.destroyed then
-      Game.events.fire(EVENT_SAFE_TO_DROP)
-      Game.lastDroppedBall = nil
-    end
-  end
-
-  lastTotalSpeed2 = totalSpeed2
-
-  Game.objects.balls:Clean()
-  --Game.UI:Clean()
 end
 
 function Game.onBallsStatic()

@@ -17,8 +17,6 @@ function GaussianBlurShader(sigma)
   ]]
 
   table.insert(fragshader, defines)
-
-  
   table.insert(fragshader, [[
     uniform vec2 offset_direction;
 
