@@ -23,6 +23,9 @@ function UI.object(params)
   if not obj.layer then
     error(string.format('Object %s has no layer.', obj.name or 'unnamed'))
   end
+  if not obj.condition then
+    error(string.format('Object %s has no display condition.', obj.name or 'unnamed'))
+  end
   table.insert(UI._layers[obj.layer], obj)
   obj._state = {
     pressed = false,

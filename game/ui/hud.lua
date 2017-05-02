@@ -25,7 +25,7 @@ function inGameState(...)
   end
 end
 
-function conditionAnd(...)
+function And(...)
   local conditions = {...}
   return function()
     for _, cond in pairs(conditions) do
@@ -38,12 +38,24 @@ function conditionAnd(...)
   end
 end
 
+function Not(cond)
+  return function()
+    return not cond()
+  end
+end
+
+function True()
+  return function()
+    return true
+  end
+end
+
 Text{
   name='loading',
   layer=LAYER_HUD,
   condition=inGameState(STATE_GAME_LOADING),
-  x=-BORDER_THICKNESS/2,
-  y=30,
+  x=BASE_SCREEN_WIDTH/2,
+  y=BASE_SCREEN_HEIGHT/2,
   font=love.graphics.newFont(MAIN_UI_FONT, 28),
   width=1000,
   getText = function()
@@ -69,7 +81,6 @@ Rectangle{
     Game.events.fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
   end,
   onExit = function(self, x, y)
-
     if DEBUG_UI then self.lineColor = {0, 0, 255, 255} end
     Game.events.fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
@@ -78,17 +89,19 @@ Rectangle{
 Rectangle{
   name='limitline',
   layer=LAYER_HUD,
+  condition=Not(inGameState(STATE_GAME_LOADING)),
   x=BASE_SCREEN_WIDTH/2,
   y=MIN_DISTANCE_TO_TOP,
   width=HOLE_WIDTH,
   height=1,
-  color={100, 100, 100, 255},
-  drawMode='line',
+  lineWidth=2,
+  lineColor={100, 100, 100, 255},
 }
 
 Text{
   name='nextballs',
   layer=LAYER_HUD,
+  condition=inGameState(STATE_GAME_RUNNING),
   x=-BORDER_THICKNESS/2,
   y=30,
   font=love.graphics.newFont(MAIN_UI_FONT, 28),
@@ -102,6 +115,7 @@ Text{
 Text{
   name='highscore',
   layer=LAYER_HUD,
+  condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
   x=BORDER_THICKNESS/2,
   y=120,
   font=love.graphics.newFont(MAIN_UI_FONT, 40),
@@ -114,6 +128,7 @@ Text{
 Text{
   name='score',
   layer=LAYER_HUD,
+  condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
   x=BORDER_THICKNESS/2,
   y=240,
   font=love.graphics.newFont(MAIN_UI_FONT, 40),
@@ -126,7 +141,7 @@ Text{
 Text{
   name='combo',
   layer=LAYER_HUD,
-  condition = function() return Game.combo > 0 end,
+  condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED)),
   x=BORDER_THICKNESS/2,
   y=320,
   font=love.graphics.newFont(MAIN_UI_FONT, 30),
@@ -140,6 +155,7 @@ Text{
 Button{
   name='openmenu',
   layer=LAYER_HUD,
+  condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
   x=BORDER_THICKNESS/2,
   y=40,
   font=love.graphics.newFont(MAIN_UI_FONT, 40),
@@ -215,7 +231,7 @@ Text{
 Text{
   name='newHighScore',
   layer=LAYER_MENUS,
-  condition=conditionAnd(inGameState(STATE_GAME_OVER), function() return Game.newHighScore end),
+  condition=And(inGameState(STATE_GAME_OVER), function() return Game.newHighScore end),
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 -130,
   font=love.graphics.newFont(MAIN_UI_FONT, 20),

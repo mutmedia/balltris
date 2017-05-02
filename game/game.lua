@@ -93,9 +93,9 @@ function Game.start()
     end
   end)
 
-  Game.events.add(EVENT_RELEASED_PREVIEW, ReleaseBall)
+  Game.events.add(EVENT_RELEASED_PREVIEW, Game.ReleaseBall)
   Game.events.add(EVENT_ON_BALLS_STATIC, Game.onBallsStatic)
-  Game.events.add(EVENT_SAFE_TO_DROP, GetNextBall)
+  Game.events.add(EVENT_SAFE_TO_DROP, Game.GetNextBall)
   Game.events.add(EVENT_BALLS_TOO_HIGH, function()
     Game.objects.balls:forEach(function(ball)
       if not ball.indestructible then return end
@@ -146,10 +146,10 @@ function Game.update(dt)
   end
 
 
-  if lastDroppedBall then
-    if lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + lastDroppedBall.radius or lastDroppedBall.destroyed then
+  if Game.lastDroppedBall then
+    if Game.lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + Game.lastDroppedBall.radius or Game.lastDroppedBall.destroyed then
       Game.events.fire(EVENT_SAFE_TO_DROP)
-      lastDroppedBall = nil
+      Game.lastDroppedBall = nil
     end
   end
 
@@ -211,5 +211,42 @@ function Game.GetBallRadius()
   return BALL_BASE_RADIUS * BALL_RADIUS_MULTIPLIERS[radiusNumber]
 end
 
+function Game.ReleaseBall()
+  if not Game.objects.ballPreview then return end
+  local newBall = Game.objects.ballPreview
+
+  newBall.inGame = false
+  newBall.body = love.physics.newBody(Game.world, Game.objects.ballPreview.position.x, Game.objects.ballPreview.position.y, 'dynamic')
+  --newBall.body:setFixedRotation(false)
+  newBall.shape = love.physics.newCircleShape(Game.objects.ballPreview.radius)
+  newBall.fixture = love.physics.newFixture(newBall.body, newBall.shape)
+  newBall.fixture:setCategory(COL_MAIN_CATEGORY)
+  --newBall.fixture:setRestitution(0)
+  newBall.fixture:setUserData({
+      ref = newBall,
+    })
+  Game.objects.balls:add(newBall)
+
+  Game.objects.ballPreview = nil
+  --Game.objects.ballPreview = NewBallPreview(Game.objects.ballPreview.position.x)
+  Game.lastDroppedBall = newBall
+end
+
+function Game.GetNextBall() 
+  if not Game.objects.ballPreview then
+    Game.objects.ballPreview = Game.objects.nextBallPreviews:dequeue()
+    local hasWhiteBalls = false
+    Game.objects.nextBallPreviews:forEach(function(ball)
+      if ball.indestructible then
+        hasWhiteBalls = true
+      end
+    end)
+    if hasWhiteBalls then 
+      Game.objects.nextBallPreviews:enqueue(NewBallPreview())
+    else
+      Game.objects.nextBallPreviews:enqueue(NewBallPreview({indestructible = true}))
+    end
+  end
+end
 return Game
 
