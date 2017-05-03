@@ -140,7 +140,7 @@ function love.load()
   --print('Time to shader TurnOff: \t\t'..love.timer.getTime() - loadtime)
   --Shaders.GaussianBlur = love.graphics.newShader('shaders/gaussianblur.vs', 'shaders/gaussianblur.fs')
   loadtime = love.timer.getTime()
-  Shaders.GaussianBlur = require('shaders/gaussianblur2')(4) -- Making this too big crashes
+  Shaders.GaussianBlur = require('shaders/gaussianblur')(1) -- Making this too big crashes
   --print('Time to shader GaussianBlur: \t\t'..love.timer.getTime() - loadtime)
   loadtime = love.timer.getTime()
   Shaders.Edge = love.graphics.newShader('shaders/edgeshader.fs', 'shaders/edgeshader.vs')
