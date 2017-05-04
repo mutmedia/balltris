@@ -1,54 +1,4 @@
-require 'data_constants'
-require 'events'
-
-local UI = require 'ui'
-local Rectangle = UI.rectangle
-local Text = UI.text
-local Button = UI.button
-local Game = require 'game'
-
---local DEBUG_UI = true
-
-local MAIN_UI_FONT = 'content/Neon.ttf'
-UI.DEFAULT_FONT_COLOR = {255, 255, 255}
-
-function inGameState(...)
-  local gameStates = {...}
-  return function()
-    for _, state in pairs(gameStates) do
-      if Game.state == state then
-        return true
-      end
-    end
-    
-    return false
-  end
-end
-
-function And(...)
-  local conditions = {...}
-  return function()
-    for _, cond in pairs(conditions) do
-      if not cond() then
-        return false
-      end
-    end
-
-    return true
-  end
-end
-
-function Not(cond)
-  return function()
-    return not cond()
-  end
-end
-
-function True()
-  return function()
-    return true
-  end
-end
+require 'ui/base'
 
 Text{
   name='loading',
@@ -63,30 +13,6 @@ Text{
   end,
 }
 
-Rectangle{
-  name='gamebox',
-  layer=LAYER_GAME,
-  condition=inGameState(STATE_GAME_RUNNING),
-  x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2,
-  width=(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)*1.2,
-  height=BASE_SCREEN_HEIGHT,
-  lineWidth=3,
-  lineColor={0, 0, 0, DEBUG_UI and 255 or 0},
-  onMove = function(self, x, y, dx, dy)
-    if DEBUG_UI then self.lineColor = {0, 255, 0, 255} end
-    Game.events.fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
-  end,
-  onEnter = function(self, x, y)
-    Game.timeScale = 0.3
-    Game.events.fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
-  end,
-  onExit = function(self, x, y)
-    Game.timeScale = 2
-    if DEBUG_UI then self.lineColor = {0, 0, 255, 255} end
-    Game.events.fire(EVENT_RELEASED_PREVIEW, x, y)
-  end,
-}
 
 Rectangle{
   name='limitline',
@@ -155,7 +81,7 @@ Text{
 
 -- Game Menus
 Button{
-  name='openmenu',
+  name='open menu',
   layer=LAYER_HUD,
   condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
   x=BORDER_THICKNESS/2,
@@ -174,123 +100,6 @@ Button{
     Game.state = STATE_GAME_PAUSED
   end,
 }
-
-Button{
-  name='gamemenuunpouse',
-  condition=inGameState(STATE_GAME_PAUSED),
-  layer=LAYER_MENUS,
-  x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 - 100,
-  height=80,
-  width=HOLE_WIDTH * 0.8,
-  color={0, 0, 0},
-  lineWidth = 5,
-  lineColor={255, 255, 255},
-  font=love.graphics.newFont(MAIN_UI_FONT, 35),
-  getText = function()
-    return 'Unpause'
-  end,
-  onPress = function() 
-    Game.state = STATE_GAME_RUNNING
-  end,
-}
-
-Button{
-  name='replaybutton',
-  layer=LAYER_MENUS,
-  condition=inGameState(STATE_GAME_PAUSED),
-  x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 + 50,
-  width=HOLE_WIDTH * 0.8,
-  height=80,
-  color={0, 0, 0},
-  --textColor={0, 0, 0},
-  lineColor={255, 255, 255},
-  lineWidth=3,
-  font=love.graphics.newFont(MAIN_UI_FONT, 35),
-  getText = function() 
-    return 'Restart'
-  end,
-  onPress = function(self, x, y)
-    Game.start()
-  end,
-}
--- Game Over Menu
-Text{
-  name='gameover',
-  layer=LAYER_MENUS,
-  condition=inGameState(STATE_GAME_OVER),
-  x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 - 200 - 100,
-  font=love.graphics.newFont(MAIN_UI_FONT, 80),
-  color={194, 59, 34},
-  width=250,
-  getText = function()
-    return 'Game Over'
-  end,
-}
-
-Text{
-  name='newHighScore',
-  layer=LAYER_MENUS,
-  condition=And(inGameState(STATE_GAME_OVER), function() return Game.newHighScore end),
-  x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 -130,
-  font=love.graphics.newFont(MAIN_UI_FONT, 20),
-  width=200,
-  getText = function()
-    return 'New High Score!'
-  end,
-}
-
-
-Text{
-  name='finalscore',
-  layer=LAYER_MENUS,
-  condition=inGameState(STATE_GAME_OVER),
-  x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 - 000 - 100,
-  font=love.graphics.newFont(MAIN_UI_FONT, 30),
-  width=400,
-  getText = function()
-    return string.format('Final Score: %04d', Game.score)
-  end,
-}
-
-Text{
-  name='maxcombo',
-  layer=LAYER_MENUS,
-  condition=inGameState(STATE_GAME_OVER),
-  x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 + 50 - 100,
-  font=love.graphics.newFont(MAIN_UI_FONT, 30),
-  width=400,
-  getText = function()
-    return string.format('Max combo: %d', Game.maxCombo)
-  end,
-}
-
-Button{
-  name='replaybutton',
-  layer=LAYER_MENUS,
-  condition=inGameState(STATE_GAME_OVER),
-  x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 + 50,
-  width=HOLE_WIDTH * 0.8,
-  height=80,
-  color={0, 0, 0, 0},
-  --textColor={0, 0, 0},
-  lineColor={255, 255, 255},
-  lineWidth=3,
-  font=love.graphics.newFont(MAIN_UI_FONT, 35),
-  getText = function() 
-    return 'Play Again?'
-  end,
-  onPress = function(self, x, y)
-    Game.start()
-  end,
-}
-
 -- Container
 --[[Rectangle{
   x=BASE_SCREEN_WIDTH - 100 - 1.1*MAX_RADIUS,

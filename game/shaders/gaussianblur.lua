@@ -49,8 +49,8 @@ function GaussianBlurShader(sigma)
   table.insert(vertshader, 'return transform_projection * vertex_position;\n}')
 
 
-  print('Vertex Shader Generated:\n'..table.concat(vertshader))
-  print('Pixel Shader Generated:\n'..table.concat(fragshader))
+  --print('Vertex Shader Generated:\n'..table.concat(vertshader))
+  --print('Pixel Shader Generated:\n'..table.concat(fragshader))
 
   return love.graphics.newShader(table.concat(vertshader), table.concat(fragshader))
 end

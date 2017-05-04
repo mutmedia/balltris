@@ -1,3 +1,4 @@
+local Scheduler = require 'scheduler'
 local List = require 'doubly_linked_list'
 local Queue = require 'queue'
 local RandomBag = require 'randombag'
@@ -7,7 +8,7 @@ Game.UI = require 'ui'
 Game.events = require 'events'
 
 Game.objects = {}
-Game.state = STATE_GAME_LOADING
+Game.state = 0
 Game.world = nil
 
 Game.score = 0
@@ -17,6 +18,7 @@ Game.combo = 0
 Game.maxCombo = 0
 
 Game.timeScale = 0.5
+Game.startTime = love.timer.getTime()
 
 -- Initialize game
 
@@ -47,7 +49,7 @@ function Game.save()
 end
 
 function Game.start()
-  Game.state = STATE_GAME_RUNNING
+  Game.state = STATE_GAME_LOADING
 
   -- Physics
   Game.world = love.physics.newWorld(0, GRAVITY, true)
@@ -98,14 +100,7 @@ function Game.start()
   Game.events.add(EVENT_RELEASED_PREVIEW, Game.ReleaseBall)
   Game.events.add(EVENT_ON_BALLS_STATIC, Game.onBallsStatic)
   Game.events.add(EVENT_SAFE_TO_DROP, Game.GetNextBall)
-  Game.events.add(EVENT_BALLS_TOO_HIGH, function()
-    Game.objects.balls:forEach(function(ball)
-      if not ball.indestructible then return end
-      DestroyBall(ball)
-    end)
-    Game.state = STATE_GAME_LOST
-    Game.events.add(EVENT_ON_BALLS_STATIC, Game.gameOver)
-  end)
+  Game.events.add(EVENT_BALLS_TOO_HIGH, Game.lose)
 
   -- Score
   Game.score = 0
@@ -116,57 +111,92 @@ function Game.start()
   -- Random bags
   ballChances = RandomBag.new(#BALL_COLORS, BALL_CHANCE_MODIFIER)
   radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
+
+  Game.state = STATE_GAME_RUNNING
 end
 
 Game.staticFrameCount = 0
-local FIXED_DT = 1/90
+Game.totalTime = 0
 local accumulator = 0
 function Game.update(dt)
+  dt = dt * Game.timeScale
+  Scheduler.update(dt)
+  --print(' Game State: '.. Game.state)
+  --print('STATE_GAME_RUNNING ='..STATE_GAME_RUNNING)
+  --print('STATE_GAME_LOST ='..STATE_GAME_LOST)
+  --print('STATE_GAME_OVER  = '..STATE_GAME_OVER)
+  --print('STATE_GAME_PAUSED  = '..STATE_GAME_PAUSED)
+  --print('STATE_GAME_LOADING = '..STATE_GAME_LOADING)
+  --print('STATE_GAME_MAINMENU = '..STATE_GAME_MAINMENU)
 
-  accumulator = accumulator + dt*Game.timeScale
 
+  if not Game.inState(STATE_GAME_LOADING, STATE_GAME_MAINMENU, STATE_GAME_OVER) then
+    --print('game is running')
+    accumulator = accumulator + dt
+    -- NOTE: this might break
+    Game.totalTime = Game.totalTime + dt
 
-  while accumulator >= FIXED_DT do
-    Game.world:update(FIXED_DT)
-    totalSpeed2 = 0
-    Game.objects.balls:forEach(function(ball)
-      local px, py = ball.body:getPosition() 
-      if not IsInsideScreen(px, py) then
-        Game.objects.balls:SetToDelete(ball)
-        ballsRemoved = ballsRemoved + 1
-      end
-
-      if ball.inGame then
-        local x, y = ball.body:getLinearVelocity()
-        totalSpeed2 = totalSpeed2 + x*x + y*y
-      end
-      -- TODO: create max radius variable
-    end)
-
-    -- TODO: Make this more robust
-    if totalSpeed2 < MIN_SPEED2 then
-      Game.staticFrameCount = Game.staticFrameCount + 1
-      if Game.staticFrameCount == FRAMES_TO_STATIC then
-        Game.events.fire(EVENT_ON_BALLS_STATIC)
-      end
-    else
-      Game.staticFrameCount = 0
+    -- To prevent spiral of death
+    if accumulator > MAX_DT_ACC then
+      accumulator = 0
+      return
     end
 
+    while accumulator >= FIXED_DT do
+      Game.world:update(FIXED_DT)
+      totalSpeed2 = 0
+      Game.objects.balls:forEach(function(ball)
+        local px, py = ball.body:getPosition() 
+        if not IsInsideScreen(px, py) then
+          Game.objects.balls:SetToDelete(ball)
+        end
 
-    if Game.lastDroppedBall then
-      if Game.lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + Game.lastDroppedBall.radius or Game.lastDroppedBall.destroyed then
-        Game.events.fire(EVENT_SAFE_TO_DROP)
-        Game.lastDroppedBall = nil
+        if ball.inGame then
+          local x, y = ball.body:getLinearVelocity()
+          totalSpeed2 = totalSpeed2 + x*x + y*y
+        end
+        -- TODO: create max radius variable
+      end)
+
+      -- TODO: Make this more robust
+      if totalSpeed2 < MIN_SPEED2 then
+        Game.staticFrameCount = Game.staticFrameCount + 1
+        if Game.staticFrameCount == FRAMES_TO_STATIC then
+          Game.events.fire(EVENT_ON_BALLS_STATIC)
+        end
+      else
+        Game.staticFrameCount = 0
       end
+
+
+      if Game.lastDroppedBall then
+        if Game.lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + Game.lastDroppedBall.radius or Game.lastDroppedBall.destroyed then
+          Game.events.fire(EVENT_SAFE_TO_DROP)
+          Game.lastDroppedBall = nil
+        end
+      end
+
+      lastTotalSpeed2 = totalSpeed2
+
+      Game.objects.balls:Clean()
+
+      accumulator = accumulator - FIXED_DT
     end
-
-    lastTotalSpeed2 = totalSpeed2
-
-    Game.objects.balls:Clean()
-    
-    accumulator = accumulator - FIXED_DT
   end
+end
+
+function Game.inState(...)
+  local gameStates = {...}
+  for _, gameState in pairs(gameStates) do
+    if gameState ~= 1 and gameState % 2 ~= 0 then
+      print('STATE ERROR: comparing against invalid state')
+    end
+
+    if Game.state == gameState then
+      return true
+    end
+  end
+  return false
 end
 
 function Game.onBallsStatic()
@@ -187,9 +217,19 @@ function Game.onBallsStatic()
 
 end
 
+function Game.lose()
+  Game.objects.balls:forEach(function(ball)
+  if not ball.indestructible then return end
+    Game.ScheduleBallDestruction(ball)
+  end)
+  Game.state = STATE_GAME_LOST
+  Game.events.add(EVENT_ON_BALLS_STATIC, Game.gameOver)
+end
+
+
 function Game.gameOver()
   Game.setHighScore(Game.score)
-  Game.objects.balls:forEach(DestroyBall)
+  Game.objects.balls:forEach(Game.DestroyBall)
   Game.state = STATE_GAME_OVER
 end
 
@@ -257,6 +297,28 @@ function Game.GetNextBall()
       Game.objects.nextBallPreviews:enqueue(NewBallPreview({indestructible = true}))
     end
   end
+end
+
+function Game.ScheduleBallDestruction(ball)
+  ball.inGame = false
+  ball.timeDestroyed = Game.totalTime
+  print('Schedule Time:'..(ball.timeDestroyed))
+  Scheduler.add(function()
+    Game.DestroyBall(ball)
+    print('Ball destroyed at: '..Game.totalTime)
+  end, BALL_TIME_TO_DESTROY)
+end
+
+function Game.DestroyBall(ball)
+  if not ball then return end
+  Game.objects.balls:SetToDelete(ball)
+  if ball.fixture and not ball.fixture:isDestroyed() then
+    ball.fixture:setMask(COL_MAIN_CATEGORY)
+  end
+  if ball.body and not ball.body:isDestroyed() then
+    ball.body:setActive(false)
+  end
+  ball.destroyed = true
 end
 return Game
 

@@ -1,20 +1,21 @@
 wip
 
+Pallete stuff (load pallete from pixelated file =))))) )
+Credits
 
 
 Better but still simple HUD. (show combos)
   - Combos
   - Static/Dynamic
 
-Loading screen
 back button opens menu android
-Main Menu functionality
 
 Next ball list update animation
 Better ball drop animation
 Vertical Prediction line
-BUG: make simulation stop when running in background (balls jump around if out of game for a while)
 BUG: app open through icon restarting
+
+Make debug print tell file (just rename print function to print('filename:', ...)
 
 Save high score online -- TOO HARD
 

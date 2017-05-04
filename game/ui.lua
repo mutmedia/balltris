@@ -1,7 +1,5 @@
 local bit32 = require("bit") 
 
-
-
 require 'math_utils'
 local List = require 'doubly_linked_list'
 local Load = require 'load'
@@ -17,15 +15,24 @@ UI = {
 function UI.object(params)
   local obj = params
 
-  obj.x = (obj.x + BASE_SCREEN_WIDTH) % BASE_SCREEN_WIDTH
-  obj.y = (obj.y + BASE_SCREEN_HEIGHT) % BASE_SCREEN_HEIGHT
+  obj.x = ((obj.x or 0) + BASE_SCREEN_WIDTH) % BASE_SCREEN_WIDTH
+  obj.y = ((obj.y or 0) + BASE_SCREEN_HEIGHT) % BASE_SCREEN_HEIGHT
+
+  obj.contains = params.contains or function(self, x, y)
+    return false
+  end
+
+  if not params.draw then
+    print(string.format('UI ERROR: Drawable %s has no draw function', obj.name or 'unnamed'))
+  end
 
   if not obj.layer then
-    error(string.format('Object %s has no layer.', obj.name or 'unnamed'))
+    print(string.format('UI ERROR: Object %s has no layer.', obj.name or 'unnamed'))
   end
   if not obj.condition then
-    error(string.format('Object %s has no display condition.', obj.name or 'unnamed'))
+    print(string.format('UI ERROR: Object %s has no display condition.', obj.name or 'unnamed'))
   end
+
   table.insert(UI._layers[obj.layer], obj)
   obj._state = {
     pressed = false,
@@ -33,12 +40,13 @@ function UI.object(params)
   }
   obj._lastState = {}
 
-  return obj
+  print('UI: Loaded '..obj.name)
+
 end
 
 
 function UI.rectangle(params)
-  local rect = UI.object(params)
+  local rect = params
 
   rect.contains = function(self, x, y)
     return utils.isInsideRect(x, y, self.x - self.width/2, self.y - self.height/2, self.x + self.width/2, self.y + self.height/2)
@@ -64,15 +72,11 @@ function UI.rectangle(params)
     end
   end
 
-  return rect
+  UI.object(rect)
 end
 
 function UI.text(params)
-  local text = UI.object(params)
-
-  text.contains = function(self, x, y)
-    return false
-  end
+  local text = params
 
   text.draw = function(self)
     love.graphics.setColor(self.color or UI.DEFAULT_FONT_COLOR)
@@ -90,11 +94,11 @@ function UI.text(params)
       self.offsetY)
   end
 
-  return rect
+  UI.object(text)
 end
 
 function UI.button(params)
-  local btn = UI.object(params)
+  local btn = params
 
   btn.contains = function(self, x, y)
     return utils.isInsideRect(x, y, self.x - self.width/2, self.y - self.height/2, self.x + self.width/2, self.y + self.height/2)
@@ -135,6 +139,8 @@ function UI.button(params)
       self.offsetX,
       self.offsetY)
   end
+
+  UI.object(btn)
 end
 
 
@@ -144,6 +150,7 @@ function UI.setFiles(...)
 end
 
 function UI.initialize()
+  print('UI: Initializing')
   -- Adjust to current screen size
   local screenWidth, screenHeight = love.window.getMode()
   local aspectRatio = screenWidth/screenHeight
@@ -171,7 +178,8 @@ end
 function UI.draw()
   for i=#GAME_LAYERS,1,-1 do
     for _, elem in ipairs(UI._layers[GAME_LAYERS[i]]) do
-      if not elem.condition or elem.condition() then
+      if elem:condition() then
+        --print('drawing UI element: '..elem.name)
         elem:draw() 
       end
     end
@@ -179,7 +187,7 @@ function UI.draw()
 end
 
 
-function UI.Action(x, y, actionName)
+function Action(x, y, actionName)
   local tx = (x - UI.deltaX) / UI.scaleX
   local ty = (y - UI.deltaY) / UI.scaleY
 
@@ -225,15 +233,15 @@ function UI.Action(x, y, actionName)
 end
 
 function UI.pressed(x, y)
-  UI.Action(x, y, 'pressed')
+  Action(x, y, 'pressed')
 end
 
 function UI.moved(x, y, dx, dy)
-  UI.Action(x, y, 'moved')
+  Action(x, y, 'moved')
 end
 
 function UI.released(x, y)
-  UI.Action(x, y, 'released')
+  Action(x, y, 'released')
 end
 
 return UI

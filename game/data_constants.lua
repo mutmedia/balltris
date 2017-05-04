@@ -4,6 +4,8 @@ TITLE = 'BallTris'
 -- Physics
 METER = 64
 GRAVITY = 10 * METER
+FIXED_DT = 1/60
+MAX_DT_ACC = 1
 
 -- Screen
 BASE_SCREEN_WIDTH = 640
@@ -28,8 +30,8 @@ BALL_COLORS = {
   {168, 34, 92},
  ]]--
   --[[ Neon]]--
-  {154, 0, 157},
-  {254, 0, 2},
+  {154, 0, 157}, -- Pink
+  {254, 0, 2}, -- REd
   {0, 205, 254},
   {51, 205, 49},
   {255, 203, 3},
@@ -63,7 +65,7 @@ BALL_LINE_WIDTH_IN = 2
 
 
 BALL_SPEED_STRETCH = 0.0001
-BALL_TIME_TO_DESTROY = 0.05
+BALL_TIME_TO_DESTROY = 0.2
 BALL_CHANCE_MODIFIER = 0.1
 BALL_DRAW_SCALE = 0.99
 
@@ -99,6 +101,7 @@ STATE_GAME_LOST = 2 -- When balls cross the line
 STATE_GAME_OVER  = 4 -- When everything ends
 STATE_GAME_PAUSED  = 8 -- When game is paused
 STATE_GAME_LOADING = 16 -- When game is paused
+STATE_GAME_MAINMENU = 32 -- When game in on main menu
 
 -- Layers
 LAYER_BACKGROUND = 'background'
