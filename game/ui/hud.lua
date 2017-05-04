@@ -64,7 +64,7 @@ Text{
 }
 
 Rectangle{
-  name='previewbox',
+  name='gamebox',
   layer=LAYER_GAME,
   condition=inGameState(STATE_GAME_RUNNING),
   x=BASE_SCREEN_WIDTH/2,
@@ -78,9 +78,11 @@ Rectangle{
     Game.events.fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
   end,
   onEnter = function(self, x, y)
+    Game.timeScale = 0.3
     Game.events.fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
   end,
   onExit = function(self, x, y)
+    Game.timeScale = 2
     if DEBUG_UI then self.lineColor = {0, 0, 255, 255} end
     Game.events.fire(EVENT_RELEASED_PREVIEW, x, y)
   end,

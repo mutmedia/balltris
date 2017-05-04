@@ -16,6 +16,8 @@ Game.newHighScore = false
 Game.combo = 0
 Game.maxCombo = 0
 
+Game.timeScale = 0.5
+
 -- Initialize game
 
 -- TODO: move to ballpreview.lua
@@ -117,15 +119,15 @@ function Game.start()
 end
 
 Game.staticFrameCount = 0
-local FIXED_DT = 1/60
+local FIXED_DT = 1/90
 local accumulator = 0
 function Game.update(dt)
 
-  accumulator = accumulator + dt
+  accumulator = accumulator + dt*Game.timeScale
 
-  Game.world:update(dt)
 
   while accumulator >= FIXED_DT do
+    Game.world:update(FIXED_DT)
     totalSpeed2 = 0
     Game.objects.balls:forEach(function(ball)
       local px, py = ball.body:getPosition() 

@@ -57,6 +57,8 @@ local Shaders = {
   Scanlines,
 }
 
+local GaussianBlurEffect
+
 local lightDirection = {1, 1, 3}
 local gameCanvas
 local loadingCanvas
@@ -155,6 +157,12 @@ function love.load()
   Shaders.Scanlines = love.graphics.newShader('shaders/scanlines.fs')
   --print('Time to shader Scanlines: \t\t'..love.timer.getTime() - loadtime)
 
+   GaussianBlurEffect = (require 'shaders/effect_gaussianblur').new{
+    sigma=1.5,
+    scale=4,
+    width=BASE_SCREEN_WIDTH,
+    height=BASE_SCREEN_HEIGHT,
+  }
 
   Game.load()
 
@@ -284,34 +292,13 @@ function love.draw()
 
     -- Switch to game post fx
 
-    love.graphics.setCanvas(auxCanvas1)
-    love.graphics.clear()
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(gameCanvas)
+    GaussianBlurEffect:apply(gameCanvas, auxCanvas1)
 
-    love.graphics.setBlendMode('alpha', 'premultiplied')
-
-    love.graphics.setCanvas(auxCanvas2)
-    love.graphics.clear()
-    love.graphics.setColor(255, 255, 255)
-    Shaders.GaussianBlur:send('offset_direction', {1.3 / auxCanvas2:getWidth(), 0})
-    love.graphics.setShader(Shaders.GaussianBlur)
-    love.graphics.draw(auxCanvas1, 0, 0)
-
-    love.graphics.setCanvas(auxCanvas1)
-    love.graphics.clear()
-    love.graphics.setColor(255, 255, 255)
-    Shaders.GaussianBlur:send('offset_direction', {0, 1.3 / auxCanvas1:getHeight()})
-    love.graphics.draw(auxCanvas2, 0, 0)
-
-    love.graphics.setShader()
     love.graphics.setBlendMode(b)
 
     love.graphics.setCanvas(auxCanvas2)
     love.graphics.clear()
     love.graphics.setColor(255, 255, 255)
-    --love.graphics.setColor(255, 255, 255)
-
 
     love.graphics.draw(gameCanvas)
     love.graphics.setBlendMode('add')

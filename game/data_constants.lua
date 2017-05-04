@@ -20,20 +20,20 @@ BALL_RADIUS_MULTIPLIERS = {1, 1.7, 2.5}
 BALL_MAX_RADIUS = BALL_BASE_RADIUS * BALL_RADIUS_MULTIPLIERS[#BALL_RADIUS_MULTIPLIERS]
 
 BALL_COLORS = {
-  --[[ Synthwave ]]--
+  --[[ Synthwave
   {65, 163, 162},
   {82, 107, 163},
   {105, 78, 156},
   {140, 58, 145},
   {168, 34, 92},
-
-  --[[ Neon
+ ]]--
+  --[[ Neon]]--
   {154, 0, 157},
   {254, 0, 2},
   {0, 205, 254},
   {51, 205, 49},
   {255, 203, 3},
-  ]]--
+  
   --[[ Same Luma
   {33, 224, 3},
   {3, 203, 213},
