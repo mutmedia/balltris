@@ -1,7 +1,10 @@
 wip
 
-Pallete stuff (load pallete from pixelated file =))))) )
 Credits
+save game state when game pauses so it can be loaded and reloaded
+User linear sampling for better gaussian shader
+Linear interpolation when in slow motion
+Things turning on effects
 
 
 Better but still simple HUD. (show combos)

@@ -7,6 +7,7 @@ EVENT_PRESSED_SWITCH = 'switchReleased'
 EVENT_ON_BALLS_STATIC = 'ballsStatic'
 EVENT_SAFE_TO_DROP = 'safeToDrop'
 EVENT_BALLS_TOO_HIGH = 'ballsTooHigh'
+EVENT_OPEN_MENU = 'ballsTooHigh'
 
 Events = {
   _callBacks = {},

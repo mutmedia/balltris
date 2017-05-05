@@ -320,6 +320,15 @@ function love.keypressed(key)
     Game.lose()
   end
 
+  if key == 'escape' then
+    if Game.state ~= STATE_GAME_PAUSED then
+      Game.state = STATE_GAME_PAUSED
+    else
+      -- TODO: this might be buggy if there is more than a running state
+      Game.state = STATE_GAME_RUNNING
+    end
+  end
+
   if key == 'f' then
     DEBUG_SHOW_FPS = not DEBUG_SHOW_FPS
   end
