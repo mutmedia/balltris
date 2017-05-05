@@ -185,10 +185,18 @@ function UI.initialize(palette)
     drawHeight = drawWidth / ASPECT_RATIO
   end
 
+  --print('drawWidth'..drawWidth)
+  --print('drawHeight'..drawHeight)
+
   UI.deltaX = (screenWidth-drawWidth)/2
   UI.deltaY = (screenHeight-drawHeight)
   UI.scaleX = drawWidth/BASE_SCREEN_WIDTH
   UI.scaleY = drawHeight/BASE_SCREEN_HEIGHT 
+
+  --print('UI.deltaX'..UI.deltaX)
+  --print('UI.deltaY'..UI.deltaY)
+  --print('UI.scaleX'..UI.scaleX)
+  --print('UI.scaleY'..UI.scaleY)
 
   UI._palette = palette
 

@@ -5,6 +5,20 @@ Text{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
+  y=BASE_SCREEN_HEIGHT/2 - 200 - 170,
+  font=love.graphics.newFont(MAIN_UI_FONT, 40),
+  color=7,
+  width=250,
+  getText = function()
+    return 'Definetely not'
+  end,
+}
+
+Text{
+  name='title',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_MAINMENU),
+  x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 - 200 - 100,
   font=love.graphics.newFont(MAIN_UI_FONT, 80),
   color=6,

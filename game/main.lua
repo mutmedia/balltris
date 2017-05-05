@@ -49,7 +49,6 @@ local lastTotalSpeed2 = -1
 local time = 0
 
 local Shaders = {
-  GaussianBlur,
   Edge,
   TurnOff,
   BlackWhite,
@@ -59,7 +58,6 @@ local Shaders = {
 
 local GaussianBlurEffect
 
-local lightDirection = {1, 1, 3}
 local gameCanvas
 local loadingCanvas
 local auxCanvas1
@@ -137,12 +135,6 @@ function love.load()
 
   -- Shaders
   loadtime = love.timer.getTime()
-  --print('Time to shader TurnOff: \t\t'..love.timer.getTime() - loadtime)
-  --Shaders.GaussianBlur = love.graphics.newShader('shaders/gaussianblur.vs', 'shaders/gaussianblur.fs')
-  loadtime = love.timer.getTime()
-  Shaders.GaussianBlur = require('shaders/gaussianblur')(1) -- Making this too big crashes
-  --print('Time to shader GaussianBlur: \t\t'..love.timer.getTime() - loadtime)
-  loadtime = love.timer.getTime()
   Shaders.Edge = love.graphics.newShader('shaders/edgeshader.fs', 'shaders/edgeshader.vs')
   --print('Time to shader Edge: \t\t\t'..love.timer.getTime() - loadtime)
   loadtime = love.timer.getTime()
@@ -156,7 +148,7 @@ function love.load()
   --print('Time to shader Scanlines: \t\t'..love.timer.getTime() - loadtime)
 
   GaussianBlurEffect = (require 'shaders/effect_gaussianblur').new{
-    sigma=1.5,
+    sigma=4,
     scale=4,
     width=BASE_SCREEN_WIDTH,
     height=BASE_SCREEN_HEIGHT,
