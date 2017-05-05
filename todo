@@ -2,7 +2,6 @@ wip
 
 Credits
 save game state when game pauses so it can be loaded and reloaded
-User linear sampling for better gaussian shader
 Linear interpolation when in slow motion
 Things turning on effects
 
@@ -15,7 +14,6 @@ back button opens menu android
 
 Next ball list update animation
 Better ball drop animation
-Vertical Prediction line
 BUG: app open through icon restarting
 
 Make debug print tell file (just rename print function to print('filename:', ...)

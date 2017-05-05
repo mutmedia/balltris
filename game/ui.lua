@@ -268,7 +268,6 @@ function Action(x, y, actionName)
         elseif elem._lastState.inside and elem._state.inside then
           if elem.onMove then elem:onMove(tx, ty) end
         end
-
         if not elem._state.pressed and elem._lastState.pressed then
           if elem.onPress then elem:onPress(tx, ty) end
         end

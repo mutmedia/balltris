@@ -2,6 +2,7 @@ local Scheduler = require 'scheduler'
 local List = require 'doubly_linked_list'
 local Queue = require 'queue'
 local RandomBag = require 'randombag'
+local Vector = require 'vector2d'
 
 Game = {}
 Game.UI = require 'ui'
@@ -17,7 +18,7 @@ Game.newHighScore = false
 Game.combo = 0
 Game.maxCombo = 0
 
-Game.timeScale = 0.5
+Game.timeScale = TIME_SCALE_REGULAR
 Game.startTime = love.timer.getTime()
 
 -- Initialize game
@@ -94,29 +95,49 @@ function Game.start()
     if Game.objects.ballPreview then
       Game.objects.ballPreview.drawStyle = 'line'
       Game.objects.ballPreview.position.x = utils.clamp(x, BORDER_THICKNESS + Game.objects.ballPreview.radius + 1, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + Game.objects.ballPreview.radius) - 1)
+      Game.timeScale = TIME_SCALE_SLOMO
+    else
+      Game.events.schedule(EVENT_SAFE_TO_DROP, function()
+        print ('calling scheduled event')
+        Game.timeScale = TIME_SCALE_SLOMO
+      end)
     end
   end)
 
-  Game.events.add(EVENT_RELEASED_PREVIEW, Game.ReleaseBall)
+  Game.events.add(EVENT_RELEASED_PREVIEW, function()
+    Game.ReleaseBall()
+    Game.timeScale = TIME_SCALE_REGULAR
+  end)
   Game.events.add(EVENT_ON_BALLS_STATIC, Game.onBallsStatic)
-  Game.events.add(EVENT_SAFE_TO_DROP, Game.GetNextBall)
+  Game.events.add(EVENT_SAFE_TO_DROP, function()
+    Game.GetNextBall()
+  end)
   Game.events.add(EVENT_BALLS_TOO_HIGH, Game.lose)
-
-  -- Score
-  Game.score = 0
+  Game.events.add(EVENT_SCORED, function()
+end)
+Game.events.add(EVENT_COMBO_END, function()
+  if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
   Game.combo = 0
-  Game.maxCombo = 0
-  Game.newHighScore = false
+end)
 
-  -- Random bags
-  ballChances = RandomBag.new(BALL_COLORS, BALL_CHANCE_MODIFIER)
-  radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
+-- Score
+Game.score = 0
+Game.combo = 0
+Game.maxCombo = 0
+Game.newHighScore = false
 
-  Game.state = STATE_GAME_RUNNING
+-- Random bags
+ballChances = RandomBag.new(BALL_COLORS, BALL_CHANCE_MODIFIER)
+radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
+
+Game.state = STATE_GAME_RUNNING
 end
 
 Game.staticFrameCount = 0
 Game.totalTime = 0
+
+Game.raycastHit = nil
+
 local accumulator = 0
 function Game.update(dt)
   dt = dt * Game.timeScale
@@ -142,172 +163,187 @@ function Game.update(dt)
       return
     end
 
-    while accumulator >= FIXED_DT do
-      Game.world:update(FIXED_DT)
-      totalSpeed2 = 0
-      Game.objects.balls:forEach(function(ball)
-        local px, py = ball.body:getPosition() 
-        if not IsInsideScreen(px, py) then
-          Game.objects.balls:SetToDelete(ball)
-        end
-
-        if ball.inGame then
-          local x, y = ball.body:getLinearVelocity()
-          totalSpeed2 = totalSpeed2 + x*x + y*y
-        end
-        -- TODO: create max radius variable
-      end)
-
-      -- TODO: Make this more robust
-      if totalSpeed2 < MIN_SPEED2 then
-        Game.staticFrameCount = Game.staticFrameCount + 1
-        if Game.staticFrameCount == FRAMES_TO_STATIC then
-          Game.events.fire(EVENT_ON_BALLS_STATIC)
-        end
-      else
-        Game.staticFrameCount = 0
+    Game.raycastHit = nil
+    --Raycast to get preview
+    if Game.objects.ballPreview then
+      Game.world:rayCast(Game.objects.ballPreview.position.x,
+        Game.objects.ballPreview.position.y,
+        Game.objects.ballPreview.position.x,
+        Game.objects.ballPreview.position.y + BASE_SCREEN_HEIGHT,
+        function(fixture, x, y, xn, yn, fraction)
+          --ballref = fixture:getUserData() and fixture:getUserData().ref
+          --if not ballref then return end
+          --print('Ray cast hit something')
+          if not Game.raycastHit or y < Game.raycastHit.y then
+            Game.raycastHit = Vector.new({x=x, y=y})
+          end
+          return 1
+        end)
       end
 
 
-      if Game.lastDroppedBall then
-        if Game.lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + Game.lastDroppedBall.radius or Game.lastDroppedBall.destroyed then
-          Game.events.fire(EVENT_SAFE_TO_DROP)
-          Game.lastDroppedBall = nil
+      while accumulator >= FIXED_DT do
+        Game.world:update(FIXED_DT)
+        totalSpeed2 = 0
+        Game.objects.balls:forEach(function(ball)
+          local px, py = ball.body:getPosition() 
+          if not IsInsideScreen(px, py) then
+            Game.objects.balls:SetToDelete(ball)
+          end
+
+          if ball.inGame then
+            local x, y = ball.body:getLinearVelocity()
+            totalSpeed2 = totalSpeed2 + x*x + y*y
+          end
+          -- TODO: create max radius variable
+        end)
+
+        -- TODO: Make this more robust
+        if totalSpeed2 < MIN_SPEED2 then
+          Game.staticFrameCount = Game.staticFrameCount + 1
+          if Game.staticFrameCount == FRAMES_TO_STATIC then
+            Game.events.fire(EVENT_ON_BALLS_STATIC)
+          end
+        else
+          Game.staticFrameCount = 0
         end
+
+
+        if Game.lastDroppedBall then
+          if Game.lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + Game.lastDroppedBall.radius or Game.lastDroppedBall.destroyed then
+            Game.events.fire(EVENT_SAFE_TO_DROP)
+            Game.lastDroppedBall = nil
+          end
+        end
+
+        lastTotalSpeed2 = totalSpeed2
+
+        Game.objects.balls:Clean()
+
+        accumulator = accumulator - FIXED_DT
+      end
+    end
+  end
+
+  function Game.inState(...)
+    local gameStates = {...}
+    for _, gameState in pairs(gameStates) do
+      if gameState ~= 1 and gameState % 2 ~= 0 then
+        print('STATE ERROR: comparing against invalid state')
       end
 
-      lastTotalSpeed2 = totalSpeed2
-
-      Game.objects.balls:Clean()
-
-      accumulator = accumulator - FIXED_DT
+      if Game.state == gameState then
+        return true
+      end
     end
+    return false
   end
-end
 
-function Game.inState(...)
-  local gameStates = {...}
-  for _, gameState in pairs(gameStates) do
-    if gameState ~= 1 and gameState % 2 ~= 0 then
-      print('STATE ERROR: comparing against invalid state')
-    end
-
-    if Game.state == gameState then
-      return true
-    end
-  end
-  return false
-end
-
-function Game.onBallsStatic()
-  local ballsTooHigh = false
-  Game.objects.balls:forEach(function(ball)
-    if not ball.inGame then return end
-    if ball.body:getY() < MIN_DISTANCE_TO_TOP + ball.radius then
-      ballsTooHigh = true
-    end
-  end)
-  if ballsTooHigh then
-    Game.events.fire(EVENT_BALLS_TOO_HIGH)
-  end
-  lastHit = hit
-  hit = false
-  if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
-  Game.combo = 0
-
-end
-
-function Game.lose()
-  Game.timeScale = 2
-  Game.objects.balls:forEach(function(ball)
-  if not ball.indestructible then return end
-    Game.ScheduleBallDestruction(ball)
-  end)
-  Game.state = STATE_GAME_LOST
-  Game.events.add(EVENT_ON_BALLS_STATIC, Game.gameOver)
-end
-
-
-function Game.gameOver()
-  Game.setHighScore(Game.score)
-  Game.objects.balls:forEach(Game.DestroyBall)
-  Game.state = STATE_GAME_OVER
-end
-
-function Game.setHighScore(score)
-  if score > Game.highScore then
-    Game.highScore = score
-    Game.save()
-    Game.newHighScore = true
-  end
-end
-
-local lastBallNumber
--- TODO: remove from game
--- move to ballpreview file
-function Game.GetBallNumber() 
-  while true do
-    local ballNumber = ballChances:get()
-    if ballNumber ~= lastBallNumber then
-      --lastBallNumber = ballNumber
-      ballChances:update(ballNumber)
-      return ballNumber
-    end
-  end
-end
-
-function Game.GetBallRadius()
-  local radiusNumber = radiusChances:get()
-  radiusChances:update(radiusNumber)
-  return BALL_BASE_RADIUS * BALL_RADIUS_MULTIPLIERS[radiusNumber]
-end
-
-function Game.ReleaseBall()
-  if not Game.objects.ballPreview then return end
-  local newBall = Game.objects.ballPreview
-
-  newBall.inGame = false
-  newBall.body = love.physics.newBody(Game.world, Game.objects.ballPreview.position.x, Game.objects.ballPreview.position.y, 'dynamic')
-  --newBall.body:setFixedRotation(false)
-  newBall.shape = love.physics.newCircleShape(Game.objects.ballPreview.radius)
-  newBall.fixture = love.physics.newFixture(newBall.body, newBall.shape)
-  newBall.fixture:setCategory(COL_MAIN_CATEGORY)
-  --newBall.fixture:setRestitution(0)
-  newBall.fixture:setUserData({
-      ref = newBall,
-    })
-  Game.objects.balls:add(newBall)
-
-  Game.objects.ballPreview = nil
-  --Game.objects.ballPreview = NewBallPreview(Game.objects.ballPreview.position.x)
-  Game.lastDroppedBall = newBall
-end
-
-function Game.GetNextBall() 
-  if not Game.objects.ballPreview then
-    Game.objects.ballPreview = Game.objects.nextBallPreviews:dequeue()
-    local hasWhiteBalls = false
-    Game.objects.nextBallPreviews:forEach(function(ball)
-      if ball.indestructible then
-        hasWhiteBalls = true
+  function Game.onBallsStatic()
+    local ballsTooHigh = false
+    Game.objects.balls:forEach(function(ball)
+      if not ball.inGame then return end
+      if ball.body:getY() < MIN_DISTANCE_TO_TOP + ball.radius then
+        ballsTooHigh = true
       end
     end)
-    if hasWhiteBalls then 
-      Game.objects.nextBallPreviews:enqueue(NewBallPreview())
-    else
-      Game.objects.nextBallPreviews:enqueue(NewBallPreview({indestructible = true}))
+    if ballsTooHigh then
+      Game.events.fire(EVENT_BALLS_TOO_HIGH)
+    end
+    lastHit = hit
+    hit = false
+    Game.events.fire(EVENT_COMBO_END)
+
+  end
+
+  function Game.lose()
+    Game.objects.balls:forEach(function(ball)
+      if not ball.indestructible then return end
+      Game.ScheduleBallDestruction(ball)
+    end)
+    Game.state = STATE_GAME_LOST
+    Game.events.add(EVENT_ON_BALLS_STATIC, Game.gameOver)
+  end
+
+
+  function Game.gameOver()
+    Game.setHighScore(Game.score)
+    Game.objects.balls:forEach(Game.DestroyBall)
+    Game.state = STATE_GAME_OVER
+  end
+
+  function Game.setHighScore(score)
+    if score > Game.highScore then
+      Game.highScore = score
+      Game.save()
+      Game.newHighScore = true
     end
   end
-end
 
-function Game.ScheduleBallDestruction(ball)
-  ball.inGame = false
-  ball.timeDestroyed = Game.totalTime
-  print('Schedule Time:'..(ball.timeDestroyed))
-  Scheduler.add(function()
-    Game.DestroyBall(ball)
-    print('Ball destroyed at: '..Game.totalTime)
-  end, BALL_TIME_TO_DESTROY)
+  local lastBallNumber
+  -- TODO: remove from game
+  -- move to ballpreview file
+  function Game.GetBallNumber() 
+    while true do
+      local ballNumber = ballChances:get()
+      if ballNumber ~= lastBallNumber then
+        --lastBallNumber = ballNumber
+        ballChances:update(ballNumber)
+        return ballNumber
+      end
+    end
+  end
+
+  function Game.GetBallRadius()
+    local radiusNumber = radiusChances:get()
+    radiusChances:update(radiusNumber)
+    return BALL_BASE_RADIUS * BALL_RADIUS_MULTIPLIERS[radiusNumber]
+  end
+
+  function Game.ReleaseBall()
+    if not Game.objects.ballPreview then return end
+    local newBall = Game.objects.ballPreview
+
+    newBall.inGame = false
+    newBall.body = love.physics.newBody(Game.world, Game.objects.ballPreview.position.x, Game.objects.ballPreview.position.y, 'dynamic')
+    --newBall.body:setFixedRotation(false)
+    newBall.shape = love.physics.newCircleShape(Game.objects.ballPreview.radius)
+    newBall.fixture = love.physics.newFixture(newBall.body, newBall.shape)
+    newBall.fixture:setCategory(COL_MAIN_CATEGORY)
+    --newBall.fixture:setRestitution(0)
+    newBall.fixture:setUserData({
+        ref = newBall,
+      })
+    Game.objects.balls:add(newBall)
+
+    Game.objects.ballPreview = nil
+    --Game.objects.ballPreview = NewBallPreview(Game.objects.ballPreview.position.x)
+    Game.lastDroppedBall = newBall
+  end
+
+  function Game.GetNextBall() 
+    if not Game.objects.ballPreview then
+      Game.objects.ballPreview = Game.objects.nextBallPreviews:dequeue()
+      local hasWhiteBalls = false
+      Game.objects.nextBallPreviews:forEach(function(ball)
+        if ball.indestructible then
+          hasWhiteBalls = true
+        end
+      end)
+      if hasWhiteBalls then 
+        Game.objects.nextBallPreviews:enqueue(NewBallPreview())
+      else
+        Game.objects.nextBallPreviews:enqueue(NewBallPreview({indestructible = true}))
+      end
+    end
+  end
+
+  function Game.ScheduleBallDestruction(ball)
+    ball.inGame = false
+    ball.timeDestroyed = Game.totalTime
+    Scheduler.add(function()
+      Game.DestroyBall(ball)
+    end, BALL_TIME_TO_DESTROY)
 end
 
 function Game.DestroyBall(ball)

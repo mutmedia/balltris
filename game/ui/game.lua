@@ -25,11 +25,9 @@ Rectangle{
     Game.events.fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
   end,
   onEnter = function(self, x, y)
-    Game.timeScale = 0.3
     Game.events.fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
   end,
   onExit = function(self, x, y)
-    Game.timeScale = 2
     Game.events.fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
 }
@@ -92,6 +90,17 @@ Custom{
   end,
 }
 
+Custom{
+  name='ball preview hit',
+  layer=LAYER_GAME,
+  condition = inGameState(STATE_GAME_RUNNING),
+  draw=function()
+    if Game.raycastHit and Game.objects.ballPreview and Game.objects.ballPreview.drawStyle ~= 'none' then
+      UI.setColor(GetBallColor(Game.objects.ballPreview))
+      love.graphics.circle('fill', Game.raycastHit.x, Game.raycastHit.y, 7)
+    end
+  end,
+}
 Custom{
   name='balls in game',
   layer=LAYER_GAME,
