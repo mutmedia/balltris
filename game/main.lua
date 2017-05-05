@@ -4,6 +4,9 @@ local List = require 'doubly_linked_list'
 local Queue = require 'queue'
 local Vector = require 'vector2d'
 local Scheduler = require 'scheduler'
+
+local NewPalette = require 'palette'
+
 --local BackEnd = require 'playfab'
 
 -- Game Files
@@ -18,13 +21,11 @@ function NewBallPreview(initialData)
   local number = Game.GetBallNumber()
   --local indestructible = math.random() > 0.9
   local radius = initialData.indestructible and WHITE_BALL_SIZE or Game.GetBallRadius()
-  local getColor = function() return initialData.indestructible and WHITE_BALL_COLOR or BALL_COLORS[number] end
   local position = Vector.new{x=BASE_SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING}
   return {
     number = number,
     position = position,
     radius = radius,
-    getColor = getColor,
     drawStyle = 'line',
     indestructible = initialData.indestructible,
     destroyed = false,
@@ -70,6 +71,8 @@ local dataToLoadChannel
 local dataLoadedChannel
 local threadPrintChannel
 
+local Palette
+
 local loadtime = love.timer.getTime()
 
 -- Behaviour definitions
@@ -102,6 +105,8 @@ function love.load()
   end, 1)
   ]]--
 
+  -- Load Game Palette
+
   -- Game Canvas
   loadtime = love.timer.getTime()
   loadingCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
@@ -113,7 +118,7 @@ function love.load()
   -- Loading UI
   loadtime = love.timer.getTime()
   Game.UI.setFiles('ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua')
-  Game.UI.initialize()
+  Game.UI.initialize(NewPalette('content/palette.png'))
   love.graphics.setCanvas(loadingCanvas)
   love.graphics.clear()
   --Game.UI.draw()
@@ -178,30 +183,12 @@ function love.draw()
   --love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
   --love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
 
-  -- Stage BG
-  --[[
-  love.graphics.setColor(0, 0, 0)
-  --love.graphics.setColor(255, 255, 255)
-  love.graphics.polygon('fill', Game.objects.ground.body:getWorldPoints(Game.objects.ground.shape:getPoints())) 
-  love.graphics.polygon('fill', Game.objects.wallL.body:getWorldPoints(Game.objects.wallL.shape:getPoints()))
-  love.graphics.polygon('fill', Game.objects.wallR.body:getWorldPoints(Game.objects.wallR.shape:getPoints()))
-  ]]--
-
-  love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
-  love.graphics.setColor(WHITE_BALL_COLOR)
-  love.graphics.rectangle('line', BORDER_THICKNESS, -10, HOLE_WIDTH, HOLE_DEPTH + 10)
-  love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
-  love.graphics.rectangle('line', BORDER_THICKNESS - BALL_LINES_DISTANCE, -10 - BALL_LINES_DISTANCE, HOLE_WIDTH + 2 * BALL_LINES_DISTANCE, HOLE_DEPTH + 10 + 2 * BALL_LINES_DISTANCE)
-  love.graphics.setLineWidth(1)
-  -- Balls
-  love.graphics.setBlendMode('add', 'premultiplied')
 
   -- Move this to load when final value set
 
   -- Next balls
 
   love.graphics.setBlendMode(b)
-
 
   love.graphics.setShader()
 
@@ -324,7 +311,8 @@ function love.keypressed(key)
 
   -- DEBUG input
   if key == 'u' then
-    Game.UI:initialize()
+    Palette = NewPalette('content/palette.png')
+    Game.UI.initialize(NewPalette('content/palette.png'))
     dofile('Game/data_constants.lua')
   end
 

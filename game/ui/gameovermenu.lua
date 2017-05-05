@@ -8,7 +8,7 @@ Text{
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 - 200 - 100,
   font=love.graphics.newFont(MAIN_UI_FONT, 80),
-  color=BALL_COLORS[2],
+  color=7,
   width=250,
   getText = function()
     return 'Game Over'
@@ -22,6 +22,7 @@ Text{
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 -130,
   font=love.graphics.newFont(MAIN_UI_FONT, 20),
+  color=1,
   width=200,
   getText = function()
     return 'New High Score!'
@@ -36,6 +37,7 @@ Text{
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 - 000 - 100,
   font=love.graphics.newFont(MAIN_UI_FONT, 30),
+  color=1,
   width=400,
   getText = function()
     return string.format('Final Score: %04d', Game.score)
@@ -49,6 +51,7 @@ Text{
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2 + 50 - 100,
   font=love.graphics.newFont(MAIN_UI_FONT, 30),
+  color=1,
   width=400,
   getText = function()
     return string.format('Max combo: %d', Game.maxCombo)
@@ -63,11 +66,10 @@ Button{
   y=BASE_SCREEN_HEIGHT/2 + 60,
   width=HOLE_WIDTH * 0.8,
   height=80,
-  color={0, 0, 0, 0},
-  --textColor={0, 0, 0},
-  lineColor={255, 255, 255},
+  lineColor=1,
   lineWidth=3,
   font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  textColor=1,
   getText = function() 
     return 'Play Again?'
   end,
@@ -84,11 +86,10 @@ Button{
   y=BASE_SCREEN_HEIGHT/2 + 210 - 10 - 15,
   width=HOLE_WIDTH * 0.8,
   height=80,
-  color={0, 0, 0},
-  --textColor={0, 0, 0},
-  lineColor={255, 255, 255},
+  lineColor=1,
   lineWidth=3,
   font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  textColor=1,
   getText = function() 
     return 'EXIT'
   end,

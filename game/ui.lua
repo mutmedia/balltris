@@ -9,14 +9,14 @@ require 'data_constants'
 
 UI = {
   _layers = {},
-  DEFAULT_FONT_COLOR = {0, 0, 0},
+  DEFAULT_FONT_COLOR = 2,
 }
 
 function UI.object(params)
   local obj = params
 
-  obj.x = ((obj.x or 0) + BASE_SCREEN_WIDTH) % BASE_SCREEN_WIDTH
-  obj.y = ((obj.y or 0) + BASE_SCREEN_HEIGHT) % BASE_SCREEN_HEIGHT
+  obj.x = (obj.x and (obj.x + BASE_SCREEN_WIDTH) % BASE_SCREEN_WIDTH) or 0
+  obj.y = (obj.y and (obj.y + BASE_SCREEN_HEIGHT) % BASE_SCREEN_HEIGHT) or 0
 
   obj.contains = params.contains or function(self, x, y)
     return false
@@ -29,6 +29,7 @@ function UI.object(params)
   if not obj.layer then
     print(string.format('UI ERROR: Object %s has no layer.', obj.name or 'unnamed'))
   end
+
   if not obj.condition then
     print(string.format('UI ERROR: Object %s has no display condition.', obj.name or 'unnamed'))
   end
@@ -53,15 +54,17 @@ function UI.rectangle(params)
   end
 
   rect.draw = function(self)
-    love.graphics.setColor(self.color or {0, 0, 0, 0})
-    love.graphics.rectangle(
-      'fill',
-      self.x - self.width/2,
-      self.y - self.height/2,
-      self.width,
-      self.height) 
+    if self.color then
+      UI.setColor(self.color)
+      love.graphics.rectangle(
+        'fill',
+        self.x - self.width/2,
+        self.y - self.height/2,
+        self.width,
+        self.height) 
+    end
     if self.lineWidth or self.lineColor then
-      love.graphics.setColor(self.lineColor or {0, 0, 0})
+      UI.setColor(self.lineColor)
       love.graphics.setLineWidth(self.lineWidth or 1)
       love.graphics.rectangle(
         'line',
@@ -78,8 +81,12 @@ end
 function UI.text(params)
   local text = params
 
+  if not text.color then
+    print(string.format('UI ERROR: Object %s has no text color', text.name or 'unnamed'))
+  end
+
   text.draw = function(self)
-    love.graphics.setColor(self.color or UI.DEFAULT_FONT_COLOR)
+    UI.setColor(self.color)
     love.graphics.setFont(self.font)
     love.graphics.printf(
       self.getText(),
@@ -100,13 +107,17 @@ end
 function UI.button(params)
   local btn = params
 
+  if not btn.textColor then
+    print(string.format('UI ERROR: Object %s has no text color', btn.name or 'unnamed'))
+  end
+
   btn.contains = function(self, x, y)
     return utils.isInsideRect(x, y, self.x - self.width/2, self.y - self.height/2, self.x + self.width/2, self.y + self.height/2)
   end
 
   btn.draw = function(self)
-    if self.color ~= {0, 0, 0, 0} then
-      love.graphics.setColor(self.color or {0, 0, 0, 0})
+    if self.color then
+      UI.setColor(self.color)
       love.graphics.rectangle(
         'fill',
         self.x - self.width/2,
@@ -114,8 +125,8 @@ function UI.button(params)
         self.width,
         self.height) 
     end
-    if self.lineWidth then
-      love.graphics.setColor(self.lineColor or {0, 0, 0})
+    if self.lineWidth and self.lineColor then
+      UI.setColor(self.lineColor)
       love.graphics.setLineWidth(self.lineWidth)
       love.graphics.rectangle(
         'line',
@@ -125,7 +136,7 @@ function UI.button(params)
         self.height) 
     end
 
-    love.graphics.setColor(self.textColor or UI.DEFAULT_FONT_COLOR)
+    UI.setColor(self.textColor)
     love.graphics.setFont(self.font)
     love.graphics.printf(
       self.getText(),
@@ -143,13 +154,24 @@ function UI.button(params)
   UI.object(btn)
 end
 
+function UI.setColor(index)
+  --print('Using UI print')
+  if index then
+    love.graphics.setColor(UI._palette[index])
+  else
+    print('Index: ', index)
+    error('cant set to a color not in the palette')
+  end
+end
+
 
 function UI.setFiles(...)
   -- TODO: Make some error checking here
   UI.files = {...}
 end
 
-function UI.initialize()
+UI._loveSetColor = love.graphics.setColor
+function UI.initialize(palette)
   print('UI: Initializing')
   -- Adjust to current screen size
   local screenWidth, screenHeight = love.window.getMode()
@@ -168,15 +190,30 @@ function UI.initialize()
   UI.scaleX = drawWidth/BASE_SCREEN_WIDTH
   UI.scaleY = drawHeight/BASE_SCREEN_HEIGHT 
 
+  UI._palette = palette
+
   UI._layers = {}
   for i=1,#GAME_LAYERS do
     UI._layers[GAME_LAYERS[i]] = {}
   end
   Load.luafiles(unpack(UI.files))
+
+
+  -- Overloading setColor with params to make sure its not being used
+  --[[ Uncomment to test if love.setColor is being used
+  love.graphics.setColor = function(r, g, b, a)
+    if r or g or b or a then
+      print('UI WARN: Should not be using default setColor')
+      UI._loveSetColor(r, g, b, a)
+      return
+    end
+    UI._loveSetColor(0, 0, 0, 255)
+  end
+  ]]--
 end
 
 function UI.draw()
-  for i=#GAME_LAYERS,1,-1 do
+  for i=1,#GAME_LAYERS do
     for _, elem in ipairs(UI._layers[GAME_LAYERS[i]]) do
       if elem:condition() then
         --print('drawing UI element: '..elem.name)

@@ -7,6 +7,7 @@ Text{
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2,
   font=love.graphics.newFont(MAIN_UI_FONT, 28),
+  color=1,
   width=1000,
   getText = function()
     return 'Loading...'
@@ -23,7 +24,7 @@ Rectangle{
   width=HOLE_WIDTH,
   height=1,
   lineWidth=2,
-  lineColor={100, 100, 100, 255},
+  lineColor=1,
 }
 
 Text{
@@ -33,6 +34,7 @@ Text{
   x=-BORDER_THICKNESS/2,
   y=30,
   font=love.graphics.newFont(MAIN_UI_FONT, 28),
+  color=1,
   width=1000,
   getText = function()
     return 'Next Balls'
@@ -47,6 +49,7 @@ Text{
   x=BORDER_THICKNESS/2,
   y=120,
   font=love.graphics.newFont(MAIN_UI_FONT, 40),
+  color=1,
   width=100,
   getText = function()
     return string.format('High: %04d', Game.highScore)
@@ -60,6 +63,7 @@ Text{
   x=BORDER_THICKNESS/2,
   y=240,
   font=love.graphics.newFont(MAIN_UI_FONT, 40),
+  color=1,
   width=180,
   getText = function()
     return string.format('Score: %04d', Game.score)
@@ -73,6 +77,7 @@ Text{
   x=BORDER_THICKNESS/2,
   y=320,
   font=love.graphics.newFont(MAIN_UI_FONT, 30),
+  color=1,
   width=180,
   getText = function()
     return 'Combo: x'..Game.combo
@@ -86,13 +91,12 @@ Button{
   condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
   x=BORDER_THICKNESS/2,
   y=40,
-  font=love.graphics.newFont(MAIN_UI_FONT, 40),
   width=100,
   height=50,
-  color={0, 0, 0},
   lineWidth = 5,
-  lineColor={255, 255, 255},
+  lineColor=1,
   font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  textColor=1,
   getText = function()
     return 'Menu'
   end,
@@ -106,7 +110,6 @@ Button{
   y=20 + 20,
   width=2*1.1*MAX_RADIUS,
   height=2*1.1*MAX_RADIUS,
-  color={255, 0, 0, 255},
   drawMode='line',
   pressed = function(self, x, y)
     self.color = {0, 255, 0, 255}
@@ -120,5 +123,4 @@ Button{
 --Circle{
 --  x=BASE_SCREEN_WIDTH - 100,
 --  y = 20 + 20 + 1.1*MAX_RADIUS,
---  color={255, 0, 255, 255},
 --}

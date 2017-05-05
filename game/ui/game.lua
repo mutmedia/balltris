@@ -1,5 +1,18 @@
 require 'ui/base'
 
+local BALL_COLORS_PALETTE = 2
+
+Rectangle{
+  name='background',
+  layer=LAYER_BACKGROUND,
+  condition=True(),
+  x=BASE_SCREEN_WIDTH/2,
+  y=BASE_SCREEN_HEIGHT/2,
+  width=BASE_SCREEN_WIDTH,
+  height=BASE_SCREEN_HEIGHT,
+  color=2,
+}
+
 Rectangle{
   name='gamebox',
   layer=LAYER_GAME,
@@ -8,10 +21,7 @@ Rectangle{
   y=BASE_SCREEN_HEIGHT/2,
   width=(BASE_SCREEN_WIDTH - 2*BORDER_THICKNESS)*1.2,
   height=BASE_SCREEN_HEIGHT,
-  lineWidth=3,
-  lineColor={0, 0, 0, DEBUG_UI and 255 or 0},
   onMove = function(self, x, y, dx, dy)
-    if DEBUG_UI then self.lineColor = {0, 255, 0, 255} end
     Game.events.fire(EVENT_MOVED_PREVIEW, x, y, dx, dy)
   end,
   onEnter = function(self, x, y)
@@ -20,10 +30,45 @@ Rectangle{
   end,
   onExit = function(self, x, y)
     Game.timeScale = 2
-    if DEBUG_UI then self.lineColor = {0, 0, 255, 255} end
     Game.events.fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
 }
+love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
+  love.graphics.setColor({255, 0, 255})
+  love.graphics.rectangle('line', BORDER_THICKNESS, -10, HOLE_WIDTH, HOLE_DEPTH + 10)
+  love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
+  love.graphics.rectangle('line', BORDER_THICKNESS - BALL_LINES_DISTANCE, -10 - BALL_LINES_DISTANCE, HOLE_WIDTH + 2 * BALL_LINES_DISTANCE, HOLE_DEPTH + 10 + 2 * BALL_LINES_DISTANCE)
+  love.graphics.setLineWidth(1)
+
+Rectangle{
+  name='inner visible pit',
+  layer=LAYER_BACKGROUND,
+  condition=True(),
+  lineColor=1,
+  lineWidth=BALL_LINE_WIDTH_IN,
+  x=BASE_SCREEN_WIDTH/2,
+  y=HOLE_DEPTH/2,
+  width=HOLE_WIDTH,
+  height=HOLE_DEPTH,
+}
+
+Rectangle{
+  name='outer visible pit',
+  layer=LAYER_BACKGROUND,
+  condition=True(),
+  lineColor=1,
+  lineWidth=BALL_LINE_WIDTH_OUT,
+  x=BASE_SCREEN_WIDTH/2,
+  y=HOLE_DEPTH/2,
+  width=HOLE_WIDTH + 2*BALL_LINES_DISTANCE,
+  height=HOLE_DEPTH + 2*BALL_LINES_DISTANCE,
+}
+
+function GetBallColor(ball)
+  return ball.indestructible and 1 or ball.number + BALL_COLORS_PALETTE
+
+end
+
 
 Custom{
   name='ball preview',
@@ -33,10 +78,10 @@ Custom{
     if Game.objects.ballPreview and Game.objects.ballPreview.drawStyle ~= 'none' then
       local center = {Game.objects.ballPreview.position.x, Game.objects.ballPreview.position.y}
       local radius = Game.objects.ballPreview.radius
-      local color = Game.objects.ballPreview.getColor()
+      local color = GetBallColor(Game.objects.ballPreview)
 
       love.graphics.push()
-      love.graphics.setColor(color)
+      UI.setColor(color)
       love.graphics.translate(center[1], center[2])
       love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
       love.graphics.circle('line', 0, 0, radius * BALL_DRAW_SCALE)
@@ -57,12 +102,11 @@ Custom{
     Game.objects.balls:forEach(function(ball) 
       local center = {ball.body:getX(), ball.body:getY()}
       local radius = ball.radius
-      local color = ball.getColor()
+      local color = GetBallColor(ball)
+
       if ball.timeDestroyed then
         love.graphics.setShader(self.turnOffShader)
         self.turnOffShader:send('delta_time', Game.totalTime - ball.timeDestroyed)
-        print('Total Time:'..(Game.totalTime))
-        print('Destroyed Time:'..(ball.timeDestroyed))
       else
         love.graphics.setShader()
       end
@@ -70,7 +114,7 @@ Custom{
       local s = BALL_SPEED_STRETCH * math.sqrt(vx * vx + vy * vy)
       local rot = math.atan2(vy, vx)
       love.graphics.push()
-      love.graphics.setColor(color)
+      UI.setColor(color)
       love.graphics.translate(center[1], center[2])
       love.graphics.rotate(rot)
       love.graphics.scale(1+s, 1-s)
@@ -99,11 +143,11 @@ Custom{
 
       local center = {ballPreviewX, ballPreviewHeight}
       local radius = nextBallPreview.radius
-      local color = nextBallPreview.getColor()
+      local color = GetBallColor(nextBallPreview)
 
       love.graphics.push()
       love.graphics.translate(center[1], center[2])
-      love.graphics.setColor(color)
+      UI.setColor(color)
 
       love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
       love.graphics.circle('line', 0, 0, radius * BALL_DRAW_SCALE)

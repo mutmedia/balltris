@@ -23,7 +23,7 @@ Game.startTime = love.timer.getTime()
 -- Initialize game
 
 -- TODO: move to ballpreview.lua
-local ballChances = RandomBag.new(#BALL_COLORS, BALL_CHANCE_MODIFIER)
+local ballChances = RandomBag.new(BALL_COLORS, BALL_CHANCE_MODIFIER)
 
 local radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
 
@@ -109,7 +109,7 @@ function Game.start()
   Game.newHighScore = false
 
   -- Random bags
-  ballChances = RandomBag.new(#BALL_COLORS, BALL_CHANCE_MODIFIER)
+  ballChances = RandomBag.new(BALL_COLORS, BALL_CHANCE_MODIFIER)
   radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
 
   Game.state = STATE_GAME_RUNNING
@@ -218,6 +218,7 @@ function Game.onBallsStatic()
 end
 
 function Game.lose()
+  Game.timeScale = 2
   Game.objects.balls:forEach(function(ball)
   if not ball.indestructible then return end
     Game.ScheduleBallDestruction(ball)
