@@ -1,14 +1,14 @@
 require 'ui/base'
 
 Text{
-  name='title',
+  name='subtitle',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 - 200 - 170,
-  font=love.graphics.newFont(MAIN_UI_FONT, 40),
+  y=11*UI_HEIGHT_UNIT,
+  font=FONT_MD,
   color=7,
-  width=250,
+  width=HOLE_WIDTH,
   getText = function()
     return 'Definetely not'
   end,
@@ -19,10 +19,10 @@ Text{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 - 200 - 100,
-  font=love.graphics.newFont(MAIN_UI_FONT, 80),
+  y=14*UI_HEIGHT_UNIT,
+  font=FONT_XL,
   color=6,
-  width=250,
+  width=HOLE_WIDTH,
   getText = function()
     return 'Balltris'
   end,
@@ -33,16 +33,16 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 + 50,
+  y=22*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
-  height=80,
+  height=2*UI_HEIGHT_UNIT,
   color=0,
   lineColor=1,
   lineWidth=3,
-  font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'New Game'
+    return 'New'
   end,
   onPress = function(self, x, y)
     Game.start()

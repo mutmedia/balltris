@@ -83,10 +83,10 @@ function GaussianBlurShader(taps)
     vertshader[2 + i + offsets/2] = string.format('varying vec2 coordinate%d%s;\n', math.abs(i), i < 0 and 'b' or 'f')
     fragshader[2 + i + offsets/2] = string.format('varying vec2 coordinate%d%s;\n', math.abs(i), i < 0 and 'b' or 'f')
     vertshader[2 + i + offsets/2 + offsets + 2] = string.format('coordinate%d%s = VertexTexCoord.xy + %f * offset_direction;\n', ai, i < 0 and 'b' or 'f', si * offsetsl[ai + 1])
-    fragshader[2 + i + offsets/2 + offsets + 2] = string.format('c += vec4(%f) * Texel(texture, coordinate%d%s);\n', weightsl[ai+1], ai, i < 0 and 'b' or 'f')
+    fragshader[2 + i + offsets/2 + offsets + 2] = string.format('c += vec4(%f) * pow(Texel(texture, coordinate%d%s), vec4(2.2));\n', weightsl[ai+1], ai, i < 0 and 'b' or 'f')
   end
 
-  table.insert(fragshader, string.format('return c * color;\n}'))
+  table.insert(fragshader, string.format('return pow(c * color, vec4(1.0/2.2));\n}'))
   table.insert(vertshader, 'return transform_projection * vertex_position;\n}')
 
 

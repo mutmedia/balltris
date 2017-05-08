@@ -6,12 +6,26 @@ Text{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 - 200 - 100,
-  font=love.graphics.newFont(MAIN_UI_FONT, 80),
+  y=10*UI_HEIGHT_UNIT,
+  font=FONT_LG,
   color=7,
-  width=250,
+  width=HOLE_WIDTH,
   getText = function()
     return 'Game Over'
+  end,
+}
+
+Text{
+  name='finalscore',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_OVER),
+  x=BASE_SCREEN_WIDTH/2,
+  y=15*UI_HEIGHT_UNIT,
+  font=FONT_MD,
+  color=1,
+  width=HOLE_WIDTH,
+  getText = function()
+    return string.format('Final Score:\n%04d', Game.score)
   end,
 }
 
@@ -20,27 +34,12 @@ Text{
   layer=LAYER_MENUS,
   condition=And(inGameState(STATE_GAME_OVER), function() return Game.newHighScore end),
   x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 -130,
-  font=love.graphics.newFont(MAIN_UI_FONT, 20),
-  color=1,
-  width=200,
+  y=19*UI_HEIGHT_UNIT,
+  font=FONT_SM,
+  color=4,
+  width=HOLE_WIDTH,
   getText = function()
     return 'New High Score!'
-  end,
-}
-
-
-Text{
-  name='finalscore',
-  layer=LAYER_MENUS,
-  condition=inGameState(STATE_GAME_OVER),
-  x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 - 000 - 100,
-  font=love.graphics.newFont(MAIN_UI_FONT, 30),
-  color=1,
-  width=400,
-  getText = function()
-    return string.format('Final Score: %04d', Game.score)
   end,
 }
 
@@ -49,12 +48,12 @@ Text{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 + 50 - 100,
-  font=love.graphics.newFont(MAIN_UI_FONT, 30),
+  y=21*UI_HEIGHT_UNIT,
+  font=FONT_MD,
   color=1,
-  width=400,
+  width=HOLE_WIDTH,
   getText = function()
-    return string.format('Max combo: %d', Game.maxCombo)
+    return string.format('Best combo:\n%d', Game.maxCombo)
   end,
 }
 
@@ -63,15 +62,15 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 + 60,
+  y=26*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
-  height=80,
+  height=2*UI_HEIGHT_UNIT,
   lineColor=1,
   lineWidth=3,
-  font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'Play Again?'
+    return 'Replay'
   end,
   onPress = function(self, x, y)
     Game.start()
@@ -83,15 +82,15 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 + 210 - 10 - 15,
+  y=30*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
-  height=80,
+  height=2*UI_HEIGHT_UNIT,
   lineColor=1,
   lineWidth=3,
-  font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'EXIT'
+    return 'Quit'
   end,
   onPress = function(self, x, y)
     Game.state = STATE_GAME_MAINMENU

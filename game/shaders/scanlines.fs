@@ -8,7 +8,7 @@ precision mediump float;
 
 #define PI (3.14159265)
 
-const float pixel_size = 3.0;
+const float pixel_size = 6.0;
 const float opacity = 0.5;
 const float center_fade = 0.5;
 const float scanline_height = 0.5;
@@ -30,7 +30,7 @@ vec2 To11Coord(vec2 point)
 vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)
 {
   vec2 uv = texture_coords;
-  vec4 c = Texel(texture, uv);
+  vec4 c = pow(Texel(texture, uv), vec4(2.2));
 
   float current_pixel_v = screen_coords.y / pixel_size;
   float scanline_is_active = cos(current_pixel_v * 2.0 * PI) - 1.0 + scanline_height * 3.0;
@@ -56,5 +56,5 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)
   c.g = c.g - (scanline_is_active * opacity);
   c.b = c.b - (scanline_is_active * opacity);
 
-  return c;
+  return pow(c, vec4(1.0/2.2));
 }

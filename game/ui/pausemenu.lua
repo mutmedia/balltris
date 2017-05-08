@@ -5,13 +5,13 @@ Button{
   condition=inGameState(STATE_GAME_PAUSED),
   layer=LAYER_MENUS,
   x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 - 120 - 10 - 15,
-  height=80,
+  y=16*UI_HEIGHT_UNIT,
+  height=2*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   color=0,
   lineColor=1,
   lineWidth = 5,
-  font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  font=FONT_MD,
   textColor=1,
   getText = function()
     return 'Unpause'
@@ -26,13 +26,13 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_PAUSED),
   x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 + 30 - 10 - 15,
+  y=20*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
-  height=80,
+  height=2*UI_HEIGHT_UNIT,
   color=0,
   lineColor=1,
   lineWidth=3,
-  font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  font=FONT_MD,
   textColor=1,
   getText = function() 
     return 'Restart'
@@ -47,16 +47,16 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_PAUSED),
   x=BASE_SCREEN_WIDTH/2,
-  y=BASE_SCREEN_HEIGHT/2 + 180 - 10 - 15,
+  y=24*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
-  height=80,
+  height=2*UI_HEIGHT_UNIT,
   color=0,
   lineColor=1,
   lineWidth=3,
-  font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'EXIT'
+    return 'Quit'
   end,
   onPress = function(self, x, y)
     Game.state = STATE_GAME_MAINMENU

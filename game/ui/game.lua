@@ -51,6 +51,19 @@ Rectangle{
 }
 
 Rectangle{
+  name='limitline',
+  layer=LAYER_HUD,
+  condition=Not(inGameState(STATE_GAME_LOADING)),
+  x=BASE_SCREEN_WIDTH/2,
+  y=MIN_DISTANCE_TO_TOP,
+  width=HOLE_WIDTH,
+  height=1,
+  lineWidth=2,
+  lineColor=1,
+}
+
+
+Rectangle{
   name='outer visible pit',
   layer=LAYER_BACKGROUND,
   condition=True(),
@@ -91,7 +104,7 @@ Custom{
 }
 
 Custom{
-  name='ball preview hit',
+  name='ball preview laser raycast',
   layer=LAYER_GAME,
   condition = inGameState(STATE_GAME_RUNNING),
   draw=function()
@@ -144,11 +157,11 @@ Custom{
   condition = inGameState(STATE_GAME_RUNNING),
   draw=function()
     local ballPreviewNum = 1
-    local ballPreviewHeight = 80
+    local ballPreviewHeight = 5*UI_HEIGHT_UNIT
     local ballPreviewX = BASE_SCREEN_WIDTH - (BORDER_THICKNESS)/2
     love.graphics.setLineWidth(1)
     Game.objects.nextBallPreviews:forEach(function(nextBallPreview)
-      ballPreviewHeight = ballPreviewHeight + nextBallPreview.radius
+      --ballPreviewHeight = ballPreviewHeight + nextBallPreview.radius
 
       local center = {ballPreviewX, ballPreviewHeight}
       local radius = nextBallPreview.radius
@@ -162,11 +175,13 @@ Custom{
       love.graphics.circle('line', 0, 0, radius * BALL_DRAW_SCALE)
       love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
       love.graphics.circle('line', 0, 0, radius * BALL_DRAW_SCALE - BALL_LINES_DISTANCE)
+      --UI.setColor(1)
+      --love.graphics.circle('fill', 0, 0, 3)
       love.graphics.pop()
 
       ballPreviewNum = ballPreviewNum + 1
 
-      ballPreviewHeight = ballPreviewHeight + nextBallPreview.radius + 5
+      ballPreviewHeight = ballPreviewHeight + 5*UI_HEIGHT_UNIT
     end)
   end
 }

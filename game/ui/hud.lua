@@ -6,7 +6,7 @@ Text{
   condition=inGameState(STATE_GAME_LOADING),
   x=BASE_SCREEN_WIDTH/2,
   y=BASE_SCREEN_HEIGHT/2,
-  font=love.graphics.newFont(MAIN_UI_FONT, 28),
+  font=FONT_MD,
   color=1,
   width=1000,
   getText = function()
@@ -14,88 +14,31 @@ Text{
   end,
 }
 
-
-Rectangle{
-  name='limitline',
-  layer=LAYER_HUD,
-  condition=Not(inGameState(STATE_GAME_LOADING)),
-  x=BASE_SCREEN_WIDTH/2,
-  y=MIN_DISTANCE_TO_TOP,
-  width=HOLE_WIDTH,
-  height=1,
-  lineWidth=2,
-  lineColor=1,
-}
-
 Text{
   name='nextballs',
   layer=LAYER_HUD,
   condition=inGameState(STATE_GAME_RUNNING),
   x=-BORDER_THICKNESS/2,
-  y=30,
-  font=love.graphics.newFont(MAIN_UI_FONT, 28),
+  y=UI_HEIGHT_UNIT,
+  font=FONT_SM,
   color=1,
-  width=1000,
+  width=BORDER_THICKNESS,
   getText = function()
     return 'Next Balls'
   end,
 }
-
--- Score stuff
-Text{
-  name='highscore',
-  layer=LAYER_HUD,
-  condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
-  x=BORDER_THICKNESS/2,
-  y=120,
-  font=love.graphics.newFont(MAIN_UI_FONT, 40),
-  color=1,
-  width=100,
-  getText = function()
-    return string.format('High: %04d', Game.highScore)
-  end,
-}
-
-Text{
-  name='score',
-  layer=LAYER_HUD,
-  condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
-  x=BORDER_THICKNESS/2,
-  y=240,
-  font=love.graphics.newFont(MAIN_UI_FONT, 40),
-  color=1,
-  width=180,
-  getText = function()
-    return string.format('Score: %04d', Game.score)
-  end,
-}
-
-Text{
-  name='combo',
-  layer=LAYER_HUD,
-  condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED)),
-  x=BORDER_THICKNESS/2,
-  y=320,
-  font=love.graphics.newFont(MAIN_UI_FONT, 30),
-  color=1,
-  width=180,
-  getText = function()
-    return 'Combo: x'..Game.combo
-  end,
-}
-
 -- Game Menus
 Button{
   name='open menu',
   layer=LAYER_HUD,
   condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
   x=BORDER_THICKNESS/2,
-  y=40,
-  width=100,
-  height=50,
+  y=UI_HEIGHT_UNIT,
+  width=0.8*BORDER_THICKNESS,
+  height=2*UI_HEIGHT_UNIT,
   lineWidth = 5,
   lineColor=1,
-  font=love.graphics.newFont(MAIN_UI_FONT, 35),
+  font=FONT_MD,
   textColor=1,
   getText = function()
     return 'Menu'
@@ -104,6 +47,50 @@ Button{
     Game.state = STATE_GAME_PAUSED
   end,
 }
+
+-- Score stuff
+Text{
+  name='highscore',
+  layer=LAYER_HUD,
+  condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
+  x=BORDER_THICKNESS/2,
+  y=4*UI_HEIGHT_UNIT,
+  font=FONT_MD,
+  color=1,
+  width=BORDER_THICKNESS,
+  getText = function()
+    return string.format('High: %04d', Game.highScore)
+  end,
+}
+
+Text{
+  name='score',
+  layer=LAYER_HUD,
+  condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
+  x=BORDER_THICKNESS/2,
+  y=8*UI_HEIGHT_UNIT,
+  font=FONT_MD,
+  color=1,
+  width=BORDER_THICKNESS,
+  getText = function()
+    return string.format('Score: %04d', Game.score)
+  end,
+}
+
+Text{
+  name='combo',
+  layer=LAYER_HUD,
+  condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
+  x=BORDER_THICKNESS/2,
+  y=12*UI_HEIGHT_UNIT,
+  font=FONT_XS,
+  color=1,
+  width=BORDER_THICKNESS,
+  getText = function()
+    return 'Combo: x'..Game.combo
+  end,
+}
+
 -- Container
 --[[Rectangle{
   x=BASE_SCREEN_WIDTH - 100 - 1.1*MAX_RADIUS,

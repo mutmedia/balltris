@@ -91,7 +91,7 @@ function UI.text(params)
     love.graphics.printf(
       self.getText(),
       self.x - self.width/2,
-      self.y,
+      self.y - self.font:getHeight()/2,
       self.width,
       'center',
       self.orientation,
@@ -141,7 +141,7 @@ function UI.button(params)
     love.graphics.printf(
       self.getText(),
       self.x - self.width/2,
-      self.y - self.font:getHeight()/2, -- TODO: make this shift based on font height
+      self.y - self.font:getHeight()/2,
       self.width,
       'center',
       self.orientation,

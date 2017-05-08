@@ -37,7 +37,7 @@ function IsInsideScreen(x, y)
 end
 
 -- Variables
-local DEBUG_SHOW_FPS = true
+local DEBUG_SHOW_FPS = false
 
 local lastDroppedBall
 
@@ -115,7 +115,7 @@ function love.load()
 
   -- Loading UI
   loadtime = love.timer.getTime()
-  Game.UI.setFiles('ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua')
+  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua')
   Game.UI.initialize(NewPalette('content/palette.png'))
   love.graphics.setCanvas(loadingCanvas)
   love.graphics.clear()
@@ -146,10 +146,11 @@ function love.load()
   loadtime = love.timer.getTime()
   Shaders.Scanlines = love.graphics.newShader('shaders/scanlines.fs')
   --print('Time to shader Scanlines: \t\t'..love.timer.getTime() - loadtime)
+  Shaders.GammaCorrect = love.graphics.newShader('shaders/addalpha.fs')
 
   GaussianBlurEffect = (require 'shaders/effect_gaussianblur').new{
     sigma=4,
-    scale=4,
+    scale=2,
     width=BASE_SCREEN_WIDTH,
     height=BASE_SCREEN_HEIGHT,
   }
@@ -222,12 +223,13 @@ function love.draw()
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
   love.graphics.draw(auxCanvas2)
+  love.graphics.setShader(Shaders.GammaCorrect)
 
   -- Final draw
   drawScaled(gameCanvas)
 
   love.graphics.setColor(0, 255, 0)
-  love.graphics.setNewFont(10)
+  love.graphics.setNewFont(10*2)
   if DEBUG_SHOW_FPS then
     love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
   end
@@ -264,7 +266,9 @@ function beginContact(a, b, coll)
     if Game.combo == 0 then
       Game.events.fire(EVENT_COMBO_START)
     end
-    Game.combo = Game.combo + 1
+    if not aref.willDestroy or not bref.willDestroy then
+      Game.combo = Game.combo + 1
+    end
     if not aref.willDestroy then
       Game.score = Game.score + ComboMultiplier(Game.combo)
     end

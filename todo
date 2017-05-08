@@ -5,6 +5,7 @@ save game state when game pauses so it can be loaded and reloaded
 Linear interpolation when in slow motion
 Things turning on effects
 
+BUG: SLO-MO activates weirdly
 
 Better but still simple HUD. (show combos)
   - Combos
