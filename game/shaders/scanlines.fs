@@ -8,7 +8,7 @@ precision mediump float;
 
 #define PI (3.14159265)
 
-const float pixel_size = 6.0;
+uniform float pixel_size;
 const float opacity = 0.5;
 const float center_fade = 0.5;
 const float scanline_height = 0.5;

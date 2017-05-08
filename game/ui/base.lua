@@ -13,11 +13,11 @@ Game = require 'game'
 MAIN_UI_FONT = 'content/Neon.ttf'
 UI.DEFAULT_FONT_COLOR = {255, 255, 255}
 
-FONT_XS = love.graphics.newFont(MAIN_UI_FONT, 40)
-FONT_SM = love.graphics.newFont(MAIN_UI_FONT, 50)
-FONT_MD = love.graphics.newFont(MAIN_UI_FONT, 80)
-FONT_LG = love.graphics.newFont(MAIN_UI_FONT, 120)
-FONT_XL = love.graphics.newFont(MAIN_UI_FONT, 160)
+FONT_XS = love.graphics.newFont(MAIN_UI_FONT, 40*BASE_SCREEN_WIDTH/1080)
+FONT_SM = love.graphics.newFont(MAIN_UI_FONT, 50*BASE_SCREEN_WIDTH/1080)
+FONT_MD = love.graphics.newFont(MAIN_UI_FONT, 80*BASE_SCREEN_WIDTH/1080)
+FONT_LG = love.graphics.newFont(MAIN_UI_FONT, 120*BASE_SCREEN_WIDTH/1080)
+FONT_XL = love.graphics.newFont(MAIN_UI_FONT, 160*BASE_SCREEN_WIDTH/1080)
 
 UI_HEIGHT_UNIT = BASE_SCREEN_HEIGHT/40
 

@@ -37,7 +37,7 @@ function IsInsideScreen(x, y)
 end
 
 -- Variables
-local DEBUG_SHOW_FPS = false
+local DEBUG_SHOW_FPS = true
 
 local lastDroppedBall
 
@@ -145,6 +145,7 @@ function love.load()
   --print('Time to shader BarrelDistort: \t\t'..love.timer.getTime() - loadtime)
   loadtime = love.timer.getTime()
   Shaders.Scanlines = love.graphics.newShader('shaders/scanlines.fs')
+  Shaders.Scanlines:send('pixel_size', EFFECT_CRT_PIXEL)
   --print('Time to shader Scanlines: \t\t'..love.timer.getTime() - loadtime)
   Shaders.GammaCorrect = love.graphics.newShader('shaders/addalpha.fs')
 
@@ -223,15 +224,17 @@ function love.draw()
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
   love.graphics.draw(auxCanvas2)
-  love.graphics.setShader(Shaders.GammaCorrect)
+
 
   -- Final draw
+  love.graphics.setShader(Shaders.GammaCorrect)
   drawScaled(gameCanvas)
+  love.graphics.setShader()
 
   love.graphics.setColor(0, 255, 0)
-  love.graphics.setNewFont(10*2)
+  love.graphics.setNewFont(10*3)
   if DEBUG_SHOW_FPS then
-    love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+    love.graphics.print(tostring(love.timer.getFPS( )), 5, 5)
   end
 end
 
