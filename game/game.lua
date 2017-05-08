@@ -3,6 +3,9 @@ local List = require 'doubly_linked_list'
 local Queue = require 'queue'
 local RandomBag = require 'randombag'
 local Vector = require 'vector2d'
+local SaveSystem = require 'savesystem'
+
+local Balls = require 'balls'
 
 Game = {}
 Game.UI = require 'ui'
@@ -24,9 +27,8 @@ Game.startTime = love.timer.getTime()
 -- Initialize game
 
 -- TODO: move to ballpreview.lua
-local ballChances = RandomBag.new(BALL_COLORS, BALL_CHANCE_MODIFIER)
-
-local radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
+Game.ballChances = RandomBag.new(BALL_COLORS, BALL_CHANCE_MODIFIER)
+Game.radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
 
 function Game.load()
   Game.savePath = 'save.lua'
@@ -49,20 +51,12 @@ function Game.save()
 
 end
 
-function Game.start()
+function Game.start(loadGame)
   Game.state = STATE_GAME_LOADING
 
   -- Physics
   Game.world = love.physics.newWorld(0, GRAVITY, true)
   Game.world:setCallbacks(beginContact, endContact, preSolve, postSolve)
-
-  -- Ball Previews
-  Game.objects.ballPreview = NewBallPreview()
-
-  Game.objects.nextBallPreviews = Queue.new()
-  for _=1,NUM_BALL_PREVIEWS do
-    Game.objects.nextBallPreviews:enqueue(NewBallPreview())
-  end
 
   -- Game objects
   Game.objects.ground = {}
@@ -83,11 +77,34 @@ function Game.start()
   Game.objects.wallR.fixture = love.physics.newFixture(Game.objects.wallR.body, Game.objects.wallR.shape)
   Game.objects.wallR.fixture:setCategory(COL_MAIN_CATEGORY)
 
-  Game.objects.balls = List.new(function(ball)
-    if ball.fixture and not ball.fixture:isDestroyed() then ball.fixture:destroy() end
-    if ball.body and not ball.body:isDestroyed() then ball.body:destroy() end
-    ball = nil
-  end)
+  -- Information that can be saved
+  if loadGame then
+    Game = loadGame(Game)
+  else
+    Game.objects.ballPreview = Balls.NewBallPreview()
+
+    Game.objects.nextBallPreviews = Queue.new()
+    for _=1,NUM_BALL_PREVIEWS do
+      Game.objects.nextBallPreviews:enqueue(Balls.NewBallPreview())
+    end
+
+    --Loaded Balls
+    Game.objects.balls = Balls.NewList()
+
+    -- Random bags
+    Game.ballChances = RandomBag.new(BALL_COLORS, BALL_CHANCE_MODIFIER)
+    Game.radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
+
+    -- Score
+    Game.score = 0
+    Game.maxCombo = 0
+
+    -- These two are not saved, since the second is calculated real time, and the first I will assume the game only saves when not in a combo
+    Game.combo = 0
+    Game.newHighScore = false
+
+  end
+  -- End of information that can be saved
 
   -- Events
   Game.events.clear()
@@ -109,7 +126,10 @@ function Game.start()
     Game.ReleaseBall()
     Game.timeScale = TIME_SCALE_REGULAR
   end)
-  Game.events.add(EVENT_ON_BALLS_STATIC, Game.onBallsStatic)
+  Game.events.add(EVENT_ON_BALLS_STATIC,  function()
+    SaveSystem.save(Game)
+    Game.onBallsStatic()
+  end)
   Game.events.add(EVENT_SAFE_TO_DROP, function()
     Game.GetNextBall()
   end)
@@ -120,15 +140,6 @@ function Game.start()
     Game.combo = 0
   end)
 
-  -- Score
-  Game.score = 0
-  Game.combo = 0
-  Game.maxCombo = 0
-  Game.newHighScore = false
-
-  -- Random bags
-  ballChances = RandomBag.new(BALL_COLORS, BALL_CHANCE_MODIFIER)
-  radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
 
   Game.state = STATE_GAME_RUNNING
 end
@@ -201,7 +212,6 @@ function Game.update(dt)
           local x, y = ball.body:getLinearVelocity()
           totalSpeed2 = totalSpeed2 + x*x + y*y
         end
-        -- TODO: create max radius variable
       end)
 
       -- TODO: Make this more robust
@@ -291,39 +301,28 @@ local lastBallNumber
 -- move to ballpreview file
 function Game.GetBallNumber() 
   while true do
-    local ballNumber = ballChances:get()
+    local ballNumber = Game.ballChances:get()
     if ballNumber ~= lastBallNumber then
       --lastBallNumber = ballNumber
-      ballChances:update(ballNumber)
+      Game.ballChances:update(ballNumber)
       return ballNumber
     end
   end
 end
 
 function Game.GetBallRadius()
-  local radiusNumber = radiusChances:get()
-  radiusChances:update(radiusNumber)
+  local radiusNumber = Game.radiusChances:get()
+  Game.radiusChances:update(radiusNumber)
   return BALL_BASE_RADIUS * BALL_RADIUS_MULTIPLIERS[radiusNumber]
 end
 
 function Game.ReleaseBall()
   if not Game.objects.ballPreview then return end
-  local newBall = Game.objects.ballPreview
-
-  newBall.inGame = false
-  newBall.body = love.physics.newBody(Game.world, Game.objects.ballPreview.position.x, Game.objects.ballPreview.position.y, 'dynamic')
-  --newBall.body:setFixedRotation(false)
-  newBall.shape = love.physics.newCircleShape(Game.objects.ballPreview.radius)
-  newBall.fixture = love.physics.newFixture(newBall.body, newBall.shape)
-  newBall.fixture:setCategory(COL_MAIN_CATEGORY)
-  newBall.fixture:setRestitution(0.0)
-  newBall.fixture:setUserData({
-      ref = newBall,
-    })
+  local newBall = Balls.newBall(Game.objects.ballPreview, Game.world)
   Game.objects.balls:add(newBall)
 
   Game.objects.ballPreview = nil
-  --Game.objects.ballPreview = NewBallPreview(Game.objects.ballPreview.position.x)
+  --Game.objects.ballPreview = Balls.NewBallPreview(Game.objects.ballPreview.position.x)
   Game.lastDroppedBall = newBall
 end
 
@@ -337,9 +336,9 @@ function Game.GetNextBall()
       end
     end)
     if hasWhiteBalls then 
-      Game.objects.nextBallPreviews:enqueue(NewBallPreview())
+      Game.objects.nextBallPreviews:enqueue(Balls.NewBallPreview())
     else
-      Game.objects.nextBallPreviews:enqueue(NewBallPreview({indestructible = true}))
+      Game.objects.nextBallPreviews:enqueue(Balls.NewBallPreview({indestructible = true}))
     end
   end
 end

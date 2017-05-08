@@ -1,24 +1,20 @@
-wip
-
+Clear saved game on game end
+  - New Game / Continue in main menu
 Credits
-save game state when game pauses so it can be loaded and reloaded
-Linear interpolation when in slow motion
-Things turning on effects
+Linear interpolation when in slow motion to stop stuttering
+Effects:
+  - Opening and closing menus
+  - Game starting
+  - Next balls changing
+  - Ball being dropped
+  - Combo in progress / World in movement
 
-BUG: SLO-MO activates weirdly
+BUG: SLO-MO activates weirdly (if you tap while the ball is falling and you dont have a next ball)
+BUG: app open through icon restarting game
 
-Better but still simple HUD. (show combos)
-  - Combos
-  - Static/Dynamic
+DEBUG: Make debug print tell file (just rename print function to print('filename:', ...)
 
-back button opens menu android
+SUPER HARD: Save high score online
 
-Next ball list update animation
-Better ball drop animation
-BUG: app open through icon restarting
-
-Make debug print tell file (just rename print function to print('filename:', ...)
-
-Save high score online -- TOO HARD
-
-ESC CLOSES THE GAME
+TEST: White balls disappearing when combo % 5 == 0
+TEST: White balls only show up when a combo ends (but you still can only have one white ball queued at each time)

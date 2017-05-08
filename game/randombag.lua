@@ -1,7 +1,7 @@
 local RandomBag = {}
 
-function RandomBag.new(numElems, modifier)
-  local rb = {}
+function RandomBag.new(numElems, modifier, initialValues)
+  local rb = initialValues or {}
   rb.size = numElems
   rb.modifier = modifier
   for i=1, rb.size do
@@ -36,6 +36,15 @@ end
 function RandomBag:update(num)
   self[num] = self[num] * self.modifier
   self:normalize()
+end
+
+function RandomBag:toString()
+  local str = {'{'}
+  for i=1, self.size do
+    table.insert(str, string.format('%f, ', self[i]))
+  end
+  table.insert(str, '}')
+  return table.concat(str)
 end
 
 return RandomBag

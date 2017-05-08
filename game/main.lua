@@ -11,27 +11,11 @@ local NewPalette = require 'palette'
 
 -- Game Files
 local Game = require 'game'
+local SaveSystem = require 'savesystem'
 require 'data_constants'
+local Balls = require 'balls'
 
 -- Helper functions
-function NewBallPreview(initialData)
-  initialData = initialData or {
-    indestructible = false,
-  }
-  local number = Game.GetBallNumber()
-  --local indestructible = math.random() > 0.9
-  local radius = initialData.indestructible and WHITE_BALL_SIZE or Game.GetBallRadius()
-  local position = Vector.new{x=BASE_SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING}
-  return {
-    number = number,
-    position = position,
-    radius = radius,
-    drawStyle = 'line',
-    indestructible = initialData.indestructible,
-    destroyed = false,
-  }
-end
-
 function IsInsideScreen(x, y)
   return utils.isInsideRect(x, y, 0, 0, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT)
 end
@@ -160,7 +144,6 @@ function love.load()
 
   -- TODO: move to place where game actually starts
   loaded = true
-  --Game.start()
   Game.state = STATE_GAME_MAINMENU
 end
 
@@ -324,6 +307,10 @@ function love.keypressed(key)
     Game.lose()
   end
 
+  if key == 's' then
+    SaveSystem.save(Game)
+  end
+
   if key == 'escape' then
     if Game.state ~= STATE_GAME_PAUSED then
       Game.state = STATE_GAME_PAUSED
@@ -340,9 +327,9 @@ function love.keypressed(key)
   if key == 'r' then
     Game.objects.balls:Clear()
     Game.state = STATE_GAME_RUNNING
-    Game.objects.ballPreview = NewBallPreview()
+    Game.objects.ballPreview = Balls.NewBallPreview()
     Game.objects.nextBallPreviews:Clear()
-    Game.objects.nextBallPreviews:enqueue(NewBallPreview())
+    Game.objects.nextBallPreviews:enqueue(Balls.NewBallPreview())
   end
 end
 
