@@ -170,13 +170,11 @@ function Game.update(dt)
   --print('STATE_GAME_MAINMENU = '..STATE_GAME_MAINMENU)
 
 
+  -- NOTE: this might break
+  Game.totalTime = Game.totalTime + dt
   if not Game.inState(STATE_GAME_LOADING, STATE_GAME_MAINMENU, STATE_GAME_OVER) then
-    --print('game is running')
-    accumulator = accumulator + dt
-    -- NOTE: this might break
-    Game.totalTime = Game.totalTime + dt
-
     -- To prevent spiral of death
+    accumulator = accumulator + dt
     if accumulator > MAX_DT_ACC then
       accumulator = 0
       return

@@ -1,11 +1,11 @@
-Credits
-Linear interpolation when in slow motion to stop stuttering
 Effects:
   - Opening and closing menus
   - Game starting
   - Next balls changing
   - Ball being dropped
   - Combo in progress / World in movement
+Credits
+Linear interpolation when in slow motion to stop stuttering
 
 DEBUG: Make debug print tell file (just rename print function to print('filename:', ...)
 

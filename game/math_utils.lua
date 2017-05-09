@@ -14,4 +14,7 @@ function utils.clamp(val, min, max)
   end
 end
 
+math.clamp = utils.clamp
+
+
 

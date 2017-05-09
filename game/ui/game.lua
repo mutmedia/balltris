@@ -117,7 +117,7 @@ Custom{
 Custom{
   name='balls in game',
   layer=LAYER_GAME,
-  condition =  Not(inGameState(STATE_GAME_MAINMENU, STATE_GAME_MAINMENU, STATE_GAME_OVER)),
+  condition =  Not(inGameState(STATE_GAME_LOADING, STATE_GAME_MAINMENU, STATE_GAME_OVER)),
   turnOffShader= love.graphics.newShader('shaders/turnOffShader.fs'),
   draw=function(self)
     self.turnOffShader:send('time_to_destroy', BALL_TIME_TO_DESTROY)

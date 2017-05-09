@@ -25,6 +25,7 @@ Button{
   name='restart button',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_PAUSED),
+
   x=BASE_SCREEN_WIDTH/2,
   y=20*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
@@ -34,6 +35,9 @@ Button{
   lineWidth=3,
   font=FONT_MD,
   textColor=1,
+
+  
+
   getText = function() 
     return 'Restart'
   end,

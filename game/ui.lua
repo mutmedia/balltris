@@ -12,15 +12,85 @@ UI = {
   DEFAULT_FONT_COLOR = 2,
 }
 
+function DrawCoroutine(elem)
+  return function()
+    while true do
+      -- If element does not satisfy condition to show up, yield
+      while not elem:condition() do
+        coroutine.yield()
+      end
+
+      -- Do transition in animation
+      local initialTime = Game.totalTime
+      if elem.transitionInTime then
+        while Game.totalTime - initialTime < elem.transitionInTime do
+          if elem.transitionIn then
+            elem.draw(elem:_transitionIn(Game.totalTime - initialTime)) -- draws the transitionIn element
+          end
+          coroutine.yield()
+        end
+      end
+
+      while elem:condition() do
+        elem:draw()
+        coroutine.yield()
+      end
+
+      -- Do transition out animation
+      local initialTime = Game.totalTime
+      if elem.transitionOutTime then
+        while Game.totalTime - initialTime < elem.transitionOutTime do
+          if elem.transitionIn then
+            elem.draw(elem:_transitionOut(Game.totalTime - initialTime)) -- draws the transitionIn element
+          end
+          coroutine.yield()
+        end
+      end
+    end
+  end
+end
+
 function UI.object(params)
   local obj = params
 
+  obj.visibility = obj.visibility or 1
   obj.x = (obj.x and (obj.x + BASE_SCREEN_WIDTH) % BASE_SCREEN_WIDTH) or 0
   obj.y = (obj.y and (obj.y + BASE_SCREEN_HEIGHT) % BASE_SCREEN_HEIGHT) or 0
 
   obj.contains = params.contains or function(self, x, y)
     return false
   end
+
+  obj._drawCoroutine = coroutine.create(DrawCoroutine(obj))
+  if obj.transitionIn then
+    obj._transitionIn = function(self, dt)
+      local diff = self:transitionIn(dt) or {}
+      local clone = {}
+      for k, v in pairs(self) do
+        if diff[k] then
+          clone[k] = diff[k]
+        else
+          clone[k] = v
+        end
+      end
+      return clone
+    end
+  end
+ if obj.transitionOut then
+    obj._transitionOut = function(self, dt)
+      local diff = self:transitionOut(dt) or {}
+      local clone = {}
+      for k, v in pairs(self) do
+        if diff[k] then
+          clone[k] = diff[k]
+        else
+          clone[k] = v
+        end
+      end
+      return clone
+    end
+  end
+ 
 
   if not params.draw then
     print(string.format('UI ERROR: Drawable %s has no draw function', obj.name or 'unnamed'))
@@ -55,7 +125,7 @@ function UI.rectangle(params)
 
   rect.draw = function(self)
     if self.color then
-      UI.setColor(self.color)
+      UI.setColor(self.color, self.visibility)
       love.graphics.rectangle(
         'fill',
         self.x - self.width/2,
@@ -64,7 +134,7 @@ function UI.rectangle(params)
         self.height) 
     end
     if self.lineWidth or self.lineColor then
-      UI.setColor(self.lineColor)
+      UI.setColor(self.lineColor, self.visibility)
       love.graphics.setLineWidth(self.lineWidth or 1)
       love.graphics.rectangle(
         'line',
@@ -86,7 +156,7 @@ function UI.text(params)
   end
 
   text.draw = function(self)
-    UI.setColor(self.color)
+    UI.setColor(self.color, self.visibility)
     love.graphics.setFont(self.font)
     love.graphics.printf(
       self.getText(),
@@ -117,7 +187,7 @@ function UI.button(params)
 
   btn.draw = function(self)
     if self.color then
-      UI.setColor(self.color)
+      UI.setColor(self.color, self.visibility)
       love.graphics.rectangle(
         'fill',
         self.x - self.width/2,
@@ -126,7 +196,7 @@ function UI.button(params)
         self.height) 
     end
     if self.lineWidth and self.lineColor then
-      UI.setColor(self.lineColor)
+      UI.setColor(self.lineColor, self.visibility)
       love.graphics.setLineWidth(self.lineWidth)
       love.graphics.rectangle(
         'line',
@@ -136,7 +206,7 @@ function UI.button(params)
         self.height) 
     end
 
-    UI.setColor(self.textColor)
+    UI.setColor(self.textColor, self.visibility)
     love.graphics.setFont(self.font)
     love.graphics.printf(
       self.getText(),
@@ -154,10 +224,12 @@ function UI.button(params)
   UI.object(btn)
 end
 
-function UI.setColor(index)
+function UI.setColor(index, visibility)
   --print('Using UI print')
   if index then
-    love.graphics.setColor(UI._palette[index])
+    visibility = visibility or 1
+    local r, g, b, a = unpack(UI._palette[index])
+    love.graphics.setColor(r, g, b, math.pow(math.pow(a, 1/2.2)*visibility, 2.2))
   else
     print('Index: ', index)
     error('cant set to a color not in the palette')
@@ -223,13 +295,12 @@ end
 function UI.draw()
   for i=1,#GAME_LAYERS do
     for _, elem in ipairs(UI._layers[GAME_LAYERS[i]]) do
-      if elem:condition() then
-        --print('drawing UI element: '..elem.name)
-        elem:draw() 
-      end
+      coroutine.resume(elem._drawCoroutine)
     end
   end
 end
+
+
 
 
 function Action(x, y, actionName)
