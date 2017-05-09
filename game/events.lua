@@ -11,6 +11,7 @@ EVENT_OPEN_MENU = 'ballsTooHigh'
 EVENT_COMBO_START = 'combostarted'
 EVENT_COMBO_END = 'comboended'
 EVENT_SCORED = 'scored'
+EVENT_NEW_BALL = 'newball'
 
 Events = {
   _callBacks = {},

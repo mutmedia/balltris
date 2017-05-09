@@ -46,6 +46,7 @@ Button{
     return 'New'
   end,
   onPress = function(self, x, y)
+    SaveSystem.clearSave()
     Game.start()
   end,
 }
@@ -53,8 +54,8 @@ Button{
   name='continue button',
   layer=LAYER_MENUS,
   condition=And(
-    function() return SaveSystem.CreateLoadFunc or false end,
-    inGameState(STATE_GAME_MAINMENU)),
+    inGameState(STATE_GAME_MAINMENU),
+    function() return SaveSystem.CreateLoadFunc or false end),
   x=BASE_SCREEN_WIDTH/2,
   y=26*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,

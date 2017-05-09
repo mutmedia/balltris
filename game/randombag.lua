@@ -1,8 +1,8 @@
 local RandomBag = {}
 
-function RandomBag.new(numElems, modifier, initialValues)
+function RandomBag.new(size, modifier, initialValues)
   local rb = initialValues or {}
-  rb.size = numElems
+  rb.size = size
   rb.modifier = modifier
   for i=1, rb.size do
     rb[i] = 1

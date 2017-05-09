@@ -1,3 +1,5 @@
+--TODO: save last loaded file to prevent loading a lot of times
+
 local Load = require 'load'
 local Balls = require 'balls'
 local Queue = require 'queue'
@@ -128,7 +130,7 @@ return rawGame
 ]])
 
   local saveconcat = table.concat(savestring)
-  print(saveconcat)
+  --print(saveconcat)
 
   file, errorstr = love.filesystem.newFile(SAVE_PATH, 'w') 
   if errorstr then 
@@ -140,6 +142,14 @@ return rawGame
   if err then
     print('SAVE SYSTEM ERROR: '..err)
   end
+end
+
+function SaveSystem.clearSave()
+  local ok = love.filesystem.remove(SAVE_PATH)
+  if not ok then
+    print('SAVE SYSTEM ERROR: Failed to delete temporary save')
+  end
+  
 end
 
 function SaveSystem.CreateLoadFunc()

@@ -1,5 +1,3 @@
-Clear saved game on game end
-  - New Game / Continue in main menu
 Credits
 Linear interpolation when in slow motion to stop stuttering
 Effects:
@@ -8,9 +6,6 @@ Effects:
   - Next balls changing
   - Ball being dropped
   - Combo in progress / World in movement
-
-BUG: SLO-MO activates weirdly (if you tap while the ball is falling and you dont have a next ball)
-BUG: app open through icon restarting game
 
 DEBUG: Make debug print tell file (just rename print function to print('filename:', ...)
 

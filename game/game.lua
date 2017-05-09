@@ -115,7 +115,9 @@ function Game.start(loadGame)
       Game.timeScale = TIME_SCALE_SLOMO
     else
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
-        if Game.state == STATE_GAME_RUNNING then
+        -- HACK: didnt want to implement proper UI hold just for this
+        -- TODO: implement ui.hold
+        if Game.state == STATE_GAME_RUNNING and love.mouse.isDown(1) then
           Game.timeScale = TIME_SCALE_SLOMO
         end
       end)
@@ -127,7 +129,9 @@ function Game.start(loadGame)
     Game.timeScale = TIME_SCALE_REGULAR
   end)
   Game.events.add(EVENT_ON_BALLS_STATIC,  function()
-    SaveSystem.save(Game)
+    Game.events.schedule(EVENT_NEW_BALL, function()
+      SaveSystem.save(Game)
+    end)
     Game.onBallsStatic()
   end)
   Game.events.add(EVENT_SAFE_TO_DROP, function()
@@ -286,6 +290,7 @@ function Game.gameOver()
   Game.setHighScore(Game.score)
   Game.objects.balls:forEach(Game.DestroyBall)
   Game.state = STATE_GAME_OVER
+  SaveSystem.clearSave()
 end
 
 function Game.setHighScore(score)
@@ -340,6 +345,8 @@ function Game.GetNextBall()
     else
       Game.objects.nextBallPreviews:enqueue(Balls.NewBallPreview({indestructible = true}))
     end
+
+    Game.events.fire(EVENT_NEW_BALL)
   end
 end
 
