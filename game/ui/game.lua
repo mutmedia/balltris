@@ -31,12 +31,6 @@ Rectangle{
     Game.events.fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
 }
-love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
-  love.graphics.setColor({255, 0, 255})
-  love.graphics.rectangle('line', BORDER_THICKNESS, -10, HOLE_WIDTH, HOLE_DEPTH + 10)
-  love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
-  love.graphics.rectangle('line', BORDER_THICKNESS - BALL_LINES_DISTANCE, -10 - BALL_LINES_DISTANCE, HOLE_WIDTH + 2 * BALL_LINES_DISTANCE, HOLE_DEPTH + 10 + 2 * BALL_LINES_DISTANCE)
-  love.graphics.setLineWidth(1)
 
 Rectangle{
   name='inner visible pit',
@@ -45,9 +39,21 @@ Rectangle{
   lineColor=1,
   lineWidth=BALL_LINE_WIDTH_IN,
   x=BASE_SCREEN_WIDTH/2,
-  y=HOLE_DEPTH/2,
+  y=0,
   width=HOLE_WIDTH,
-  height=HOLE_DEPTH,
+  height=HOLE_DEPTH * 2,
+}
+
+Rectangle{
+  name='outer visible pit',
+  layer=LAYER_BACKGROUND,
+  condition=True(),
+  lineColor=1,
+  lineWidth=BALL_LINE_WIDTH_OUT,
+  x=BASE_SCREEN_WIDTH/2,
+  y=0,
+  width=HOLE_WIDTH + 2*BALL_LINES_DISTANCE,
+  height=HOLE_DEPTH * 2 + 2*BALL_LINES_DISTANCE,
 }
 
 Rectangle{
@@ -62,18 +68,6 @@ Rectangle{
   lineColor=1,
 }
 
-
-Rectangle{
-  name='outer visible pit',
-  layer=LAYER_BACKGROUND,
-  condition=True(),
-  lineColor=1,
-  lineWidth=BALL_LINE_WIDTH_OUT,
-  x=BASE_SCREEN_WIDTH/2,
-  y=HOLE_DEPTH/2,
-  width=HOLE_WIDTH + 2*BALL_LINES_DISTANCE,
-  height=HOLE_DEPTH + 2*BALL_LINES_DISTANCE,
-}
 
 function GetBallColor(ball)
   return ball.indestructible and 1 or ball.number + BALL_COLORS_PALETTE
@@ -155,7 +149,7 @@ Custom{
   name='next balls',
   layer=LAYER_GAME,
   condition = inGameState(STATE_GAME_RUNNING),
-  draw=function()
+  draw=function(self)
     local ballPreviewNum = 1
     local ballPreviewHeight = 5*UI_HEIGHT_UNIT
     local ballPreviewX = BASE_SCREEN_WIDTH - (BORDER_THICKNESS)/2
@@ -169,7 +163,7 @@ Custom{
 
       love.graphics.push()
       love.graphics.translate(center[1], center[2])
-      UI.setColor(color)
+      UI.setColor(color, self.visibility)
 
       love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
       love.graphics.circle('line', 0, 0, radius * BALL_DRAW_SCALE)

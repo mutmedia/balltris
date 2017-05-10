@@ -1,5 +1,4 @@
-GaussianBlurEffect = {
-}
+local GaussianBlurEffect = {}
 
 function GaussianBlurEffect.new(params)
   local gbe = {}

@@ -128,8 +128,6 @@ function love.load()
   Shaders.BarrelDistort = love.graphics.newShader('shaders/barreldistort.fs')
   --print('Time to shader BarrelDistort: \t\t'..love.timer.getTime() - loadtime)
   loadtime = love.timer.getTime()
-  Shaders.Scanlines = love.graphics.newShader('shaders/scanlines.fs')
-  Shaders.Scanlines:send('pixel_size', EFFECT_CRT_PIXEL)
   --print('Time to shader Scanlines: \t\t'..love.timer.getTime() - loadtime)
   Shaders.GammaCorrect = love.graphics.newShader('shaders/addalpha.fs')
 
@@ -140,6 +138,11 @@ function love.load()
     height=BASE_SCREEN_HEIGHT,
   }
 
+  CRTEffect = (require 'shaders/effect_crt').new{
+    width=BASE_SCREEN_WIDTH,
+    height=BASE_SCREEN_HEIGHT,
+  }
+  
   Game.load()
 
   -- TODO: move to place where game actually starts
@@ -185,29 +188,11 @@ function love.draw()
   love.graphics.draw(gameCanvas)
   love.graphics.setBlendMode('add')
   love.graphics.draw(auxCanvas1)
-  --love.graphics.setBlendMode('add')
-  --love.graphics.setColor(200, 0, 0, 120)
-  --love.graphics.circle('fill', 300, 400, 200)
-  --love.graphics.setColor(0, 200, 0, 120)
-  --love.graphics.circle('fill', 300, 600, 200)
   love.graphics.setBlendMode(b)
 
-  love.graphics.setCanvas(auxCanvas1)
-  love.graphics.setShader(Shaders.Scanlines)
-  love.graphics.draw(auxCanvas2)
   love.graphics.setShader()
 
-  love.graphics.setCanvas(auxCanvas2)
-  love.graphics.setShader(Shaders.BarrelDistort)
-  Shaders.BarrelDistort:send('distortion', EFFECT_CRT_DISTORTION)
-  love.graphics.draw(auxCanvas1)
-  love.graphics.setShader()
-
-  love.graphics.setCanvas(gameCanvas)
-  love.graphics.clear()
-  love.graphics.setColor(255, 255, 255)
-  love.graphics.draw(auxCanvas2)
-
+  CRTEffect:apply(auxCanvas2, gameCanvas)
 
   -- Final draw
   love.graphics.setShader(Shaders.GammaCorrect)

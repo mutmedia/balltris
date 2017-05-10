@@ -119,6 +119,15 @@ end
 function UI.rectangle(params)
   local rect = params
 
+  if not rect.width then
+    print(string.format('UI ERROR: Rectangle %s has no width.', rect.name))
+    rect.width = 0
+  end
+  if not rect.height then
+    print(string.format('UI ERROR: Rectangle %s has no height.', rect.name))
+    rect.height = 0
+  end
+
   rect.contains = function(self, x, y)
     return utils.isInsideRect(x, y, self.x - self.width/2, self.y - self.height/2, self.x + self.width/2, self.y + self.height/2)
   end

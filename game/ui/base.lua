@@ -2,44 +2,49 @@ require 'data_constants'
 require 'events'
 require 'math_utils'
 
-UI = require 'ui'
-Rectangle = UI.rectangle
-Text = UI.text
-function buttonFadeInTween(k)
+function FadeInTween(k)
   k = math.clamp(k, 0, 1)
   return k*k
 end
 
-function buttonFadeOutTween(k)
+function FadeOutTween(k)
   k = math.clamp(k, 0, 1)
   k = 1 - k
   return k * k
 end
-Button = function (obj)
-  obj.transitionInTime= obj.transitionInTime or 0.4
-  obj.transitionIn = obj.transitionIn or function(self, dt)
-    local fadeTime = (self.transitionInTime/2)
-    local maxDelay = (self.transitionInTime/2) 
-    local k = ((-self.y/BASE_SCREEN_HEIGHT)*maxDelay + dt)/fadeTime
-    return {
-      visibility = buttonFadeInTween(k)
-    }
-  end
 
-  obj.transitionOutTime= obj.transitionOutTime or 0.4
-  obj.transitionOut = obj.transitionOut or  function(self, dt)
-    local fadeTime = (self.transitionOutTime/2)
-    local maxDelay = (self.transitionOutTime/2) 
-    local k = ((-self.y/BASE_SCREEN_HEIGHT)*maxDelay + dt)/fadeTime
-    return {
-      visibility = buttonFadeOutTween(k)
-    }
-  end
+function WithFade(uielem)
+  return function(obj)
+    obj.transitionInTime= obj.transitionInTime or 1.0
+    obj.transitionIn = obj.transitionIn or function(self, dt)
+      local fadeTime = (self.transitionInTime/2)
+      local maxDelay = (self.transitionInTime/2) 
+      local k = ((-self.y/BASE_SCREEN_HEIGHT)*maxDelay + dt)/fadeTime
+      return {
+        visibility = FadeInTween(k),
+      }
+    end
 
-  return UI.button(obj)
+    obj.transitionOutTime= obj.transitionOutTime or 1.0
+    obj.transitionOut = obj.transitionOut or  function(self, dt)
+      local fadeTime = (self.transitionOutTime/2)
+      local maxDelay = (self.transitionOutTime/2) 
+      local k = ((-self.y/BASE_SCREEN_HEIGHT)*maxDelay + dt)/fadeTime
+      return {
+        visibility = FadeOutTween(k),
+      }
+    end
+
+    return uielem(obj)
+  end
 end
 
-Custom = UI.object
+UI = require 'ui'
+Rectangle = WithFade(UI.rectangle)
+Text = WithFade(UI.text)
+Button = (UI.button)
+
+Custom = WithFade(UI.object)
 Game = require 'game'
 
 --local DEBUG_UI = true

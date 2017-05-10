@@ -10,7 +10,7 @@ Button{
   width=HOLE_WIDTH * 0.8,
   color=0,
   lineColor=1,
-  lineWidth = 5,
+  lineWidth = 3,
   font=FONT_MD,
   textColor=1,
   getText = function()
@@ -66,3 +66,23 @@ Button{
     Game.state = STATE_GAME_MAINMENU
   end,
 }
+
+Rectangle{
+  name="animation cover",
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_PAUSED),
+  x=BASE_SCREEN_WIDTH/2, 
+  y=20*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.9,
+  height=14*0,
+  color=0,
+  transitionInTime=0.5,
+  transitionIn=function(self, dt)
+    return {
+      y = 20*UI_HEIGHT_UNIT + 14*UI_HEIGHT_UNIT *dt/self.transitionInTime,
+      height = 14*UI_HEIGHT_UNIT - 14*UI_HEIGHT_UNIT*dt/self.transitionInTime,
+    }
+  end
+}
+
+
