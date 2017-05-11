@@ -4,7 +4,7 @@ require 'math_utils'
 
 function FadeInTween(k)
   k = math.clamp(k, 0, 1)
-  return k
+  return k*k
 end
 
 function FadeOutTween(k)
@@ -13,11 +13,12 @@ function FadeOutTween(k)
   return k * k
 end
 
+local fadeTime = 0.6
 local fadeShader = love.graphics.newShader('shaders/printer.fs')
 function WithFade(uielem)
   return function(obj)
     obj.shader = obj.shader or fadeShader
-    obj.transitionInTime = obj.transitionInTime or obj.transitionTime or 0.7
+    obj.transitionInTime = obj.transitionInTime or obj.transitionTime or fadeTime
     obj.transitionIn = obj.transitionIn or function(self, p)
       local k = FadeInTween(p)
       self.uniforms={
@@ -28,7 +29,7 @@ function WithFade(uielem)
       }
     end
 
-    obj.transitionOutTime = obj.transitionOutTime or obj.transitionTime or 0.7
+    obj.transitionOutTime = obj.transitionOutTime or obj.transitionTime or fadeTime
     obj.transitionOut = obj.transitionOut or  function(self, p)
       k = FadeInTween(p)
       self.uniforms={
