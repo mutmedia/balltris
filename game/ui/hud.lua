@@ -19,7 +19,7 @@ Text{
   layer=LAYER_HUD,
   condition=inGameState(STATE_GAME_RUNNING),
   x=-BORDER_THICKNESS/2,
-  y=UI_HEIGHT_UNIT,
+  y=2*UI_HEIGHT_UNIT,
   font=FONT_SM,
   color=1,
   width=BORDER_THICKNESS,
@@ -27,13 +27,14 @@ Text{
     return 'Next Balls'
   end,
 }
+
 -- Game Menus
 Button{
   name='open menu',
   layer=LAYER_HUD,
   condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
   x=BORDER_THICKNESS/2,
-  y=UI_HEIGHT_UNIT,
+  y=2*UI_HEIGHT_UNIT,
   width=0.8*BORDER_THICKNESS,
   height=2*UI_HEIGHT_UNIT,
   lineWidth = 5,
@@ -44,7 +45,11 @@ Button{
     return 'Menu'
   end,
   onPress = function() 
-    Game.state = STATE_GAME_PAUSED
+    if Game.state ~= STATE_GAME_PAUSED then
+      Game.state = STATE_GAME_PAUSED
+    else
+      Game.state = STATE_GAME_RUNNING
+    end
   end,
 }
 
@@ -54,7 +59,7 @@ Text{
   layer=LAYER_HUD,
   condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
   x=BORDER_THICKNESS/2,
-  y=4*UI_HEIGHT_UNIT,
+  y=5*UI_HEIGHT_UNIT,
   font=FONT_MD,
   color=1,
   width=BORDER_THICKNESS,
@@ -68,7 +73,7 @@ Text{
   layer=LAYER_HUD,
   condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
   x=BORDER_THICKNESS/2,
-  y=8*UI_HEIGHT_UNIT,
+  y=9*UI_HEIGHT_UNIT,
   font=FONT_MD,
   color=1,
   width=BORDER_THICKNESS,
@@ -82,7 +87,7 @@ Text{
   layer=LAYER_HUD,
   condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
-  y=12*UI_HEIGHT_UNIT,
+  y=13*UI_HEIGHT_UNIT,
   font=FONT_XS,
   color=1,
   width=BORDER_THICKNESS,

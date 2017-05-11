@@ -4,7 +4,7 @@ require 'math_utils'
 
 function FadeInTween(k)
   k = math.clamp(k, 0, 1)
-  return k*k
+  return k
 end
 
 function FadeOutTween(k)
@@ -13,26 +13,31 @@ function FadeOutTween(k)
   return k * k
 end
 
+local fadeShader = love.graphics.newShader('shaders/printer.fs')
 function WithFade(uielem)
   return function(obj)
-    obj.transitionInTime= obj.transitionInTime or 1.0
-    obj.transitionIn = obj.transitionIn or function(self, dt)
-      local fadeTime = (self.transitionInTime/2)
-      local maxDelay = (self.transitionInTime/2) 
-      local k = ((-self.y/BASE_SCREEN_HEIGHT)*maxDelay + dt)/fadeTime
+    obj.shader = obj.shader or fadeShader
+    obj.transitionInTime = obj.transitionInTime or obj.transitionTime or 0.7
+    obj.transitionIn = obj.transitionIn or function(self, p)
+      local k = FadeInTween(p)
+      self.uniforms={
+        k = k
+      }
       return {
-        visibility = FadeInTween(k),
+        --visibility = k,
       }
     end
 
-    obj.transitionOutTime= obj.transitionOutTime or 1.0
-    obj.transitionOut = obj.transitionOut or  function(self, dt)
-      local fadeTime = (self.transitionOutTime/2)
-      local maxDelay = (self.transitionOutTime/2) 
-      local k = ((-self.y/BASE_SCREEN_HEIGHT)*maxDelay + dt)/fadeTime
-      return {
-        visibility = FadeOutTween(k),
+    obj.transitionOutTime = obj.transitionOutTime or obj.transitionTime or 0.7
+    obj.transitionOut = obj.transitionOut or  function(self, p)
+      k = FadeInTween(p)
+      self.uniforms={
+        k = -k
       }
+      return {
+        --visibility = k,
+      }
+
     end
 
     return uielem(obj)
@@ -42,7 +47,7 @@ end
 UI = require 'ui'
 Rectangle = WithFade(UI.rectangle)
 Text = WithFade(UI.text)
-Button = (UI.button)
+Button = WithFade(UI.button)
 
 Custom = WithFade(UI.object)
 Game = require 'game'

@@ -6,7 +6,6 @@ local Load = require 'load'
 
 require 'data_constants'
 
-
 UI = {
   _layers = {},
   DEFAULT_FONT_COLOR = 2,
@@ -25,23 +24,27 @@ function DrawCoroutine(elem)
       if elem.transitionInTime then
         while Game.totalTime - initialTime < elem.transitionInTime do
           if elem.transitionIn then
-            elem.draw(elem:_transitionIn(Game.totalTime - initialTime)) -- draws the transitionIn element
+            elem.draw(elem:_transitionIn((Game.totalTime - initialTime)/elem.transitionInTime)) -- draws the transitionIn element
           end
           coroutine.yield()
         end
       end
 
+      elem._isInteractable = true
       while elem:condition() do
         elem:draw()
         coroutine.yield()
       end
 
+      elem._isInteractable = false
       -- Do transition out animation
       local initialTime = Game.totalTime
       if elem.transitionOutTime then
         while Game.totalTime - initialTime < elem.transitionOutTime do
-          if elem.transitionIn then
-            elem.draw(elem:_transitionOut(Game.totalTime - initialTime)) -- draws the transitionIn element
+          if elem.transitionOut then
+            elem.draw(elem:_transitionOut((Game.totalTime - initialTime)/elem.transitionOutTime)) -- draws the transitionIn element
+          else
+            elem:draw()
           end
           coroutine.yield()
         end
@@ -53,6 +56,8 @@ end
 function UI.object(params)
   local obj = params
 
+  obj._isInteractable = false
+
   obj.visibility = obj.visibility or 1
   obj.x = (obj.x and (obj.x + BASE_SCREEN_WIDTH) % BASE_SCREEN_WIDTH) or 0
   obj.y = (obj.y and (obj.y + BASE_SCREEN_HEIGHT) % BASE_SCREEN_HEIGHT) or 0
@@ -61,10 +66,19 @@ function UI.object(params)
     return false
   end
 
+  obj.anchor = obj.anchor or {x=0, y=0}
+
+  obj.transitionInTime = obj.transitionInTime or obj.transitionTime or nil
+  obj.transitionOutTime = obj.transitionOutTime or obj.transitionTime or nil
+
+  if obj.shader then
+    obj.uniforms = obj.uniforms or {}
+  end
+
   obj._drawCoroutine = coroutine.create(DrawCoroutine(obj))
   if obj.transitionIn then
-    obj._transitionIn = function(self, dt)
-      local diff = self:transitionIn(dt) or {}
+    obj._transitionIn = function(self, p)
+      local diff = self:transitionIn(p) or {}
       local clone = {}
       for k, v in pairs(self) do
         if diff[k] then
@@ -76,9 +90,9 @@ function UI.object(params)
       return clone
     end
   end
- if obj.transitionOut then
-    obj._transitionOut = function(self, dt)
-      local diff = self:transitionOut(dt) or {}
+  if obj.transitionOut then
+    obj._transitionOut = function(self, p)
+      local diff = self:transitionOut(p) or {}
       local clone = {}
       for k, v in pairs(self) do
         if diff[k] then
@@ -90,10 +104,24 @@ function UI.object(params)
       return clone
     end
   end
- 
 
-  if not params.draw then
+
+  if not obj.draw then
     print(string.format('UI ERROR: Drawable %s has no draw function', obj.name or 'unnamed'))
+  else
+    obj._draw = obj.draw
+    obj.draw = function(self)
+      if self.shader then
+        love.graphics.setShader(self.shader)
+        for name, value in pairs(self.uniforms) do
+          self.shader:send(name, value)
+        end
+      end
+      obj._draw(self)
+      if self.shader then
+        love.graphics.setShader()
+      end
+    end
   end
 
   if not obj.layer then
@@ -137,20 +165,22 @@ function UI.rectangle(params)
       UI.setColor(self.color, self.visibility)
       love.graphics.rectangle(
         'fill',
-        self.x - self.width/2,
-        self.y - self.height/2,
+        self.x - (self.width/2) * (1 - self.anchor.x),
+        self.y - (self.height/2) * (1 - self.anchor.y),
         self.width,
-        self.height) 
+        self.height,
+        RECTANGLE_BORDER_RADIUS) 
     end
     if self.lineWidth or self.lineColor then
       UI.setColor(self.lineColor, self.visibility)
       love.graphics.setLineWidth(self.lineWidth or 1)
       love.graphics.rectangle(
         'line',
-        self.x - self.width/2,
-        self.y - self.height/2,
+        self.x - (self.width/2) * (1 - self.anchor.x),
+        self.y - (self.height/2) * (1 - self.anchor.y),
         self.width,
-        self.height) 
+        self.height,
+        RECTANGLE_BORDER_RADIUS)
     end
   end
 
@@ -169,8 +199,8 @@ function UI.text(params)
     love.graphics.setFont(self.font)
     love.graphics.printf(
       self.getText(),
-      self.x - self.width/2,
-      self.y - self.font:getHeight()/2,
+      self.x - (self.width/2) * (1 - self.anchor.x),
+      self.y - (self.font:getHeight()/2) * (1 - self.anchor.y),
       self.width,
       'center',
       self.orientation,
@@ -199,28 +229,30 @@ function UI.button(params)
       UI.setColor(self.color, self.visibility)
       love.graphics.rectangle(
         'fill',
-        self.x - self.width/2,
-        self.y - self.height/2,
+        self.x - (self.width/2) * (1 - self.anchor.x),
+        self.y - (self.height/2) * (1 - self.anchor.y),
         self.width,
-        self.height) 
+        self.height,
+        RECTANGLE_BORDER_RADIUS) 
     end
     if self.lineWidth and self.lineColor then
       UI.setColor(self.lineColor, self.visibility)
       love.graphics.setLineWidth(self.lineWidth)
       love.graphics.rectangle(
         'line',
-        self.x - self.width/2,
-        self.y - self.height/2,
+        self.x - (self.width/2) * (1 - self.anchor.x),
+        self.y - (self.height/2) * (1 - self.anchor.y),
         self.width,
-        self.height) 
+        self.height,
+        RECTANGLE_BORDER_RADIUS)
     end
 
     UI.setColor(self.textColor, self.visibility)
     love.graphics.setFont(self.font)
     love.graphics.printf(
       self.getText(),
-      self.x - self.width/2,
-      self.y - self.font:getHeight()/2,
+      self.x - (self.width/2) * (1 - self.anchor.x),
+      self.y - (self.font:getHeight()/2) * (1 - self.anchor.y),
       self.width,
       'center',
       self.orientation,
@@ -326,7 +358,7 @@ function Action(x, y, actionName)
     for _, elem in ipairs(UI._layers[GAME_LAYERS[i]]) do
       elem._lastState.pressed = elem._state.pressed
       elem._lastState.inside = elem._state.inside
-      if not elem.condition or elem.condition() then
+      if elem._isInteractable then
         if elem:contains(tx, ty) then
           if actionName == 'pressed' then
             elem._state.pressed = true

@@ -142,7 +142,7 @@ function love.load()
     width=BASE_SCREEN_WIDTH,
     height=BASE_SCREEN_HEIGHT,
   }
-  
+
   Game.load()
 
   -- TODO: move to place where game actually starts
@@ -184,6 +184,7 @@ function love.draw()
   love.graphics.setCanvas(auxCanvas2)
   love.graphics.clear()
   love.graphics.setColor(255, 255, 255)
+  love.graphics.setShader(Shaders.Glow)
 
   love.graphics.draw(gameCanvas)
   love.graphics.setBlendMode('add')
@@ -202,7 +203,7 @@ function love.draw()
   love.graphics.setColor(0, 255, 0)
   love.graphics.setNewFont(10*3)
   if DEBUG_SHOW_FPS then
-    love.graphics.print(tostring(love.timer.getFPS( )), 5, 5)
+    --love.graphics.print(tostring(love.timer.getFPS( )), 5, 5)
   end
 end
 
@@ -213,8 +214,47 @@ function drawScaled(canvas)
   love.graphics.draw(canvas)
 end
 
+
+local watchedFiles = {
+  ['ui'] = {
+    lastUpdated = 0,
+  },
+  ['data_constants'] = {
+    lastUpdated = 0,
+  },
+  ['content'] = {
+    lastUpdated = 0,
+  }
+}
+
 function love.update(dt)
   Game.update(dt)
+  -- Watch Modifiable Files
+
+  --[[
+  for k, v in pairs(watchedFiles) do
+    if love.filesystem.isFile(k) then
+      if v.lastUpdated < love.filesystem.getLastModified(k) then
+        print('watched file updated')
+        Palette = NewPalette('content/palette.png')
+        Game.UI.initialize(NewPalette('content/palette.png'))
+        dofile('game/data_constants.lua')
+        v.lastUpdated = love.filesystem.getLastModified(k)
+      end
+    else if love.filesystem.isDirectory(k) then
+        for _, f in pairs(love.filesystem.getDirectoryItems(k)) do
+          if v.lastUpdated < (love.filesystem.getLastModified(f) or 0) then
+            print('watched file updated')
+            Palette = NewPalette('content/palette.png')
+            Game.UI.initialize(NewPalette('content/palette.png'))
+            dofile('game/data_constants.lua')
+            v.lastUpdated = love.filesystem.getLastModified(f)
+          end
+        end
+      end
+    end
+  end
+  ]]--
 end
 
 function ComboMultiplier(combo)
@@ -285,7 +325,7 @@ function love.keypressed(key)
   if key == 'u' then
     Palette = NewPalette('content/palette.png')
     Game.UI.initialize(NewPalette('content/palette.png'))
-    dofile('Game/data_constants.lua')
+    dofile('game/data_constants.lua')
   end
 
   if key == 'l' then

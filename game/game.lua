@@ -286,7 +286,6 @@ end
 
 function Game.gameOver()
   Game.setHighScore(Game.score)
-  Game.objects.balls:forEach(Game.DestroyBall)
   Game.state = STATE_GAME_OVER
   SaveSystem.clearSave()
 end

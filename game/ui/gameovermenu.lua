@@ -6,7 +6,7 @@ Text{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=10*UI_HEIGHT_UNIT,
+  y=09*UI_HEIGHT_UNIT,
   font=FONT_LG,
   color=7,
   width=HOLE_WIDTH,
@@ -20,7 +20,7 @@ Text{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=15*UI_HEIGHT_UNIT,
+  y=14*UI_HEIGHT_UNIT,
   font=FONT_MD,
   color=1,
   width=HOLE_WIDTH,
@@ -34,7 +34,7 @@ Text{
   layer=LAYER_MENUS,
   condition=And(inGameState(STATE_GAME_OVER), function() return Game.newHighScore end),
   x=BASE_SCREEN_WIDTH/2,
-  y=19*UI_HEIGHT_UNIT,
+  y=17.5*UI_HEIGHT_UNIT,
   font=FONT_SM,
   color=4,
   width=HOLE_WIDTH,
@@ -43,6 +43,7 @@ Text{
   end,
 }
 
+--[[
 Text{
   name='maxcombo',
   layer=LAYER_MENUS,
@@ -56,13 +57,14 @@ Text{
     return string.format('Best combo:\n%d', Game.maxCombo)
   end,
 }
+]]--
 
 Button{
   name='replay button',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=26*UI_HEIGHT_UNIT,
+  y=20*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   lineColor=1,
@@ -82,7 +84,7 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=30*UI_HEIGHT_UNIT,
+  y=24*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   lineColor=1,

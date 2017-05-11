@@ -67,22 +67,32 @@ Button{
   end,
 }
 
+--[[
 Rectangle{
   name="animation cover",
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_PAUSED),
   x=BASE_SCREEN_WIDTH/2, 
-  y=20*UI_HEIGHT_UNIT,
+  y=14*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.9,
   height=14*0,
   color=0,
-  transitionInTime=0.5,
+  transitionTime=0.5,
   transitionIn=function(self, dt)
     return {
-      y = 20*UI_HEIGHT_UNIT + 14*UI_HEIGHT_UNIT *dt/self.transitionInTime,
-      height = 14*UI_HEIGHT_UNIT - 14*UI_HEIGHT_UNIT*dt/self.transitionInTime,
+      anchor = {x=0, y=-1},
+      y=26*UI_HEIGHT_UNIT,
+      height = 14*UI_HEIGHT_UNIT - 14*UI_HEIGHT_UNIT*dt/self.transitionTime,
+    }
+  end,
+  transitionOut=function(self, dt)
+    return {
+      anchor = {x=0, y=1},
+      y=14*UI_HEIGHT_UNIT,
+      height = 14*UI_HEIGHT_UNIT*dt/self.transitionTime,
     }
   end
-}
 
+}
+]]--
 

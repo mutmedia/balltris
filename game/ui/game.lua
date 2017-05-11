@@ -1,7 +1,6 @@
 require 'ui/base'
 
 local BALL_COLORS_PALETTE = 2
-
 Rectangle{
   name='background',
   layer=LAYER_BACKGROUND,
@@ -73,6 +72,22 @@ function GetBallColor(ball)
   return ball.indestructible and 1 or ball.number + BALL_COLORS_PALETTE
 
 end
+function DrawBall(color, center, radius, rotation)
+  love.graphics.push()
+  love.graphics.translate(center[1], center[2])
+  love.graphics.rotate(rotation or 0)
+  --love.graphics.scale(1+s, 1-s)
+  UI.setColor(color)
+  love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
+  radius = radius * BALL_DRAW_SCALE
+  arcEnd = 2 * math.pi - BALL_NEON_GAP * math.pi / radius
+  love.graphics.arc('line', 'open', 0, 0, radius, 0, arcEnd,  30)
+  radius = radius * BALL_DRAW_SCALE-BALL_LINES_DISTANCE
+  arcEnd = 2 * math.pi - BALL_NEON_GAP * math.pi / radius
+  love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
+  love.graphics.arc('line', 'open', 0, 0, radius, 0 + math.pi, arcEnd + math.pi, 30)
+  love.graphics.pop()
+end
 
 
 Custom{
@@ -85,14 +100,7 @@ Custom{
       local radius = Game.objects.ballPreview.radius
       local color = GetBallColor(Game.objects.ballPreview)
 
-      love.graphics.push()
-      UI.setColor(color)
-      love.graphics.translate(center[1], center[2])
-      love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
-      love.graphics.circle('line', 0, 0, radius * BALL_DRAW_SCALE)
-      love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
-      love.graphics.circle('line', 0, 0, radius * BALL_DRAW_SCALE - BALL_LINES_DISTANCE)
-      love.graphics.pop()
+      DrawBall(color, center, radius)
     end
   end,
 }
@@ -120,28 +128,24 @@ Custom{
       local radius = ball.radius
       local color = GetBallColor(ball)
 
+      local lastShader
       if ball.timeDestroyed then
+        lastShader = love.graphics.getShader()
         love.graphics.setShader(self.turnOffShader)
         self.turnOffShader:send('delta_time', Game.totalTime - ball.timeDestroyed)
-      else
-        love.graphics.setShader()
       end
       local vx, vy = ball.body:getLinearVelocity()
       local s = BALL_SPEED_STRETCH * math.sqrt(vx * vx + vy * vy)
-      local rot = math.atan2(vy, vx)
-      love.graphics.push()
-      UI.setColor(color)
-      love.graphics.translate(center[1], center[2])
-      love.graphics.rotate(rot)
-      love.graphics.scale(1+s, 1-s)
-      love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
-      love.graphics.circle('line', 0, 0, radius * BALL_DRAW_SCALE)
-      love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
-      love.graphics.circle('line', 0, 0, radius * BALL_DRAW_SCALE - BALL_LINES_DISTANCE)
-      love.graphics.pop()
-      --love.graphics.reset()
+      local rot = ball.body:getAngle() --math.atan2(vy, vx)
+      --love.graphics.push()
+      --love.graphics.rotate(rot)
+      --love.graphics.scale(1+s, 1-s)
+      DrawBall(color, center, radius, rot)
+      --love.graphics.pop()
+      if ball.timeDestroyed then
+        love.graphics.setShader(lastShader)
+      end
     end)
-    love.graphics.setShader()
   end,
 }
 
@@ -161,21 +165,12 @@ Custom{
       local radius = nextBallPreview.radius
       local color = GetBallColor(nextBallPreview)
 
-      love.graphics.push()
-      love.graphics.translate(center[1], center[2])
-      UI.setColor(color, self.visibility)
+      DrawBall(color, center, radius)
 
-      love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
-      love.graphics.circle('line', 0, 0, radius * BALL_DRAW_SCALE)
-      love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
-      love.graphics.circle('line', 0, 0, radius * BALL_DRAW_SCALE - BALL_LINES_DISTANCE)
-      --UI.setColor(1)
-      --love.graphics.circle('fill', 0, 0, 3)
-      love.graphics.pop()
 
-      ballPreviewNum = ballPreviewNum + 1
+        ballPreviewNum = ballPreviewNum + 1
 
-      ballPreviewHeight = ballPreviewHeight + 5*UI_HEIGHT_UNIT
-    end)
-  end
-}
+        ballPreviewHeight = ballPreviewHeight + 5*UI_HEIGHT_UNIT
+      end)
+    end
+  }

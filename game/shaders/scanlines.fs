@@ -8,8 +8,6 @@ precision mediump float;
 
 #define PI (3.14159265)
 
-uniform vec2 distortion;
-
 uniform float pixel_size;
 uniform float opacity;
 uniform float center_fade;
@@ -23,20 +21,6 @@ vec2 To11Coord(vec2 point)
   return point;
 }
 
-vec2 distort_coords(vec2 point) {
-
-  point = To11Coord(point);
-
-  point.x = point.x + (point.y * point.y) * point.x * distortion.x;
-  point.y = point.y + (point.x * point.x) * point.y * distortion.y;
-
-  point.x = (point.x + 1.0)/2.0;
-  point.y = (point.y - 1.0)/-2.0;
-
-  return point;
-}
-
-
 vec4 desaturate(vec4 color, float amount)
 {
     vec4 gray = vec4(dot(vec4(0.2126,0.7152,0.0722,0.2), color));
@@ -45,8 +29,7 @@ vec4 desaturate(vec4 color, float amount)
 
 vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)
 {
-  vec2 uv = distort_coords(texture_coords);
-  //vec4 c = pow(Texel(texture, uv), vec4(2.2));
+  vec2 uv = (texture_coords);
   vec4 c = pow(Texel(texture, uv), vec4(2.2));
 
   float current_pixel_v = screen_coords.y / pixel_size;

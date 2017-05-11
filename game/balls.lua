@@ -28,10 +28,11 @@ function Ball.new(ballData, world)
 
   newBall.inGame = false
   newBall.body = love.physics.newBody(world, ballData.position.x, ballData.position.y, 'dynamic')
-  --newBall.body:setFixedRotation(false)
+  newBall.body:setFixedRotation(false)
   newBall.shape = love.physics.newCircleShape(ballData.radius)
   newBall.fixture = love.physics.newFixture(newBall.body, newBall.shape)
   newBall.fixture:setCategory(COL_MAIN_CATEGORY)
+  --newBall.fixture:setFriction(0.0)
   newBall.fixture:setRestitution(0.0)
   newBall.fixture:setUserData({
       ref = newBall,
