@@ -201,9 +201,9 @@ function love.draw()
   love.graphics.setShader()
 
   love.graphics.setColor(0, 255, 0)
-  love.graphics.setNewFont(10*3)
+  love.graphics.setNewFont(10*2)
   if DEBUG_SHOW_FPS then
-    --love.graphics.print(tostring(love.timer.getFPS( )), 5, 5)
+    love.graphics.print(tostring(love.timer.getFPS( )), 5, 5)
   end
 end
 
