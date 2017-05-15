@@ -20,6 +20,8 @@ Game.highScore = 0
 Game.newHighScore = false
 Game.combo = 0
 Game.maxCombo = 0
+Game.comboObjective = 5
+Game.comboObjectiveCleared = false
 
 Game.timeScale = TIME_SCALE_REGULAR
 Game.startTime = love.timer.getTime()
@@ -77,6 +79,8 @@ function Game.start(loadGame)
   Game.objects.wallR.fixture = love.physics.newFixture(Game.objects.wallR.body, Game.objects.wallR.shape)
   Game.objects.wallR.fixture:setCategory(COL_MAIN_CATEGORY)
 
+  -- TODO: save this later
+  Game.comboObjective = 5
   -- Information that can be saved
   if loadGame then
     Game = loadGame(Game)
@@ -133,15 +137,27 @@ function Game.start(loadGame)
       SaveSystem.save(Game)
     end)
     Game.onBallsStatic()
+    if Game.combo > 0 then
+      Game.events.fire(EVENT_COMBO_END)
+      Game.combo = 0
+    end
   end)
   Game.events.add(EVENT_SAFE_TO_DROP, function()
     Game.GetNextBall()
   end)
   Game.events.add(EVENT_BALLS_TOO_HIGH, Game.lose)
-  Game.events.add(EVENT_SCORED, function() end)
+  Game.events.add(EVENT_SCORED, function() 
+    if Game.combo >= Game.comboObjective and not Game.comboObjectiveCleared then
+      Game.clearWhiteBalls()
+      Game.comboObjectiveCleared = true
+    end
+end)
   Game.events.add(EVENT_COMBO_END, function()
     if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
-    Game.combo = 0
+    if Game.combo >= Game.comboObjective then
+      Game.comboObjective = Game.comboObjective + 5
+      Game.comboObjectiveCleared = false
+    end
   end)
 
 
@@ -270,15 +286,18 @@ function Game.onBallsStatic()
   end
   lastHit = hit
   hit = false
-  Game.events.fire(EVENT_COMBO_END)
 
 end
 
-function Game.lose()
+function Game.clearWhiteBalls()
   Game.objects.balls:forEach(function(ball)
     if not ball.indestructible then return end
     Game.ScheduleBallDestruction(ball)
   end)
+end
+
+function Game.lose()
+  Game.clearWhiteBalls()
   Game.state = STATE_GAME_LOST
   Game.events.add(EVENT_ON_BALLS_STATIC, Game.gameOver)
 end

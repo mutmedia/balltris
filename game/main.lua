@@ -271,7 +271,6 @@ function beginContact(a, b, coll)
 
   if aref.indestructible or bref.indestructible then return end
   if aref.number == bref.number then
-    Game.events.fire(EVENT_SCORED)
 
     -- Combo stuff
     if Game.combo == 0 then
@@ -287,6 +286,7 @@ function beginContact(a, b, coll)
       Game.score = Game.score + ComboMultiplier(Game.combo)
     end
     hit = true
+    Game.events.fire(EVENT_SCORED)
 
     -- Ball destruction
     if not aref.willDestroy then

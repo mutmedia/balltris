@@ -96,6 +96,20 @@ Text{
   end,
 }
 
+Text{
+  name='combo objective',
+  layer=LAYER_HUD,
+  condition = True(),
+  --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
+  x=BORDER_THICKNESS/2,
+  y=15*UI_HEIGHT_UNIT,
+  font=FONT_XS,
+  color=1,
+  width=BORDER_THICKNESS,
+  getText = function()
+    return 'Objective: ' ..(Game.comboObjectiveCleared and ' CLEARED' or '\nx'..Game.comboObjective)
+  end,
+}
 -- Container
 --[[Rectangle{
   x=BASE_SCREEN_WIDTH - 100 - 1.1*MAX_RADIUS,

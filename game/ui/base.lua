@@ -4,7 +4,7 @@ require 'math_utils'
 
 function FadeInTween(k)
   k = math.clamp(k, 0, 1)
-  return k*k
+  return k
 end
 
 function FadeOutTween(k)
