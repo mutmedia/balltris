@@ -108,6 +108,9 @@ function Game.start(loadGame)
     Game.newHighScore = false
 
   end
+  Game.totalSpeedQueue = Queue.new()
+  Game.meanSpeed = 0
+  Game.lastMeanSpeed = 0
   -- End of information that can be saved
 
   -- Events
@@ -219,7 +222,7 @@ function Game.update(dt)
 
     while accumulator >= FIXED_DT do
       Game.world:update(FIXED_DT)
-      totalSpeed2 = 0
+      totalSpeed = 0
       Game.objects.balls:forEach(function(ball)
         local px, py = ball.body:getPosition() 
         if not IsInsideScreen(px, py) then
@@ -228,19 +231,27 @@ function Game.update(dt)
 
         if ball.inGame then
           local x, y = ball.body:getLinearVelocity()
-          totalSpeed2 = totalSpeed2 + x*x + y*y
+          totalSpeed = totalSpeed + math.sqrt(x*x + y*y)
         end
       end)
-
-      -- TODO: Make this more robust
-      if totalSpeed2 < MIN_SPEED2 then
-        Game.staticFrameCount = Game.staticFrameCount + 1
-        if Game.staticFrameCount == FRAMES_TO_STATIC then
-          Game.events.fire(EVENT_ON_BALLS_STATIC)
-        end
-      else
-        Game.staticFrameCount = 0
+      Game.totalSpeedQueue:enqueue({speed = totalSpeed})
+      if Game.totalSpeedQueue.size > FRAMES_TO_STATIC then
+        Game.totalSpeedQueue:dequeue()
       end
+      
+      Game.meanSpeed = 0
+      Game.totalSpeedQueue:forEach(function(q)
+        Game.meanSpeed = Game.meanSpeed + q.speed
+      end)
+
+      print('meanspeed' , Game.meanSpeed)
+      Game.meanSpeed = Game.meanSpeed/FRAMES_TO_STATIC
+      -- TODO: Make this more robust
+      if Game.meanSpeed < MIN_SPEED and Game.lastMeanSpeed >= MIN_SPEED then
+        Game.events.fire(EVENT_ON_BALLS_STATIC)
+      end
+
+      Game.lastMeanSpeed = Game.meanSpeed
 
 
       if Game.lastDroppedBall then
@@ -249,8 +260,6 @@ function Game.update(dt)
           Game.lastDroppedBall = nil
         end
       end
-
-      lastTotalSpeed2 = totalSpeed2
 
       Game.objects.balls:Clean()
 

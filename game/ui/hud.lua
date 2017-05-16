@@ -110,6 +110,22 @@ Text{
     return 'Objective: ' ..(Game.comboObjectiveCleared and ' CLEARED' or '\nx'..Game.comboObjective)
   end,
 }
+
+Text{
+  name='speed',
+  layer=LAYER_HUD,
+  condition = True(),
+  --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
+  x=BORDER_THICKNESS/2,
+  y=18*UI_HEIGHT_UNIT,
+  font=FONT_XS,
+  color=3,
+  width=BORDER_THICKNESS,
+  getText = function()
+    return 'Speed: '..Game.meanSpeed
+  end,
+}
+
 -- Container
 --[[Rectangle{
   x=BASE_SCREEN_WIDTH - 100 - 1.1*MAX_RADIUS,

@@ -3,6 +3,7 @@ local Queue = {}
 function Queue.new(free)
   local q = {_queue=nil, _free = free or function() end}
   q._queue_front = nil 
+  q.size = 0
   setmetatable(q, {__index=Queue})
   return q
 end
@@ -20,6 +21,7 @@ function Queue:enqueue(elem)
   end
 
   self._queue = new
+  self.size = self.size + 1
 end
 
 function Queue:dequeue()
@@ -29,6 +31,7 @@ function Queue:dequeue()
 
   local elem = self._queue_front
   self._queue_front = self._queue_front.prev
+  self.size = self.size - 1
   return elem.val
 end
 

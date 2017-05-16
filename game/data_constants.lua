@@ -54,7 +54,7 @@ TIME_SCALE_SLOMO = 0.1
 
 -- Minimum value definitions
 FRAMES_TO_STATIC = 20
-MIN_SPEED2 = 20
+MIN_SPEED = 5
 
 -- Collision
 COL_MAIN_CATEGORY = 1
