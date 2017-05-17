@@ -45,11 +45,9 @@ Custom{
 
     if self.frenzyTime < 0 and Game.combo >= Game.comboObjective then
       self.frenzyTime = Game.totalTime
-      print('FRENZY TIME')
     end
 
     if self.frenzyTime > 0 then
-      print('FERENXUYZU')
       self.initialPosition = (FRENZY_SPEED * (Game.totalTime-self.frenzyTime)) % maxSize
     end
 
