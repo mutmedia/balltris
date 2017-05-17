@@ -1,8 +1,8 @@
 local bit32 = require("bit") 
 
-require 'math_utils'
-local List = require 'doubly_linked_list'
-local Load = require 'load'
+require 'lib/math_utils'
+local List = require 'lib/doubly_linked_list'
+local Load = require 'lib/load'
 
 require 'data_constants'
 
@@ -157,7 +157,7 @@ function UI.rectangle(params)
   end
 
   rect.contains = function(self, x, y)
-    return utils.isInsideRect(x, y, self.x - self.width/2, self.y - self.height/2, self.x + self.width/2, self.y + self.height/2)
+    return math.isInsideRect(x, y, self.x - self.width/2, self.y - self.height/2, self.x + self.width/2, self.y + self.height/2)
   end
 
   rect.draw = function(self)
@@ -221,7 +221,7 @@ function UI.button(params)
   end
 
   btn.contains = function(self, x, y)
-    return utils.isInsideRect(x, y, self.x - self.width/2, self.y - self.height/2, self.x + self.width/2, self.y + self.height/2)
+    return math.isInsideRect(x, y, self.x - self.width/2, self.y - self.height/2, self.x + self.width/2, self.y + self.height/2)
   end
 
   btn.draw = function(self)

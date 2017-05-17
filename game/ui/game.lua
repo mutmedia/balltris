@@ -30,7 +30,110 @@ Rectangle{
     Game.events.fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
 }
+FRENZY_SPEED = 1000
+Custom{
+  name='combo pit',
+  layer=LAYER_BACKGROUND,
+  condition=True(),
+  condition=inGameState(STATE_GAME_RUNNING),
+  initialPosition=0,
+  frenzyTime=-1,
+  draw = function(self)
+    local lineSize = HOLE_DEPTH + HOLE_WIDTH/2
+    local stepSize = lineSize/Game.comboObjective
+    local maxSize = math.min(Game.combo, Game.comboObjective) * stepSize
 
+    if self.frenzyTime < 0 and Game.combo >= Game.comboObjective then
+      self.frenzyTime = Game.totalTime
+      print('FRENZY TIME')
+    end
+
+    if self.frenzyTime > 0 then
+      print('FERENXUYZU')
+      self.initialPosition = (FRENZY_SPEED * (Game.totalTime-self.frenzyTime)) % maxSize
+    end
+
+    if self.frenzyTime > 0 and Game.combo < Game.comboObjective then
+      self.initialPosition = 0
+      self.frenzyTime = -1
+    end
+
+    local currentSize = 0
+    local currentBall = 1
+    love.graphics.setLineWidth(BALL_LINES_DISTANCE*2)
+    Game.comboNumbers:forEach(function(q)
+      if currentBall > Game.comboObjective then return end
+      UI.setColor(q.num + BALL_COLORS_PALETTE)
+      local position = (self.initialPosition + currentSize) % maxSize
+
+      local step = stepSize
+      while step > 0 do
+        if position < HOLE_WIDTH/2 then 
+          local hstep = math.min(step, HOLE_WIDTH/2 - position)
+          -- Draw horizontal lines
+          love.graphics.line(
+            BASE_SCREEN_WIDTH/2 + position,
+            HOLE_DEPTH + BALL_LINES_DISTANCE/2,
+            BASE_SCREEN_WIDTH/2 + (position + hstep),
+            HOLE_DEPTH + BALL_LINES_DISTANCE/2
+            )
+          love.graphics.line(
+            BASE_SCREEN_WIDTH/2 - position,
+            HOLE_DEPTH + BALL_LINES_DISTANCE/2,
+            BASE_SCREEN_WIDTH/2 - (position + hstep),
+            HOLE_DEPTH + BALL_LINES_DISTANCE/2
+            )
+          position = (position + hstep) % maxSize
+          step = step - hstep
+        else
+          if position == HOLE_WIDTH/2 then
+            -- Draw arc
+            love.graphics.arc(
+              'line', 
+              'open', 
+              BASE_SCREEN_WIDTH/2 + (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2 - RECTANGLE_BORDER_RADIUS),
+              HOLE_DEPTH + BALL_LINES_DISTANCE/2 - RECTANGLE_BORDER_RADIUS,
+              RECTANGLE_BORDER_RADIUS,
+              0,
+              math.pi/2,
+              10)
+            love.graphics.arc(
+              'line', 
+              'open', 
+              BASE_SCREEN_WIDTH/2 - (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2 - RECTANGLE_BORDER_RADIUS),
+              HOLE_DEPTH + BALL_LINES_DISTANCE/2 - RECTANGLE_BORDER_RADIUS,
+              RECTANGLE_BORDER_RADIUS,
+              0 + math.pi/2,
+              math.pi/2 + math.pi/2,
+              10)
+          end
+
+          local vstep = math.min(step, maxSize - position)
+          love.graphics.line(
+            BASE_SCREEN_WIDTH/2 + (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+            HOLE_DEPTH - (position - HOLE_WIDTH/2),
+            BASE_SCREEN_WIDTH/2 + (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+            HOLE_DEPTH - (position - HOLE_WIDTH/2 + vstep)
+            )
+          love.graphics.line(
+            BASE_SCREEN_WIDTH/2 - (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+            HOLE_DEPTH - (position - HOLE_WIDTH/2),
+            BASE_SCREEN_WIDTH/2 - (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+            HOLE_DEPTH - (position - HOLE_WIDTH/2 + vstep)
+            )
+          step = step - vstep
+          position = (position + vstep) % maxSize
+        end
+      end
+      currentBall = currentBall + 1
+      currentSize = currentSize + stepSize
+    end)
+    UI.setColor(3)
+    love.graphics.setLineWidth(BALL_LINES_DISTANCE)
+
+  end,
+  x=0, y=0, widht=0, height=0
+}
 Rectangle{
   name='inner visible pit',
   layer=LAYER_BACKGROUND,
@@ -70,8 +173,8 @@ Rectangle{
 
 function GetBallColor(ball)
   return ball.indestructible and 1 or ball.number + BALL_COLORS_PALETTE
-
 end
+
 function DrawBall(color, center, radius, rotation)
   love.graphics.push()
   love.graphics.translate(center[1], center[2])
@@ -168,9 +271,9 @@ Custom{
       DrawBall(color, center, radius)
 
 
-        ballPreviewNum = ballPreviewNum + 1
+      ballPreviewNum = ballPreviewNum + 1
 
-        ballPreviewHeight = ballPreviewHeight + 5*UI_HEIGHT_UNIT
-      end)
-    end
-  }
+      ballPreviewHeight = ballPreviewHeight + 5*UI_HEIGHT_UNIT
+    end)
+  end
+}

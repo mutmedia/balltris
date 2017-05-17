@@ -1,5 +1,5 @@
-local Vector = require 'vector2d'
-local List = require 'doubly_linked_list'
+local Vector = require 'lib/vector2d'
+local List = require 'lib/doubly_linked_list'
 local Balls = {}
 
 function Balls.NewBallPreview(initialData)

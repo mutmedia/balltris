@@ -1,6 +1,9 @@
+require 'lib/events'
+require 'lib/math_utils'
+
 require 'data_constants'
-require 'events'
-require 'math_utils'
+UI = require 'ui'
+Game = require 'game'
 
 function FadeInTween(k)
   k = math.clamp(k, 0, 1)
@@ -45,13 +48,10 @@ function WithFade(uielem)
   end
 end
 
-UI = require 'ui'
 Rectangle = WithFade(UI.rectangle)
 Text = WithFade(UI.text)
 Button = WithFade(UI.button)
-
 Custom = WithFade(UI.object)
-Game = require 'game'
 
 --local DEBUG_UI = true
 

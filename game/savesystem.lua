@@ -1,9 +1,9 @@
 --TODO: save last loaded file to prevent loading a lot of times
 
-local Load = require 'load'
+local Load = require 'lib/load'
 local Balls = require 'balls'
-local Queue = require 'queue'
-local RandomBag = require 'randombag'
+local Queue = require 'lib/queue'
+local RandomBag = require 'lib/randombag'
 
 local SaveSystem = {}
 

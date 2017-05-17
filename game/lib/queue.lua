@@ -43,7 +43,7 @@ function Queue:forEach(func)
   end
 end
 
-function Queue:Clear(free)
+function Queue:clear(free)
   self:forEach(function(del)
     self._free(del)
   end)

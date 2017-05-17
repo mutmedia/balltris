@@ -114,7 +114,7 @@ Text{
 Text{
   name='speed',
   layer=LAYER_HUD,
-  condition = True(),
+  condition=False(),
   --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
   y=18*UI_HEIGHT_UNIT,

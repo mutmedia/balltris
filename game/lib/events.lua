@@ -1,17 +1,4 @@
-local List = require 'doubly_linked_list'
-
--- Events
-EVENT_MOVED_PREVIEW = 'previewMoved'
-EVENT_RELEASED_PREVIEW = 'previewReleased'
-EVENT_PRESSED_SWITCH = 'switchReleased'
-EVENT_ON_BALLS_STATIC = 'ballsStatic'
-EVENT_SAFE_TO_DROP = 'safeToDrop'
-EVENT_BALLS_TOO_HIGH = 'ballsTooHigh'
-EVENT_OPEN_MENU = 'ballsTooHigh'
-EVENT_COMBO_START = 'combostarted'
-EVENT_COMBO_END = 'comboended'
-EVENT_SCORED = 'scored'
-EVENT_NEW_BALL = 'newball'
+local List = require 'lib/doubly_linked_list'
 
 Events = {
   _callBacks = {},

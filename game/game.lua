@@ -1,15 +1,15 @@
-local Scheduler = require 'scheduler'
-local List = require 'doubly_linked_list'
-local Queue = require 'queue'
-local RandomBag = require 'randombag'
-local Vector = require 'vector2d'
+local Scheduler = require 'lib/scheduler'
+local List = require 'lib/doubly_linked_list'
+local Queue = require 'lib/queue'
+local RandomBag = require 'lib/randombag'
+local Vector = require 'lib/vector2d'
 local SaveSystem = require 'savesystem'
 
 local Balls = require 'balls'
 
 Game = {}
 Game.UI = require 'ui'
-Game.events = require 'events'
+Game.events = require 'lib/events'
 
 Game.objects = {}
 Game.state = 0
@@ -22,6 +22,7 @@ Game.combo = 0
 Game.maxCombo = 0
 Game.comboObjective = 5
 Game.comboObjectiveCleared = false
+Game.comboNumbers = nil
 
 Game.timeScale = TIME_SCALE_REGULAR
 Game.startTime = love.timer.getTime()
@@ -54,6 +55,7 @@ function Game.save()
 end
 
 function Game.start(loadGame)
+  Game.totalTime = 0
   Game.state = STATE_GAME_LOADING
 
   -- Physics
@@ -111,6 +113,8 @@ function Game.start(loadGame)
   Game.totalSpeedQueue = Queue.new()
   Game.meanSpeed = 0
   Game.lastMeanSpeed = 0
+  Game.comboNumbers = Queue.new()
+  --
   -- End of information that can be saved
 
   -- Events
@@ -118,7 +122,7 @@ function Game.start(loadGame)
   Game.events.add(EVENT_MOVED_PREVIEW, function(x, y, dx, dy)
     if Game.objects.ballPreview then
       Game.objects.ballPreview.drawStyle = 'line'
-      Game.objects.ballPreview.position.x = utils.clamp(x, BORDER_THICKNESS + Game.objects.ballPreview.radius + 1, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + Game.objects.ballPreview.radius) - 1)
+      Game.objects.ballPreview.position.x = math.clamp(x, BORDER_THICKNESS + Game.objects.ballPreview.radius + 1, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + Game.objects.ballPreview.radius) - 1)
       Game.timeScale = TIME_SCALE_SLOMO
     else
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
@@ -154,15 +158,15 @@ function Game.start(loadGame)
       Game.clearWhiteBalls()
       Game.comboObjectiveCleared = true
     end
-end)
+  end)
   Game.events.add(EVENT_COMBO_END, function()
     if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
     if Game.combo >= Game.comboObjective then
       Game.comboObjective = Game.comboObjective + 5
       Game.comboObjectiveCleared = false
     end
+    Game.comboNumbers = Queue.new()
   end)
-
 
   Game.state = STATE_GAME_RUNNING
 end
@@ -238,13 +242,13 @@ function Game.update(dt)
       if Game.totalSpeedQueue.size > FRAMES_TO_STATIC then
         Game.totalSpeedQueue:dequeue()
       end
-      
+
       Game.meanSpeed = 0
       Game.totalSpeedQueue:forEach(function(q)
         Game.meanSpeed = Game.meanSpeed + q.speed
       end)
 
-      print('meanspeed' , Game.meanSpeed)
+      --print('meanspeed' , Game.meanSpeed)
       Game.meanSpeed = Game.meanSpeed/FRAMES_TO_STATIC
       -- TODO: Make this more robust
       if Game.meanSpeed < MIN_SPEED and Game.lastMeanSpeed >= MIN_SPEED then
@@ -293,9 +297,6 @@ function Game.onBallsStatic()
   if ballsTooHigh then
     Game.events.fire(EVENT_BALLS_TOO_HIGH)
   end
-  lastHit = hit
-  hit = false
-
 end
 
 function Game.clearWhiteBalls()
@@ -394,5 +395,33 @@ function Game.DestroyBall(ball)
   end
   ball.destroyed = true
 end
+
+function Game.sameColorBallCollision(ball1, ball2)
+  -- Combo stuff
+  if Game.combo == 0 then
+    Game.events.fire(EVENT_COMBO_START)
+  end
+  if not ball1.willDestroy or not ball2.willDestroy then
+    Game.combo = Game.combo + 1
+    Game.comboNumbers:enqueue({num = ball1.number})
+  end
+
+  if not ball1.willDestroy then
+    Game.score = Game.score + ComboMultiplier(Game.combo)
+    Game.ScheduleBallDestruction(ball1)
+    ball1.willDestroy = true
+  end
+  if not ball2.willDestroy then
+  end
+
+  if not ball2.willDestroy then
+    Game.score = Game.score + ComboMultiplier(Game.combo)
+    Game.ScheduleBallDestruction(ball2)
+    ball2.willDestroy = true
+  end
+
+  Game.events.fire(EVENT_SCORED)
+end
+
 return Game
 

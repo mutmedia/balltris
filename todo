@@ -1,12 +1,12 @@
 Effects:
-  - Opening and closing menus
-  - Game starting
   - Next balls changing
   - Ball being dropped
-  - Combo in progress / World in movement
+  - World in movement
 Credits
 Linear interpolation when in slow motion to stop stuttering
 
+BUG: SLO MO CONTINUES AFTER GAME ENDS
+BUG: GRAY THING OF TRANSITION IS SHOWING AT BOTTOM
 DEBUG: Make debug print tell file (just rename print function to print('filename:', ...)
 
 SUPER HARD: Save high score online

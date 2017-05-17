@@ -1,4 +1,4 @@
-local List = require 'doubly_linked_list'
+local List = require 'lib/doubly_linked_list'
 
 local Scheduler = {
   _schedule = {},

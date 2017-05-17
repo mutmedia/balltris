@@ -1,9 +1,12 @@
+love.graphics.clear(0, 255, 0)
+love.graphics.present()
+
 -- Libraries
-require 'math_utils'
-local List = require 'doubly_linked_list'
-local Queue = require 'queue'
-local Vector = require 'vector2d'
-local Scheduler = require 'scheduler'
+require 'lib/math_utils'
+local List = require 'lib/doubly_linked_list'
+local Queue = require 'lib/queue'
+local Vector = require 'lib/vector2d'
+local Scheduler = require 'lib/scheduler'
 
 local NewPalette = require 'palette'
 
@@ -17,16 +20,13 @@ local Balls = require 'balls'
 
 -- Helper functions
 function IsInsideScreen(x, y)
-  return utils.isInsideRect(x, y, 0, 0, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT)
+  return math.isInsideRect(x, y, 0, 0, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT)
 end
 
 -- Variables
 local DEBUG_SHOW_FPS = true
 
 local lastDroppedBall
-
-local hit = false
-local lastHit = false
 
 local totalSpeed2 = 0
 local lastTotalSpeed2 = -1
@@ -271,34 +271,7 @@ function beginContact(a, b, coll)
 
   if aref.indestructible or bref.indestructible then return end
   if aref.number == bref.number then
-
-    -- Combo stuff
-    if Game.combo == 0 then
-      Game.events.fire(EVENT_COMBO_START)
-    end
-    if not aref.willDestroy or not bref.willDestroy then
-      Game.combo = Game.combo + 1
-    end
-    if not aref.willDestroy then
-      Game.score = Game.score + ComboMultiplier(Game.combo)
-    end
-    if not bref.willDestroy then
-      Game.score = Game.score + ComboMultiplier(Game.combo)
-    end
-    hit = true
-    Game.events.fire(EVENT_SCORED)
-
-    -- Ball destruction
-    if not aref.willDestroy then
-      Game.ScheduleBallDestruction(aref)
-      aref.willDestroy = true
-    end
-
-    if not bref.willDestroy then
-      Game.ScheduleBallDestruction(bref)
-      bref.willDestroy = true
-    end
-
+    Game.sameColorBallCollision(aref, bref)
   end
 end
 
