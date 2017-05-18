@@ -153,9 +153,9 @@ function SaveSystem.clearSave()
 end
 
 function SaveSystem.CreateLoadFunc()
-  local rawGame = Load.luafile(SAVE_PATH)
+  local ok, rawGame = Load.luafile(SAVE_PATH)
 
-  if not rawGame then return end
+  if not ok or not rawGame then return end
 
   return function(game)
 
@@ -193,8 +193,6 @@ function SaveSystem.CreateLoadFunc()
       rawGame.radiusChances.modifier,
       rawGame.radiusChances.values)
 
-
-    print('loaded')
     return savedGame
   end
 end

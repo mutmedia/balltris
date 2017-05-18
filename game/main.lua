@@ -10,7 +10,7 @@ local Scheduler = require 'lib/scheduler'
 
 local NewPalette = require 'palette'
 
---local BackEnd = require 'playfab'
+local Backend = require 'backend'
 
 -- Game Files
 local Game = require 'game'
@@ -74,6 +74,7 @@ function love.load()
   love.physics.setMeter(METER)
 
   -- Loading actual stuff
+  Backend.init()
   --[[
   loader = love.thread.newThread('loader.lua')
   dataToLoadChannel = love.thread.getChannel('data_to_load')
@@ -328,6 +329,10 @@ function love.keypressed(key)
     Game.objects.ballPreview = Balls.NewBallPreview()
     Game.objects.nextBallPreviews:Clear()
     Game.objects.nextBallPreviews:enqueue(Balls.NewBallPreview())
+  end
+
+  if key == 'b' then
+    Backend.sendScore(Game.score)
   end
 end
 

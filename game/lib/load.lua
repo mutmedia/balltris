@@ -11,11 +11,13 @@ function Load.luafile(path)
   ok, chunk = pcall(love.filesystem.load, path)
   if not ok then
     print('LOAD ERROR: An error happened while loading '..path..' :'..tostring(chunk))
+    return ok, nil
   elseif not chunk then
     print('LOAD ERROR: File '..path..' could not be loaded')
+    return ok, nil
   else
     -- will let chunk errors pass through
-    return chunk()
+    return ok, chunk()
   end
 end
 
