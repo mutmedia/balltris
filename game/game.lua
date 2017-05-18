@@ -324,6 +324,7 @@ function Game.setHighScore(score)
     Game.highScore = score
     Game.save()
     Game.newHighScore = true
+    
   end
 end
 

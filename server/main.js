@@ -26,19 +26,22 @@ app.use(async (ctx, next) => {
 app.use(bodyParser());
 
 router.get('/', (ctx) => ctx.body = {hello: 'world'})
+
+router.get('/users', async (ctx, next) => {
+  ctx.body = await db.User.find();
+});
 router.post('/users', async (ctx, next) => {
   const data = ctx.request.body;
   ctx.body = await db.User.insertOne(data);
 });
-router.get('/users/:id', async (ctx, next) => {
-  const id = ctx.params.id;
-  ctx.body = await db.User.findOneById(id);
-});
 
-//router.get('/users', users.all);
-//router.get('/users/:id', users.getSingle);
-router.get('/error/test', async () => {
-  throw Error('Error handling works')
+router.get('/users/:username', async (ctx, next) => {
+  const username = ctx.params.username;
+  ctx.body = await db.User.findOne({username: username});
+});
+router.patch('/users/:username', async (ctx, next) => {
+  const username = ctx.params.username;
+  ctx.body = await db.User.updateOne({username: username}, ctx.request.body);
 });
 
 app.use(router.routes())
