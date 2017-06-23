@@ -73,7 +73,8 @@ STATE_GAME_OVER  = 4 -- When everything ends
 STATE_GAME_PAUSED  = 8 -- When game is paused
 STATE_GAME_LOADING = 16 -- When game is paused
 STATE_GAME_MAINMENU = 32 -- When game in on main menu
-
+STATE_GAME_LEADERBOARD = 64 --when in leaderboard screen
+STATE_GAME_USERNAME = 128 --when in user name input screen 
 -- Layers
 LAYER_BACKGROUND = 'background'
 LAYER_GAME = 'game'

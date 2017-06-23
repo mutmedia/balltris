@@ -14,7 +14,7 @@ function Load.luafile(path)
     return ok, nil
   elseif not chunk then
     print('LOAD ERROR: File '..path..' could not be loaded')
-    return ok, nil
+    return false, nil
   else
     -- will let chunk errors pass through
     return ok, chunk()

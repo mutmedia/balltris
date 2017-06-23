@@ -22,21 +22,31 @@ class Model {
   }
 
   async updateOne(query, update) {
-    const result = await this.db.collection(this.name).updateOne(query, {$set: {update}});
+    const result = await this.db.collection(this.name).updateOne(query, {$set: update});
     if (!result) {
       throw new Error('Db updateOne error for ' + this.name);
     }
     return result;
   }
 
-  async find() {
-    const result = []
-    const cursor = await this.db.collection(this.name).find();
+  async find(query, limit, sort) {
+    const result = [];
+    let cursor = await this.db.collection(this.name).find(query);
+
+    if (sort) {
+      cursor = await cursor.sort(sort)
+    }
+
+    if (limit) {
+      cursor = await cursor.limit(limit);
+    }
+
+    if (!cursor) {
+      throw new Error('Db find error for ' + this.name);
+    }
+
     for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
       result.push(doc);
-    }
-    if (!result) {
-      throw new Error('Db findOneById error for ' + this.name);
     }
     return result;
   }

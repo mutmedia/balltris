@@ -220,11 +220,13 @@ Custom{
 Custom{
   name='balls in game',
   layer=LAYER_GAME,
-  condition =  Not(inGameState(STATE_GAME_LOADING, STATE_GAME_MAINMENU, STATE_GAME_OVER)),
+  condition =  Not(inGameState(STATE_GAME_LOADING, STATE_GAME_MAINMENU, STATE_GAME_OVER, STATE_GAME_LEADERBOARD)),
   turnOffShader= love.graphics.newShader('shaders/turnOffShader.fs'),
   draw=function(self)
     self.turnOffShader:send('time_to_destroy', BALL_TIME_TO_DESTROY)
+    if not Game.objects or not Game.objects.balls then return end
     Game.objects.balls:forEach(function(ball) 
+      --print('lots of balls')
       local center = {ball.body:getX(), ball.body:getY()}
       local radius = ball.radius
       local color = GetBallColor(ball)

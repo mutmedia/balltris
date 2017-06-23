@@ -74,7 +74,6 @@ function love.load()
   love.physics.setMeter(METER)
 
   -- Loading actual stuff
-  Backend.init()
   --[[
   loader = love.thread.newThread('loader.lua')
   dataToLoadChannel = love.thread.getChannel('data_to_load')
@@ -100,7 +99,7 @@ function love.load()
 
   -- Loading UI
   loadtime = love.timer.getTime()
-  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua')
+  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua', 'ui/leaderboard.lua', 'ui/username.lua')
   Game.UI.initialize(NewPalette('content/palette.png'))
   love.graphics.setCanvas(loadingCanvas)
   love.graphics.clear()
@@ -149,6 +148,7 @@ function love.load()
   -- TODO: move to place where game actually starts
   loaded = true
   Game.state = STATE_GAME_MAINMENU
+  Backend.init()
 end
 
 local bv = 0
@@ -258,6 +258,12 @@ function love.update(dt)
   ]]--
 end
 
+function love.textinput(t)
+  print(t)
+  if Game.state ~= STATE_GAME_USERNAME then return end
+  Game.usernameText = Game.usernameText..t
+end
+
 function ComboMultiplier(combo)
   return combo
 end
@@ -285,6 +291,12 @@ end
 
 -- INPUT
 function love.keypressed(key)
+  if Game.state == STATE_GAME_USERNAME then 
+    if key == 'backspace' then
+      Game.usernameText = Game.usernameText:sub(1, -2)
+    end
+    return
+  end
   if Game.state == STATE_GAME_RUNNING then
     if key == INPUT_RELEASE_BALL then
       ReleaseBall() 

@@ -161,6 +161,7 @@ function UI.rectangle(params)
   end
 
   rect.draw = function(self)
+    self.color = (self.getColor and self:getColor()) or self.color
     if self.color then
       UI.setColor(self.color, self.visibility)
       love.graphics.rectangle(
@@ -195,10 +196,11 @@ function UI.text(params)
   end
 
   text.draw = function(self)
+    self.color = (self.getColor and self:getColor()) or self.color
     UI.setColor(self.color, self.visibility)
     love.graphics.setFont(self.font)
     love.graphics.printf(
-      self.getText(),
+      self:getText(),
       self.x - (self.width/2) * (1 - self.anchor.x),
       self.y - (self.font:getHeight()/2) * (1 - self.anchor.y),
       self.width,
@@ -225,6 +227,7 @@ function UI.button(params)
   end
 
   btn.draw = function(self)
+    self.color = (self.getColor and self:getColor()) or self.color
     if self.color then
       UI.setColor(self.color, self.visibility)
       love.graphics.rectangle(
@@ -250,7 +253,7 @@ function UI.button(params)
     UI.setColor(self.textColor, self.visibility)
     love.graphics.setFont(self.font)
     love.graphics.printf(
-      self.getText(),
+      self:getText(),
       self.x - (self.width/2) * (1 - self.anchor.x),
       self.y - (self.font:getHeight()/2) * (1 - self.anchor.y),
       self.width,

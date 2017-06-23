@@ -7,6 +7,8 @@ local SaveSystem = require 'savesystem'
 
 local Balls = require 'balls'
 
+local Backend = require 'backend'
+
 Game = {}
 Game.UI = require 'ui'
 Game.events = require 'lib/events'
@@ -26,6 +28,8 @@ Game.comboNumbers = nil
 
 Game.timeScale = TIME_SCALE_REGULAR
 Game.startTime = love.timer.getTime()
+
+Game.usernameText = 'name'
 
 -- Initialize game
 
@@ -195,7 +199,7 @@ function Game.update(dt)
 
   -- NOTE: this might break
   Game.totalTime = Game.totalTime + dt
-  if not Game.inState(STATE_GAME_LOADING, STATE_GAME_MAINMENU, STATE_GAME_OVER) then
+  if Game.inState(STATE_GAME_RUNNING, STATE_GAME_LOST, STATE_GAME_PAUSED) then
     -- To prevent spiral of death
     accumulator = accumulator + dt
     if accumulator > MAX_DT_ACC then
@@ -324,7 +328,7 @@ function Game.setHighScore(score)
     Game.highScore = score
     Game.save()
     Game.newHighScore = true
-    
+    Backend.sendScore(Game.highScore)
   end
 end
 

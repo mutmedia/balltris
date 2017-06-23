@@ -43,6 +43,9 @@ router.patch('/users/:username', async (ctx, next) => {
   const username = ctx.params.username;
   ctx.body = await db.User.updateOne({username: username}, ctx.request.body);
 });
+router.get('/top10', async (ctx, next) => {
+  ctx.body = await db.User.find(null, 10, {score: -1});
+});
 
 app.use(router.routes())
 
