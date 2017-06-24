@@ -55,6 +55,7 @@ TIME_SCALE_SLOMO = 0.1
 -- Minimum value definitions
 FRAMES_TO_STATIC = 20
 MIN_SPEED = 5
+COMBO_TIMEOUT = 2 -- seconds
 
 -- Collision
 COL_MAIN_CATEGORY = 1
@@ -107,5 +108,6 @@ EVENT_COMBO_START = 'combostarted'
 EVENT_COMBO_END = 'comboended'
 EVENT_SCORED = 'scored'
 EVENT_NEW_BALL = 'newball'
+EVENT_COMBO_TIMEOUT = 'timeout'
 
 

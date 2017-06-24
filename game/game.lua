@@ -1,6 +1,7 @@
 local Scheduler = require 'lib/scheduler'
 local List = require 'lib/doubly_linked_list'
 local Queue = require 'lib/queue'
+local Stack = require 'lib/stack'
 local RandomBag = require 'lib/randombag'
 local Vector = require 'lib/vector2d'
 local SaveSystem = require 'savesystem'
@@ -117,6 +118,7 @@ function Game.start(loadGame)
   Game.totalSpeedQueue = Queue.new()
   Game.meanSpeed = 0
   Game.lastMeanSpeed = 0
+  Game.timeSinceLastCombo = 0
   Game.comboNumbers = Queue.new()
   --
   -- End of information that can be saved
@@ -147,17 +149,23 @@ function Game.start(loadGame)
     Game.events.schedule(EVENT_NEW_BALL, function()
       SaveSystem.save(Game)
     end)
-    Game.onBallsStatic()
+    Game.validateHeight()
     if Game.combo > 0 then
       Game.events.fire(EVENT_COMBO_END)
-      Game.combo = 0
     end
+  end)
+  Game.events.add(EVENT_COMBO_TIMEOUT, function()
+    --Game.validateHeight()
+    --Game.events.fire(EVENT_COMBO_END)
+    --Game.comboNumbers:pop()
+    --Game.combo = Game.combo - 1
   end)
   Game.events.add(EVENT_SAFE_TO_DROP, function()
     Game.GetNextBall()
   end)
   Game.events.add(EVENT_BALLS_TOO_HIGH, Game.lose)
   Game.events.add(EVENT_SCORED, function() 
+    Game.timeSinceLastCombo = 0
     if Game.combo >= Game.comboObjective and not Game.comboObjectiveCleared then
       Game.clearWhiteBalls()
       Game.comboObjectiveCleared = true
@@ -170,12 +178,14 @@ function Game.start(loadGame)
       Game.comboObjectiveCleared = false
     end
     Game.comboNumbers = Queue.new()
+    Game.combo = 0
   end)
 
   Game.state = STATE_GAME_RUNNING
 end
 
 Game.staticFrameCount = 0
+Game.timeSinceLastCombo = 0
 Game.totalTime = 0
 
 Game.raycastHit = nil
@@ -262,6 +272,7 @@ function Game.update(dt)
       Game.lastMeanSpeed = Game.meanSpeed
 
 
+
       if Game.lastDroppedBall then
         if Game.lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + Game.lastDroppedBall.radius or Game.lastDroppedBall.destroyed then
           Game.events.fire(EVENT_SAFE_TO_DROP)
@@ -273,6 +284,13 @@ function Game.update(dt)
 
       accumulator = accumulator - FIXED_DT
     end
+
+    if Game.timeSinceLastCombo > COMBO_TIMEOUT then
+      Game.events.fire(EVENT_COMBO_TIMEOUT)
+      Game.timeSinceLastCombo = 0
+    end
+
+    Game.timeSinceLastCombo = Game.timeSinceLastCombo + dt
   end
 end
 
@@ -290,7 +308,7 @@ function Game.inState(...)
   return false
 end
 
-function Game.onBallsStatic()
+function Game.validateHeight()
   local ballsTooHigh = false
   Game.objects.balls:forEach(function(ball)
     if not ball.inGame then return end
