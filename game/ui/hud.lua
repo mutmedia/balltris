@@ -111,6 +111,32 @@ Text{
   end,
 }
 
+Custom{
+  name='combo thermometer',
+  layer=LAYER_HUD,
+  condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
+  --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
+  x=BORDER_THICKNESS/2,
+  y=18*UI_HEIGHT_UNIT,
+  radius=UI_HEIGHT_UNIT,
+  lineWidth=5,
+  draw=function(self)
+    local angle = math.pi * Game.comboTimeLeft / MAX_COMBO_TIMEOUT
+    local color = COLOR_RED
+    if angle > 2*math.pi/3 then
+      color = COLOR_GREEN
+    elseif angle > math.pi/3 then
+      color = COLOR_YELLOW
+    end
+    UI.setColor(color)
+    love.graphics.arc('fill', self.x, self.y, self.radius, 0, -angle)
+    love.graphics.setLineWidth(self.lineWidth)
+    UI.setColor(COLOR_WHITE)
+    love.graphics.arc('line', self.x, self.y + self.lineWidth/2, self.radius + self.lineWidth/2, 0, -math.pi)
+  end,
+}
+
+--[[
 Text{
   name='speed',
   layer=LAYER_HUD,
@@ -125,6 +151,7 @@ Text{
     return 'Speed: '..Game.meanSpeed
   end,
 }
+]]--
 
 -- Container
 --[[Rectangle{

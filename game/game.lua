@@ -151,17 +151,20 @@ function Game.start(loadGame)
     end)
     Game.validateHeight()
     if Game.combo > 0 then
-      Game.events.fire(EVENT_COMBO_END)
+      --Game.events.fire(EVENT_COMBO_END)
     end
   end)
   Game.events.add(EVENT_COMBO_TIMEOUT, function()
     --Game.validateHeight()
-    --Game.events.fire(EVENT_COMBO_END)
+    Game.events.fire(EVENT_COMBO_END)
     --Game.comboNumbers:pop()
     --Game.combo = Game.combo - 1
   end)
   Game.events.add(EVENT_SAFE_TO_DROP, function()
     Game.GetNextBall()
+  end)
+  Game.events.add(EVENT_NEW_BALL_INGAME, function()
+    Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
   end)
   Game.events.add(EVENT_BALLS_TOO_HIGH, Game.lose)
   Game.events.add(EVENT_SCORED, function() 
@@ -186,6 +189,7 @@ end
 
 Game.staticFrameCount = 0
 Game.timeSinceLastCombo = 0
+Game.comboTimeLeft = 0
 Game.totalTime = 0
 
 Game.raycastHit = nil
@@ -247,7 +251,7 @@ function Game.update(dt)
           Game.objects.balls:SetToDelete(ball)
         end
 
-        if ball.inGame then
+        if ball:isInGame() then
           local x, y = ball.body:getLinearVelocity()
           totalSpeed = totalSpeed + math.sqrt(x*x + y*y)
         end
@@ -271,8 +275,6 @@ function Game.update(dt)
 
       Game.lastMeanSpeed = Game.meanSpeed
 
-
-
       if Game.lastDroppedBall then
         if Game.lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + Game.lastDroppedBall.radius or Game.lastDroppedBall.destroyed then
           Game.events.fire(EVENT_SAFE_TO_DROP)
@@ -282,15 +284,24 @@ function Game.update(dt)
 
       Game.objects.balls:Clean()
 
+      Game.comboTimeLeft = math.max(Game.comboTimeLeft - FIXED_DT, 0)
+      Game.timeSinceLastCombo = math.max(Game.timeSinceLastCombo + FIXED_DT, 0)
+
+      --[[
+      if Game.timeSinceLastCombo > COMBO_TIMEOUT then
+        Game.events.fire(EVENT_COMBO_TIMEOUT)
+        Game.timeSinceLastCombo = 0
+      end
+      ]]--
+
+      if Game.comboTimeLeft <= 0 then
+        Game.events.fire(EVENT_COMBO_TIMEOUT)
+      end
+
+
+
       accumulator = accumulator - FIXED_DT
     end
-
-    if Game.timeSinceLastCombo > COMBO_TIMEOUT then
-      Game.events.fire(EVENT_COMBO_TIMEOUT)
-      Game.timeSinceLastCombo = 0
-    end
-
-    Game.timeSinceLastCombo = Game.timeSinceLastCombo + dt
   end
 end
 
@@ -311,7 +322,7 @@ end
 function Game.validateHeight()
   local ballsTooHigh = false
   Game.objects.balls:forEach(function(ball)
-    if not ball.inGame then return end
+    if not ball:isInGame() then return end
     if ball.body:getY() < MIN_DISTANCE_TO_TOP + ball.radius then
       ballsTooHigh = true
     end
@@ -372,6 +383,9 @@ end
 
 function Game.ReleaseBall()
   if not Game.objects.ballPreview then return end
+  Game.objects.ballPreview.enterGameCallback = function()
+    Game.events.fire(EVENT_NEW_BALL_INGAME)
+  end
   local newBall = Balls.newBall(Game.objects.ballPreview, Game.world)
   Game.objects.balls:add(newBall)
 
@@ -400,7 +414,7 @@ function Game.GetNextBall()
 end
 
 function Game.ScheduleBallDestruction(ball)
-  ball.inGame = false
+  ball:toggleInGame()
   ball.timeDestroyed = Game.totalTime
   Scheduler.add(function()
     Game.DestroyBall(ball)

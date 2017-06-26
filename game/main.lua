@@ -272,8 +272,8 @@ end
 function beginContact(a, b, coll)
   local aref = a:getUserData() and a:getUserData().ref
   local bref = b:getUserData() and b:getUserData().ref
-  if aref then aref.inGame = true end
-  if bref then bref.inGame = true end
+  if aref then aref:toggleInGame() end
+  if bref then bref:toggleInGame() end
   if not aref or not bref then return end
 
   if aref.indestructible or bref.indestructible then return end

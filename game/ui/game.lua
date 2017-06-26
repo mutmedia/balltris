@@ -32,9 +32,9 @@ Rectangle{
 }
 FRENZY_SPEED = 1000
 Custom{
-  name='combo pit',
+  name='combo pit color fill',
   layer=LAYER_BACKGROUND,
-  condition=True(),
+  --condition=True(),
   condition=inGameState(STATE_GAME_RUNNING),
   initialPosition=0,
   frenzyTime=-1,

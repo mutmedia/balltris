@@ -23,10 +23,33 @@ function Balls.NewList()
 end
 
 local Ball = {}
+
 function Ball.new(ballData, world)
   local newBall = ballData
 
-  newBall.inGame = false
+  newBall._inGame = false
+  -- Change toggle to enter exit?
+  newBall._toggleInGameCoroutine = coroutine.create(function()
+    if not newBall._inGame then
+      newBall._inGame = true
+      newBall:enterGameCallback()
+      coroutine.yield()
+    end
+
+    if newBall._inGame then
+      newBall._inGame = false
+      coroutine.yield()
+    end
+  end)
+
+  newBall.toggleInGame = function(self)
+    coroutine.resume(self._toggleInGameCoroutine)
+  end
+
+  newBall.isInGame = function(self)
+    return self._inGame
+  end
+
   newBall.body = love.physics.newBody(world, ballData.position.x, ballData.position.y, 'dynamic')
   newBall.body:setFixedRotation(false)
   newBall.shape = love.physics.newCircleShape(ballData.radius)
