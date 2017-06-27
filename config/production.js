@@ -1,5 +1,5 @@
 module.exports = {
-  port: 8080,
+  port: process.env.PORT,
   db: {
     url: process.env.MONGODB_URI,
   }
