@@ -48,10 +48,10 @@ function WithFade(uielem)
   end
 end
 
-Rectangle = WithFade(UI.rectangle)
-Text = WithFade(UI.text)
-Button = WithFade(UI.button)
-Custom = WithFade(UI.object)
+Rectangle = (UI.rectangle)
+Text = (UI.text)
+Button = (UI.button)
+Custom = (UI.object)
 
 --local DEBUG_UI = true
 

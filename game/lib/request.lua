@@ -22,10 +22,11 @@ function DoRequest(request)
 
   -- TODO: use code to check for errors
   print('code:', code)
+  print('response_headers:', response_headers)
   if code ~= 200 and code ~= 209 then
     local body = table.concat(response_body)
     print(body)
-    return false, nil
+    return false, code
   end
 
   local body = table.concat(response_body)

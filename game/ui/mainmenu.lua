@@ -98,4 +98,28 @@ Button{
     Game.state = STATE_GAME_LEADERBOARD
   end,
 }
+
+Button{
+  name='options button',
+  layer=LAYER_MENUS,
+  condition=And(
+    inGameState(STATE_GAME_MAINMENU),
+    function() return SaveSystem.CreateLoadFunc or false end),
+  x=BASE_SCREEN_WIDTH/2,
+  y=32*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.8,
+  height=2*UI_HEIGHT_UNIT,
+  color=0,
+  lineColor=1,
+  lineWidth=3,
+  font=FONT_MD,
+  textColor=1,
+  getText = function() 
+    return 'Options'
+  end,
+  onPress = function(self, x, y)
+    Game.state = STATE_GAME_OPTIONS
+  end,
+}
+
   

@@ -56,7 +56,7 @@ TIME_SCALE_SLOMO = 0.1
 FRAMES_TO_STATIC = 20
 MIN_SPEED = 5
 COMBO_TIMEOUT = 2 -- seconds
-NEW_BALL_COMBO_INCREMENT = 0.2 * TIME_SCALE_REGULAR -- seconds
+NEW_BALL_COMBO_INCREMENT = 0.4 * TIME_SCALE_REGULAR -- seconds
 MAX_COMBO_TIMEOUT = 1 
 
 -- Collision
@@ -78,6 +78,8 @@ STATE_GAME_LOADING = 16 -- When game is paused
 STATE_GAME_MAINMENU = 32 -- When game in on main menu
 STATE_GAME_LEADERBOARD = 64 --when in leaderboard screen
 STATE_GAME_USERNAME = 128 --when in user name input screen 
+STATE_GAME_OFFLINE_CONFIRMATION = 256 --when asking for confirmation to play offline
+STATE_GAME_OPTIONS = 512 --main menu options
 -- Layers
 LAYER_BACKGROUND = 'background'
 LAYER_GAME = 'game'

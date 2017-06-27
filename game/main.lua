@@ -99,7 +99,7 @@ function love.load()
 
   -- Loading UI
   loadtime = love.timer.getTime()
-  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua', 'ui/leaderboard.lua', 'ui/username.lua')
+  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua', 'ui/leaderboard.lua', 'ui/username.lua', 'ui/options.lua')
   Game.UI.initialize(NewPalette('content/palette.png'))
   love.graphics.setCanvas(loadingCanvas)
   love.graphics.clear()
@@ -272,9 +272,17 @@ end
 function beginContact(a, b, coll)
   local aref = a:getUserData() and a:getUserData().ref
   local bref = b:getUserData() and b:getUserData().ref
-  if aref then aref:toggleInGame() end
-  if bref then bref:toggleInGame() end
+  if aref then 
+    if aref.isWall then return end
+    aref:toggleInGame()
+  end
+  if bref then 
+    if bref.isWall then return end
+    bref:toggleInGame()
+  end
   if not aref or not bref then return end
+
+  Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
 
   if aref.indestructible or bref.indestructible then return end
   if aref.number == bref.number then
@@ -336,11 +344,19 @@ function love.keypressed(key)
   end
 
   if key == 'r' then
-    Game.objects.balls:Clear()
+    --[[
     Game.state = STATE_GAME_RUNNING
-    Game.objects.ballPreview = Balls.NewBallPreview()
-    Game.objects.nextBallPreviews:Clear()
-    Game.objects.nextBallPreviews:enqueue(Balls.NewBallPreview())
+    if Game.objects then 
+      Game.objects.ballPreview = Balls.NewBallPreview()
+      if Game.objects.nextBallPreviews then
+        Game.objects.nextBallPreviews:Clear()
+        Game.objects.nextBallPreviews:enqueue(Balls.NewBallPreview())
+      end
+      if Game.objects.balls then
+        Game.objects.balls:Clear()
+      end
+    end
+    --]]
   end
 
   if key == 'b' then

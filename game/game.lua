@@ -15,6 +15,7 @@ Game.UI = require 'ui'
 Game.events = require 'lib/events'
 
 Game.objects = {}
+Game.isOffline = true
 Game.state = 0
 Game.world = nil
 
@@ -79,12 +80,22 @@ function Game.start(loadGame)
   Game.objects.wallL.shape = love.physics.newRectangleShape(BORDER_THICKNESS, BASE_SCREEN_HEIGHT)
   Game.objects.wallL.fixture = love.physics.newFixture(Game.objects.wallL.body, Game.objects.wallL.shape)
   Game.objects.wallL.fixture:setCategory(COL_MAIN_CATEGORY)
+  Game.objects.wallL.fixture:setUserData({
+      ref = {
+        isWall = true
+      }
+    })
 
   Game.objects.wallR = {}
   Game.objects.wallR.body = love.physics.newBody(Game.world, BORDER_THICKNESS/2, BASE_SCREEN_HEIGHT/2)
   Game.objects.wallR.shape = love.physics.newRectangleShape(BORDER_THICKNESS, BASE_SCREEN_HEIGHT)
   Game.objects.wallR.fixture = love.physics.newFixture(Game.objects.wallR.body, Game.objects.wallR.shape)
   Game.objects.wallR.fixture:setCategory(COL_MAIN_CATEGORY)
+  Game.objects.wallR.fixture:setUserData({
+      ref = {
+        isWall = true
+      }
+    })
 
   -- TODO: save this later
   Game.comboObjective = 5
@@ -119,6 +130,7 @@ function Game.start(loadGame)
   Game.meanSpeed = 0
   Game.lastMeanSpeed = 0
   Game.timeSinceLastCombo = 0
+  Game.comboTimeLeft = 0
   Game.comboNumbers = Queue.new()
   --
   -- End of information that can be saved
@@ -149,13 +161,17 @@ function Game.start(loadGame)
     Game.events.schedule(EVENT_NEW_BALL, function()
       SaveSystem.save(Game)
     end)
-    Game.validateHeight()
+    --Game.validateHeight()
     if Game.combo > 0 then
       --Game.events.fire(EVENT_COMBO_END)
     end
   end)
   Game.events.add(EVENT_COMBO_TIMEOUT, function()
     --Game.validateHeight()
+    Game.events.schedule(EVENT_NEW_BALL, function()
+      SaveSystem.save(Game)
+    end)
+    Game.validateHeight()
     Game.events.fire(EVENT_COMBO_END)
     --Game.comboNumbers:pop()
     --Game.combo = Game.combo - 1
@@ -164,7 +180,7 @@ function Game.start(loadGame)
     Game.GetNextBall()
   end)
   Game.events.add(EVENT_NEW_BALL_INGAME, function()
-    Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
+    --Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
   end)
   Game.events.add(EVENT_BALLS_TOO_HIGH, Game.lose)
   Game.events.add(EVENT_SCORED, function() 
@@ -175,6 +191,7 @@ function Game.start(loadGame)
     end
   end)
   Game.events.add(EVENT_COMBO_END, function()
+    if Game.combo <= 0 then return end
     if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
     if Game.combo >= Game.comboObjective then
       Game.comboObjective = Game.comboObjective + 5
@@ -234,11 +251,11 @@ function Game.update(dt)
         return 1
       end
 
-      Game.world:rayCast(Game.objects.ballPreview.position.x,
-        Game.objects.ballPreview.position.y,
-        Game.objects.ballPreview.position.x,
-        Game.objects.ballPreview.position.y + BASE_SCREEN_HEIGHT,
-        previewRaycastCallback)
+        Game.world:rayCast(Game.objects.ballPreview.position.x,
+          Game.objects.ballPreview.position.y,
+          Game.objects.ballPreview.position.x,
+          Game.objects.ballPreview.position.y + BASE_SCREEN_HEIGHT,
+          previewRaycastCallback)
     end
 
 

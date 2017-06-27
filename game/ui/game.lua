@@ -137,7 +137,7 @@ Custom{
 Rectangle{
   name='inner visible pit',
   layer=LAYER_BACKGROUND,
-  condition=True(),
+  condition=Not(inGameState(STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION)),
   lineColor=1,
   lineWidth=BALL_LINE_WIDTH_IN,
   x=BASE_SCREEN_WIDTH/2,
@@ -149,7 +149,7 @@ Rectangle{
 Rectangle{
   name='outer visible pit',
   layer=LAYER_BACKGROUND,
-  condition=True(),
+  condition=Not(inGameState(STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION)),
   lineColor=1,
   lineWidth=BALL_LINE_WIDTH_OUT,
   x=BASE_SCREEN_WIDTH/2,
@@ -161,7 +161,7 @@ Rectangle{
 Rectangle{
   name='limitline',
   layer=LAYER_HUD,
-  condition=Not(inGameState(STATE_GAME_LOADING)),
+  condition=Not(inGameState(STATE_GAME_LOADING, STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION)),
   x=BASE_SCREEN_WIDTH/2,
   y=MIN_DISTANCE_TO_TOP,
   width=HOLE_WIDTH,

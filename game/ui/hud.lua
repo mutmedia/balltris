@@ -1,4 +1,5 @@
 require 'ui/base'
+local Backend = require 'backend'
 
 Text{
   name='loading',
@@ -11,6 +12,20 @@ Text{
   width=1000,
   getText = function()
     return 'Loading...'
+  end,
+}
+
+Text{
+  name='offline',
+  layer=LAYER_HUD,
+  condition=function() return Backend.isOffline end,
+  x=BORDER_THICKNESS/2,
+  y=-UI_HEIGHT_UNIT,
+  font=FONT_SM,
+  color=COLOR_RED,
+  width=1000,
+  getText = function()
+    return 'offline'
   end,
 }
 
@@ -99,7 +114,7 @@ Text{
 Text{
   name='combo objective',
   layer=LAYER_HUD,
-  condition = True(),
+  condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
   --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
   y=15*UI_HEIGHT_UNIT,

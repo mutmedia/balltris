@@ -7,7 +7,13 @@ local BACKEND_PATH = 'http://localhost:1234'
 
 local Backend = {}
 
+local print = function(str)
+  print('BACKEND: '..str)
+end
+
 function Backend.init()
+  Backend.isOffline = true
+
   local ok, userData = Load.luafile(USER_DATA_FILE_PATH)
   if not ok then 
     print('No user set')
@@ -20,16 +26,20 @@ end
 function Backend.tryCreateUser(username)
   local exists, _ = Request.get(BACKEND_PATH..'/users/'..username)
   if exists then
-    print('existing username')
-    return false
+    return false, 'Username already exists'
   else
-    local _, response = Request.post(BACKEND_PATH..'/users', {
+    local success, response = Request.post(BACKEND_PATH..'/users', {
         username=username,
         score=0,
       })
-    print('Created new user:', json.encode(response))
-    Backend.setUser({username=username, score=0})
-    return true
+    if success then 
+      print('Created new user:', json.encode(response))
+      Backend.setUser({username=username, score=0})
+      return true, 'Created new user'
+    else
+      print('Error creating new user')
+      return false, response
+    end
   end
 end
 
@@ -38,6 +48,7 @@ function Backend.setUser(userData)
     print(k, v)
   end
   Backend.userData = userData
+    Backend.isOffline = false
 end
 
 function Backend.sendScore(score)
