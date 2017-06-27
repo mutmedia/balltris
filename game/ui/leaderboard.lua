@@ -4,7 +4,7 @@ local Backend = require 'backend'
 Text{
   name='leaderboard title',
   layer=LAYER_MENUS,
-  condition=inGameState(STATE_GAME_LEADERBOARD),
+  condition=inGameState(STATE_GAME_LEADERBOARD, STATE_GAME_LEADERBOARD_LOADING),
   x=BASE_SCREEN_WIDTH/2,
   y=2*UI_HEIGHT_UNIT,
   font=FONT_MD,
@@ -15,6 +15,19 @@ Text{
   end,
 }
 
+Text{
+  name='Loading Leaderboard',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_LEADERBOARD_LOADING),
+  x=BASE_SCREEN_WIDTH/2,
+  y=6*UI_HEIGHT_UNIT,
+  font=FONT_SM,
+  color=COLOR_PINK,
+  width=HOLE_WIDTH,
+  getText= function()
+    return 'Loading...'
+  end,
+}
 
 for i=1,10 do
   Text{
@@ -26,9 +39,8 @@ for i=1,10 do
     font=FONT_SM,
     getColor=function(self)
       return Backend.top10Data[i].username == Backend.userData.username and
-        6 or 5
+      COLOR_GREEN or COLOR_BLUE
     end,
-    color=5,
     width=HOLE_WIDTH,
     getText= function()
       local user = Backend.top10Data[i]
@@ -40,7 +52,7 @@ end
 Button{
   name='back',
   layer=LAYER_MENUS,
-  condition=inGameState(STATE_GAME_LEADERBOARD),
+  condition=inGameState(STATE_GAME_LEADERBOARD, STATE_GAME_LEADERBOARD_LOADING),
   x=BASE_SCREEN_WIDTH/2,
   y=28*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,

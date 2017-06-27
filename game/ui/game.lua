@@ -137,7 +137,7 @@ Custom{
 Rectangle{
   name='inner visible pit',
   layer=LAYER_BACKGROUND,
-  condition=Not(inGameState(STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION)),
+  condition=Not(inGameState(STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION, STATE_GAME_USERNAME_LOADING)),
   lineColor=1,
   lineWidth=BALL_LINE_WIDTH_IN,
   x=BASE_SCREEN_WIDTH/2,
@@ -149,7 +149,7 @@ Rectangle{
 Rectangle{
   name='outer visible pit',
   layer=LAYER_BACKGROUND,
-  condition=Not(inGameState(STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION)),
+  condition=Not(inGameState(STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION, STATE_GAME_USERNAME_LOADING)),
   lineColor=1,
   lineWidth=BALL_LINE_WIDTH_OUT,
   x=BASE_SCREEN_WIDTH/2,
@@ -161,7 +161,7 @@ Rectangle{
 Rectangle{
   name='limitline',
   layer=LAYER_HUD,
-  condition=Not(inGameState(STATE_GAME_LOADING, STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION)),
+  condition=Not(inGameState(STATE_GAME_LOADING, STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION, STATE_GAME_USERNAME_LOADING)),
   x=BASE_SCREEN_WIDTH/2,
   y=MIN_DISTANCE_TO_TOP,
   width=HOLE_WIDTH,
@@ -222,7 +222,7 @@ Custom{
 Custom{
   name='balls in game',
   layer=LAYER_GAME,
-  condition =  Not(inGameState(STATE_GAME_LOADING, STATE_GAME_MAINMENU, STATE_GAME_OVER, STATE_GAME_LEADERBOARD)),
+  condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_LOST, STATE_GAME_OVER, STATE_GAME_PAUSED),
   turnOffShader= love.graphics.newShader('shaders/turnOffShader.fs'),
   draw=function(self)
     self.turnOffShader:send('time_to_destroy', BALL_TIME_TO_DESTROY)

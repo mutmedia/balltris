@@ -147,6 +147,7 @@ function love.load()
 
   -- TODO: move to place where game actually starts
   loaded = true
+  love.keyboard.setTextInput(false)
   Game.state = STATE_GAME_MAINMENU
   Backend.init()
 end
@@ -303,8 +304,10 @@ function love.keypressed(key)
     if key == 'backspace' then
       Game.usernameText = Game.usernameText:sub(1, -2)
     end
-    return
   end
+
+  if love.keyboard.hasTextInput() then return end
+
   if Game.state == STATE_GAME_RUNNING then
     if key == INPUT_RELEASE_BALL then
       ReleaseBall() 

@@ -365,6 +365,7 @@ end
 
 function Game.gameOver()
   Game.setHighScore(Game.score)
+  Backend.sendScore(Game.highScore)
   Game.state = STATE_GAME_OVER
   SaveSystem.clearSave()
 end
@@ -374,7 +375,6 @@ function Game.setHighScore(score)
     Game.highScore = score
     Game.save()
     Game.newHighScore = true
-    Backend.sendScore(Game.highScore)
   end
 end
 

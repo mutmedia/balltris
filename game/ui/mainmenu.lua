@@ -1,6 +1,7 @@
 require 'ui/base'
 local SaveSystem = require 'savesystem'
 local Backend = require 'backend'
+local Scheduler = require 'lib/scheduler'
 
 Text{
   name='subtitle',
@@ -94,8 +95,11 @@ Button{
     return 'Top 10'
   end,
   onPress = function(self, x, y)
-    Backend.getTopPlayers()
-    Game.state = STATE_GAME_LEADERBOARD
+    Game.state = STATE_GAME_LEADERBOARD_LOADING
+    Scheduler.add(function() 
+      Backend.getTopPlayers()
+      Game.state = STATE_GAME_LEADERBOARD
+    end, 0.1)
   end,
 }
 

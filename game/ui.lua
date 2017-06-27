@@ -191,7 +191,7 @@ end
 function UI.text(params)
   local text = params
 
-  if not text.color then
+  if not text.color and not text.getColor then
     print(string.format('UI ERROR: Object %s has no text color', text.name or 'unnamed'))
   end
 
@@ -218,7 +218,7 @@ end
 function UI.button(params)
   local btn = params
 
-  if not btn.textColor then
+  if (btn.text or btn.getText) and not btn.textColor then
     print(string.format('UI ERROR: Object %s has no text color', btn.name or 'unnamed'))
   end
 
@@ -227,6 +227,7 @@ function UI.button(params)
   end
 
   btn.draw = function(self)
+    --TODO: make getXXX for everything
     self.color = (self.getColor and self:getColor()) or self.color
     if self.color then
       UI.setColor(self.color, self.visibility)

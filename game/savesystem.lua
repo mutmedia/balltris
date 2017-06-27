@@ -132,7 +132,7 @@ return rawGame
   local saveconcat = table.concat(savestring)
   --print(saveconcat)
 
-  file, errorstr = love.filesystem.newFile(SAVE_PATH, 'w') 
+  local file, errorstr = love.filesystem.newFile(SAVE_PATH, 'w') 
   if errorstr then 
     print('SAVE SYSTEM ERROR: '..errorstr)
     return 

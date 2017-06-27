@@ -80,6 +80,8 @@ STATE_GAME_LEADERBOARD = 64 --when in leaderboard screen
 STATE_GAME_USERNAME = 128 --when in user name input screen 
 STATE_GAME_OFFLINE_CONFIRMATION = 256 --when asking for confirmation to play offline
 STATE_GAME_OPTIONS = 512 --main menu options
+STATE_GAME_LEADERBOARD_LOADING = 1024 --when in leaderboard screen loading
+STATE_GAME_USERNAME_LOADING = 2048 --when in user name input screen loading
 -- Layers
 LAYER_BACKGROUND = 'background'
 LAYER_GAME = 'game'

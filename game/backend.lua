@@ -3,12 +3,14 @@ local Request = require 'lib/request'
 local Load = require 'lib/load'
 
 local USER_DATA_FILE_PATH = 'user_data.lua'
-local BACKEND_PATH = 'http://localhost:1234'
+--local BACKEND_PATH = 'http://localhost:1234'
+local BACKEND_PATH = 'https://balltris.herokuapp.com'
+
 
 local Backend = {}
 
 local print = function(str)
-  print('BACKEND: '..str)
+  print('BACKEND: '..(str or ''))
 end
 
 function Backend.init()
@@ -34,7 +36,9 @@ function Backend.tryCreateUser(username)
       })
     if success then 
       print('Created new user:', json.encode(response))
-      Backend.setUser({username=username, score=0})
+      local userData = {username=username, score=0} 
+      Backend.setUser(userData)
+      SaveUserDataToFile(userData)
       return true, 'Created new user'
     else
       print('Error creating new user')
@@ -43,15 +47,36 @@ function Backend.tryCreateUser(username)
   end
 end
 
+function SaveUserDataToFile(userData)
+  local userDataFile = string.format([[
+  return {
+    username='%s',
+    score=%d,
+    }
+  ]], userData.username, userData.score)
+
+  local file, errorstr = love.filesystem.newFile(USER_DATA_FILE_PATH, 'w') 
+  if errorstr then 
+    print('SAVE USER ERROR: '..errorstr)
+    return 
+  end
+
+  local s, err = file:write(userDataFile)
+  if err then
+    print('SAVE USER ERROR: '..err)
+  end
+end
+
 function Backend.setUser(userData)
   for k, v in pairs(userData) do
     print(k, v)
   end
   Backend.userData = userData
-    Backend.isOffline = false
+  Backend.isOffline = false
 end
 
 function Backend.sendScore(score)
+  if Backend.isOffline then return end
   print('Sending score')
   local data = {
     username=Backend.userData.username,
