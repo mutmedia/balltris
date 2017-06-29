@@ -1,3 +1,6 @@
+Achievements
+============
+
 - Throw N balls in a game
 - Get to a certain combo objective
 - Get a combo of N
