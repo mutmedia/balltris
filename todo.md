@@ -2,7 +2,7 @@ MVP
 ====
 - [ ] Finish very basic high score
 - [ ] Finish basic effects
-- [ ] Add combo ending widget
+- [x] Add combo ending widget
   - [ ] Change game behaviour
 
 - [ ] Open to more playtesters
@@ -21,10 +21,13 @@ Effects:
 
 High score
 ----------
-
 - [ ] Make it more arcade like
 - [ ] Add scores close to player
 - [ ] Save name after each new high score (?)
+
+Combo
+-----
+- [ ] Balance combo system (make it more predictable and harder)
 
 DEBUG STUFF / TOOLS
 -------------------
