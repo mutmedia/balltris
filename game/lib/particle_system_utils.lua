@@ -1,17 +1,31 @@
 local ParticleSystemUtils = {}
 local Vector = require 'lib/vector2d'
 
-function ParticleSystemUtils.RGBGradient(initialColor, finalColor)
-  return function(k)
-    local mix = {
-      (1-k) * initialColor[1] + k * finalColor[1],
-      (1-k) * initialColor[2] + k * finalColor[2],
-      (1-k) * initialColor[3] + k * finalColor[3],
+
+function MixColors(color1, color2, k)
+local mix = {
+      (1-k) * color1[1] + k * color2[1],
+      (1-k) * color1[2] + k * color2[2],
+      (1-k) * color1[3] + k * color2[3],
     }
-    if initialColor[4] and finalColor[4] then
-      mix[4] = (1-k) * initialColor[4] + k * finalColor[4]
+    if color1[4] and color2[4] then
+      mix[4] = (1-k) * color1[4] + k * color2[4]
     end
     return mix
+  end
+
+
+function ParticleSystemUtils.RGBGradient(initialColor, finalColor)
+  return function(k)
+    return MixColors(initialColor, finalColor, k)
+  end
+end
+
+function ParticleSystemUtils.MultiRGBGradient(n, colors)
+  return function(k)
+    local i = math.floor(k * (n-1)) + 1
+    local k2 = (k*(n-1) - (i - 1))
+    return MixColors(colors[i], colors[i+1], k2)
   end
 end
 

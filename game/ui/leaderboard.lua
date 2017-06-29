@@ -11,7 +11,7 @@ Text{
   color=4,
   width=HOLE_WIDTH*1.4,
   getText= function()
-    return 'TOP PLAYERS'
+    return 'top players'
   end,
 }
 
@@ -25,7 +25,7 @@ Text{
   color=COLOR_PINK,
   width=HOLE_WIDTH,
   getText= function()
-    return 'Loading...'
+    return 'loading...'
   end,
 }
 
@@ -63,7 +63,7 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'Back'
+    return 'back'
   end,
   onPress = function(self, x, y)
     Game.state = STATE_GAME_MAINMENU

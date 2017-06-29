@@ -75,25 +75,76 @@ function Ball.New(ballData, world)
 
   newBall.startDeathParticleSystem = function()
     local ballPos = newBall:getPosition()
+    local particleColor = UI.GetColor(newBall:getColor())
+    particleColor[1] = particleColor[1] * 2.0
+    particleColor[2] = particleColor[2] * 2.0
+    particleColor[3] = particleColor[3] * 2.0
+    particleColor[4] = particleColor[4] * 2.0
+    local getBallPosition = function()
+      if newBall and newBall.body and not newBall.body:isDestroyed() then
+        ballPos = newBall:getPosition()
+      end
+      return ballPos
+    end
     ParticleSystem.New{
       duration = BALL_TIME_TO_DESTROY,
       particleLifeTime = BALL_TIME_TO_DESTROY/4,
       getInitialPosition = function(time) 
-        local p0 = ballPos
-        return p0 + ParticleSystemUtils.RandomRadialUnitVector() * newBall.radius
+        local p0 = getBallPosition()
+        return p0 + ParticleSystemUtils.RandomRadialUnitVector() * newBall.radius * 0.95
       end,
       getInitialVelocity = function(position, time)
         --return ParticleSystemUtils.RandomRadialUnitVector() * 180
-        return (position - ballPos):normalized() * 150
+        return (position - getBallPosition()):normalized() * 100
       end,
-      colorOverLifeTime = ParticleSystemUtils.RGBGradient(UI.GetColor(newBall:getColor()), {0, 0, 0, 0}),
+      colorOverLifeTime = ParticleSystemUtils.MultiRGBGradient(
+        3,
+        {
+          --{1, 0, 0, 1},
+          --{0, 1, 0, 1},
+          {0, 0, 0, 0},
+          particleColor,
+          {0, 0, 0, 0},
+        }),
       scaleOverLifeTime = function(k) 
         return 4 * (1-k) * (k)
       end,
-      particleDraw = ParticleSystemUtils.SquareParticlesDraw(15 * newBall.radius/BALL_MAX_RADIUS),
-      rateOverTime = 50
+      particleDraw = ParticleSystemUtils.SquareParticlesDraw(20 * newBall.radius/BALL_MAX_RADIUS),
+      rateOverTime = 40
     }
   end
+
+  newBall.startSpawnParticleSystem = function()
+    local ballRadius = newBall.radius
+    local particleLife = BALL_TIME_TO_DESTROY/4
+    ParticleSystem.New{
+      duration = BALL_TIME_TO_DESTROY/3,
+      particleLifeTime = particleLife,
+      getInitialPosition = function(time) 
+        local p0 = newBall:getPosition()
+        local v = ParticleSystemUtils.RandomRadialUnitVector() * ballRadius 
+
+        return Vector.New(BASE_SCREEN_WIDTH/2 + math.sign(v.x) * HOLE_WIDTH/2, p0.y + v.y)
+      end,
+      getInitialVelocity = function(position, time)
+        --return ParticleSystemUtils.RandomRadialUnitVector() * 180
+        local v = Vector.New()
+        _, v.y = newBall.body:getLinearVelocity()
+        local dist = position.x - newBall:getPosition().x
+
+        v.x = -math.sign(dist) * (math.abs(dist) - ballRadius)/particleLife
+        return v
+      end,
+      colorOverLifeTime = ParticleSystemUtils.RGBGradient({0, 0, 0, 0}, UI.GetColor(newBall:getColor())),
+      scaleOverLifeTime = function(k) 
+        return k
+      end,
+      particleDraw = ParticleSystemUtils.SquareParticlesDraw(25 * newBall.radius/BALL_MAX_RADIUS),
+      rateOverTime = 700,
+      particleAcceleration = Vector.New(0, GRAVITY)
+    }
+  end
+
 
   return newBall
 end

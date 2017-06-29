@@ -270,7 +270,12 @@ function UI.button(params)
 end
 
 function UI.GetColor(number)
-  return UI._palette[number]
+  return {
+    UI._palette[number][1],
+    UI._palette[number][2],
+    UI._palette[number][3],
+    UI._palette[number][4],
+  }
 end
 
 function UI.setColor(index, visibility)

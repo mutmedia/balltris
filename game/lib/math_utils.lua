@@ -14,8 +14,13 @@ function utils.clamp(val, min, max)
   end
 end
 
+function utils.sign(val)
+  return val > 0 and 1 or val < 0 and  -1 or 0
+end
+
 math.clamp = utils.clamp
 math.isInsideRect = utils.isInsideRect
+math.sign = utils.sign
 
 
 

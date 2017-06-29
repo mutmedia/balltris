@@ -26,7 +26,7 @@ Text{
   color=4,
   width=HOLE_WIDTH*1.4,
   getText= function()
-    return 'Enter Username'
+    return 'enter username'
   end,
 }
 
@@ -79,7 +79,7 @@ Text{
   lastCursorSwap = 0,
   showCursor = true,
   getText= function(self)
-    return 'Error: '..(Game.createUsernameErrorMsg or '')
+    return 'error: '..(Game.createUsernameErrorMsg or '')
   end,
 }
 
@@ -98,7 +98,7 @@ Button{
   textColor=1,
   getText = function() 
     if Game.state == STATE_GAME_USERNAME_LOADING then return 'loading...' end
-    return 'Enter'
+    return 'enter'
   end,
   onPress = function(self, x, y)
     if Game.state == STATE_GAME_USERNAME_LOADING then return end
@@ -133,7 +133,7 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'Offline'
+    return 'offline'
   end,
   onPress = function(self, x, y)
     Game.state = STATE_GAME_OFFLINE_CONFIRMATION
@@ -179,7 +179,7 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'OK'
+    return 'ok'
   end,
   onPress = function(self, x, y)
     Game.state = STATE_GAME_MAINMENU

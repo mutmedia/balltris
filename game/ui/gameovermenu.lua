@@ -11,7 +11,7 @@ Text{
   color=7,
   width=HOLE_WIDTH,
   getText = function()
-    return 'Game Over'
+    return 'game over'
   end,
 }
 
@@ -25,7 +25,7 @@ Text{
   color=1,
   width=HOLE_WIDTH,
   getText = function()
-    return string.format('Final Score:\n%04d', Game.score)
+    return string.format('final score:\n%04d', Game.score)
   end,
 }
 
@@ -39,7 +39,7 @@ Text{
   color=4,
   width=HOLE_WIDTH,
   getText = function()
-    return 'New High Score!'
+    return 'new high score!'
   end,
 }
 
@@ -71,8 +71,9 @@ Button{
   lineWidth=3,
   font=FONT_MD,
   textColor=1,
+  color=COLOR_BLACK,
   getText = function() 
-    return 'Replay'
+    return 'replay'
   end,
   onPress = function(self, x, y)
     Game.start()
@@ -91,8 +92,9 @@ Button{
   lineWidth=3,
   font=FONT_MD,
   textColor=1,
+  color=COLOR_BLACK,
   getText = function() 
-    return 'Quit'
+    return 'quit'
   end,
   onPress = function(self, x, y)
     Game.state = STATE_GAME_MAINMENU

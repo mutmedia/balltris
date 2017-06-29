@@ -15,7 +15,7 @@ Button{
   font=FONT_SM,
   textColor=1,
   getText = function() 
-    return 'Set username'
+    return 'set username'
   end,
   onPress = function(self, x, y)
     Game.state = STATE_GAME_USERNAME
@@ -36,7 +36,7 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'Back'
+    return 'back'
   end,
   onPress = function(self, x, y)
     Game.state = STATE_GAME_MAINMENU

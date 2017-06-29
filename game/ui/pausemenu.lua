@@ -14,7 +14,7 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function()
-    return 'Unpause'
+    return 'unpause'
   end,
   onPress = function() 
     Game.state = STATE_GAME_RUNNING
@@ -39,7 +39,7 @@ Button{
   
 
   getText = function() 
-    return 'Restart'
+    return 'restart'
   end,
   onPress = function(self, x, y)
     Game.start()
@@ -60,7 +60,7 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'Quit'
+    return 'quit'
   end,
   onPress = function(self, x, y)
     Game.state = STATE_GAME_MAINMENU

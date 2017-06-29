@@ -27,7 +27,7 @@ BlinkingText{
   font=FONT_MD,
   width=HOLE_WIDTH,
   getText = function()
-    return 'Synth'
+    return 'synth'
   end,
 }
 
@@ -40,7 +40,7 @@ BlinkingText{
   font=FONT_XL,
   width=HOLE_WIDTH,
   getText = function()
-    return 'Balls'
+    return 'balls'
   end,
 }
 
@@ -58,7 +58,7 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'New'
+    return 'new'
   end,
   onPress = function(self, x, y)
     SaveSystem.clearSave()
@@ -82,7 +82,7 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'Continue'
+    return 'continue'
   end,
   onPress = function(self, x, y)
     Game.start(SaveSystem.CreateLoadFunc())
@@ -105,7 +105,7 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'Top 10'
+    return 'top 10'
   end,
   onPress = function(self, x, y)
     Game.state = STATE_GAME_LEADERBOARD_LOADING
@@ -132,7 +132,7 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'Options'
+    return 'options'
   end,
   onPress = function(self, x, y)
     Game.state = STATE_GAME_OPTIONS

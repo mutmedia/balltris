@@ -416,6 +416,7 @@ function Game.ReleaseBall()
   Game.objects.ballPreview = nil
   --Game.objects.ballPreview = Balls.NewBallPreview(Game.objects.ballPreview.position.x)
   Game.lastDroppedBall = newBall
+  newBall.startSpawnParticleSystem()
 end
 
 function Game.GetNextBall() 
