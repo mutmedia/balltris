@@ -60,7 +60,7 @@ Custom{
     love.graphics.setLineWidth(BALL_LINES_DISTANCE*2)
     Game.comboNumbers:forEach(function(q)
       if currentBall > Game.comboObjective then return end
-      UI.setColor(q.num + BALL_COLORS_PALETTE)
+      UI.setColor(q.num + 2)
       local position = (self.initialPosition + currentSize) % maxSize
 
       local step = stepSize
