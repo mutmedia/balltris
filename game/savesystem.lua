@@ -170,7 +170,7 @@ function SaveSystem.CreateLoadFunc()
     savedGame.objects.ballPreview = Balls.NewBallPreview(rawGame.objects.ballPreview)
 
     -- nextBallPreviews
-    savedGame.objects.nextBallPreviews = Queue.new()
+    savedGame.objects.nextBallPreviews = Queue.New()
     for _, ballPreviewData in ipairs(rawGame.objects.nextBallPreviews) do
       savedGame.objects.nextBallPreviews:enqueue(Balls.NewBallPreview(ballPreviewData))
     end
@@ -183,12 +183,12 @@ function SaveSystem.CreateLoadFunc()
     end
 
     -- Random Bags
-    savedGame.ballChances = RandomBag.new(
+    savedGame.ballChances = RandomBag.New(
       rawGame.ballChances.size,
       rawGame.ballChances.modifier,
       rawGame.ballChances.values)
 
-    savedGame.radiusChances = RandomBag.new(
+    savedGame.radiusChances = RandomBag.New(
       rawGame.radiusChances.size,
       rawGame.radiusChances.modifier,
       rawGame.radiusChances.values)

@@ -1,6 +1,5 @@
 require 'ui/base'
 
-local BALL_COLORS_PALETTE = 2
 Rectangle{
   name='background',
   layer=LAYER_BACKGROUND,
@@ -138,7 +137,7 @@ Rectangle{
   name='inner visible pit',
   layer=LAYER_BACKGROUND,
   condition=Not(inGameState(STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION, STATE_GAME_USERNAME_LOADING)),
-  lineColor=1,
+  lineColor=COLOR_WHITE,
   lineWidth=BALL_LINE_WIDTH_IN,
   x=BASE_SCREEN_WIDTH/2,
   y=0,
@@ -150,7 +149,7 @@ Rectangle{
   name='outer visible pit',
   layer=LAYER_BACKGROUND,
   condition=Not(inGameState(STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION, STATE_GAME_USERNAME_LOADING)),
-  lineColor=1,
+  lineColor=COLOR_WHITE,
   lineWidth=BALL_LINE_WIDTH_OUT,
   x=BASE_SCREEN_WIDTH/2,
   y=0,
@@ -167,13 +166,10 @@ Rectangle{
   width=HOLE_WIDTH,
   height=1,
   lineWidth=2,
-  lineColor=1,
+  lineColor=COLOR_WHITE,
 }
 
 
-function GetBallColor(ball)
-  return ball.indestructible and 1 or ball.number + BALL_COLORS_PALETTE
-end
 
 function DrawBall(color, center, radius, rotation)
   love.graphics.push()
@@ -198,10 +194,10 @@ Custom{
   layer=LAYER_GAME,
   condition = inGameState(STATE_GAME_RUNNING),
   draw=function()
-    if Game.objects.ballPreview and Game.objects.ballPreview.drawStyle ~= 'none' then
+    if Game.objects.ballPreview then
       local center = {Game.objects.ballPreview.position.x, Game.objects.ballPreview.position.y}
       local radius = Game.objects.ballPreview.radius
-      local color = GetBallColor(Game.objects.ballPreview)
+      local color = Game.objects.ballPreview:getColor()
 
       DrawBall(color, center, radius)
     end
@@ -213,8 +209,8 @@ Custom{
   layer=LAYER_GAME,
   condition = inGameState(STATE_GAME_RUNNING),
   draw=function()
-    if Game.raycastHit and Game.objects.ballPreview and Game.objects.ballPreview.drawStyle ~= 'none' then
-      UI.setColor(GetBallColor(Game.objects.ballPreview))
+    if Game.raycastHit and Game.objects.ballPreview then
+      UI.setColor(Game.objects.ballPreview:getColor())
       love.graphics.circle('fill', Game.raycastHit.x, Game.raycastHit.y, 7)
     end
   end,
@@ -231,7 +227,7 @@ Custom{
       --print('lots of balls')
       local center = {ball.body:getX(), ball.body:getY()}
       local radius = ball.radius
-      local color = GetBallColor(ball)
+      local color = ball:getColor()
 
       local lastShader
       if ball.timeDestroyed then
@@ -268,7 +264,7 @@ Custom{
 
       local center = {ballPreviewX, ballPreviewHeight}
       local radius = nextBallPreview.radius
-      local color = GetBallColor(nextBallPreview)
+      local color = nextBallPreview:getColor()
 
       DrawBall(color, center, radius)
 

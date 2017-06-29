@@ -1,6 +1,6 @@
 local Queue = {}
 
-function Queue.new(free)
+function Queue.New(free)
   local q = {_queue=nil, _free = free or function() end}
   q._queue_front = nil 
   q.size = 0

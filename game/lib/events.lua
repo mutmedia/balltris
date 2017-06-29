@@ -9,7 +9,7 @@ local EVENT_PERMANENT = 1
 
 function addNew(eventName, callback, type)
   if not Events._callBacks[eventName] then
-    Events._callBacks[eventName] = List.new()
+    Events._callBacks[eventName] = List.New()
   end
   local callbackObject = {
     call = callback,

@@ -269,6 +269,10 @@ function UI.button(params)
   UI.object(btn)
 end
 
+function UI.GetColor(number)
+  return UI._palette[number]
+end
+
 function UI.setColor(index, visibility)
   --print('Using UI print')
   if index then
@@ -344,9 +348,6 @@ function UI.draw()
     end
   end
 end
-
-
-
 
 function Action(x, y, actionName)
   local tx = (x - UI.deltaX) / UI.scaleX

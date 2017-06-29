@@ -1,6 +1,12 @@
 local Vector = require 'lib/vector2d'
 local List = require 'lib/doubly_linked_list'
+local ParticleSystem = require 'lib/particle_system'
+local ParticleSystemUtils = require 'lib/particle_system_utils'
+local UI = require 'ui'
+require 'data_constants'
+
 local Balls = {}
+local Ball = {}
 
 function Balls.NewBallPreview(initialData)
   initialData = initialData or {}
@@ -8,42 +14,48 @@ function Balls.NewBallPreview(initialData)
   local radius = initialData.indestructible and WHITE_BALL_SIZE or Game.GetBallRadius()
   return {
     number = initialData.number or Game.GetBallNumber(), --TODO: make white ball have a number
-    position = initialData.position or  Vector.new{x=BASE_SCREEN_WIDTH/2, y=radius + PREVIEW_PADDING},
+    position = initialData.position or  Vector.New(BASE_SCREEN_WIDTH/2, radius + PREVIEW_PADDING),
     radius = initialData.radius or radius,
     indestructible = initialData.indestructible or false,
+    getColor = Ball.getColor
   }
 end
 
 function Balls.NewList()
-  return List.new(function(ball)
+  return List.New(function(ball)
     if ball.fixture and not ball.fixture:isDestroyed() then ball.fixture:destroy() end
     if ball.body and not ball.body:isDestroyed() then ball.body:destroy() end
     ball = nil
   end)
 end
 
-local Ball = {}
 
-function Ball.new(ballData, world)
+function Ball.New(ballData, world)
   local newBall = ballData
+  setmetatable(newBall, {__index = Ball})
 
   newBall._inGame = false
   -- Change toggle to enter exit?
-  newBall._toggleInGameCoroutine = coroutine.create(function()
+  newBall._enterGameCoroutine = coroutine.create(function() 
     if not newBall._inGame then
       newBall._inGame = true
       newBall:enterGameCallback()
       coroutine.yield()
     end
-
+  end)
+  newBall._exitGameCoroutine = coroutine.create(function()
     if newBall._inGame then
       newBall._inGame = false
       coroutine.yield()
     end
   end)
 
-  newBall.toggleInGame = function(self)
-    coroutine.resume(self._toggleInGameCoroutine)
+  newBall.enterGame = function(self)
+    coroutine.resume(self._enterGameCoroutine)
+  end
+
+  newBall.exitGame = function(self)
+    coroutine.resume(self._exitGameCoroutine)
   end
 
   newBall.isInGame = function(self)
@@ -61,9 +73,39 @@ function Ball.new(ballData, world)
       ref = newBall,
     })
 
-  setmetatable(newBall, {__index = Ball})
+  newBall.startDeathParticleSystem = function()
+    local ballPos = newBall:getPosition()
+    ParticleSystem.New{
+      duration = BALL_TIME_TO_DESTROY,
+      particleLifeTime = BALL_TIME_TO_DESTROY/4,
+      getInitialPosition = function(time) 
+        local p0 = ballPos
+        return p0 + ParticleSystemUtils.RandomRadialUnitVector() * newBall.radius
+      end,
+      getInitialVelocity = function(position, time)
+        --return ParticleSystemUtils.RandomRadialUnitVector() * 180
+        return (position - ballPos):normalized() * 150
+      end,
+      colorOverLifeTime = ParticleSystemUtils.RGBGradient(UI.GetColor(newBall:getColor()), {0, 0, 0, 0}),
+      scaleOverLifeTime = function(k) 
+        return 4 * (1-k) * (k)
+      end,
+      particleDraw = ParticleSystemUtils.SquareParticlesDraw(15 * newBall.radius/BALL_MAX_RADIUS),
+      rateOverTime = 50
+    }
+  end
+
   return newBall
 end
-Balls.newBall = Ball.new
+
+function Ball:getPosition()
+  return Vector.New(self.body:getX(), self.body:getY())
+end
+
+function Ball:getColor()
+  return (self.indestructible and 1 or self.number + 2)
+end
+
+Balls.NewBall = Ball.New
 
 return Balls

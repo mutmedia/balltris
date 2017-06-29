@@ -1,6 +1,6 @@
 local GaussianBlurEffect = {}
 
-function GaussianBlurEffect.new(params)
+function GaussianBlurEffect.New(params)
   local gbe = {}
   gbe._shaderloader = require('shaders/gaussianblur')
   gbe._baseWidth = params.width

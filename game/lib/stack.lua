@@ -1,6 +1,6 @@
 local Stack = {}
 
-function Stack.new(free)
+function Stack.New(free)
   local q = {_stack=nil, _free = free or function() end}
   q._stack_bottom = nil
   q.size = 0

@@ -1,5 +1,5 @@
 local CRTEffect = {}
-function CRTEffect.new(params)
+function CRTEffect.New(params)
   local crt = {}
   crt._scanlineShader = love.graphics.newShader('shaders/scanlines.fs')
   crt._distortShader = love.graphics.newShader('shaders/barreldistort.fs')

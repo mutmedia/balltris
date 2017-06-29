@@ -15,3 +15,5 @@ Effects:
   - Balls dissapearing particle effects
 
 DEBUG: Make debug print tell file (just rename print function to print('filename:', ...)
+
+show next ball preview all the time

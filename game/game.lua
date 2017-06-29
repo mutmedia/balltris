@@ -36,8 +36,8 @@ Game.usernameText = 'name'
 -- Initialize game
 
 -- TODO: move to ballpreview.lua
-Game.ballChances = RandomBag.new(BALL_COLORS, BALL_CHANCE_MODIFIER)
-Game.radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
+Game.ballChances = RandomBag.New(BALL_COLORS, BALL_CHANCE_MODIFIER)
+Game.radiusChances = RandomBag.New(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
 
 function Game.load()
   Game.savePath = 'save.lua'
@@ -105,7 +105,7 @@ function Game.start(loadGame)
   else
     Game.objects.ballPreview = Balls.NewBallPreview()
 
-    Game.objects.nextBallPreviews = Queue.new()
+    Game.objects.nextBallPreviews = Queue.New()
     for _=1,NUM_BALL_PREVIEWS do
       Game.objects.nextBallPreviews:enqueue(Balls.NewBallPreview())
     end
@@ -114,8 +114,8 @@ function Game.start(loadGame)
     Game.objects.balls = Balls.NewList()
 
     -- Random bags
-    Game.ballChances = RandomBag.new(BALL_COLORS, BALL_CHANCE_MODIFIER)
-    Game.radiusChances = RandomBag.new(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
+    Game.ballChances = RandomBag.New(BALL_COLORS, BALL_CHANCE_MODIFIER)
+    Game.radiusChances = RandomBag.New(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
 
     -- Score
     Game.score = 0
@@ -126,12 +126,12 @@ function Game.start(loadGame)
     Game.newHighScore = false
 
   end
-  Game.totalSpeedQueue = Queue.new()
+  Game.totalSpeedQueue = Queue.New()
   Game.meanSpeed = 0
   Game.lastMeanSpeed = 0
   Game.timeSinceLastCombo = 0
   Game.comboTimeLeft = 0
-  Game.comboNumbers = Queue.new()
+  Game.comboNumbers = Queue.New()
   --
   -- End of information that can be saved
 
@@ -167,14 +167,11 @@ function Game.start(loadGame)
     end
   end)
   Game.events.add(EVENT_COMBO_TIMEOUT, function()
-    --Game.validateHeight()
     Game.events.schedule(EVENT_NEW_BALL, function()
       SaveSystem.save(Game)
     end)
-    Game.validateHeight()
     Game.events.fire(EVENT_COMBO_END)
-    --Game.comboNumbers:pop()
-    --Game.combo = Game.combo - 1
+    Game.validateHeight()
   end)
   Game.events.add(EVENT_SAFE_TO_DROP, function()
     Game.GetNextBall()
@@ -197,7 +194,7 @@ function Game.start(loadGame)
       Game.comboObjective = Game.comboObjective + 5
       Game.comboObjectiveCleared = false
     end
-    Game.comboNumbers = Queue.new()
+    Game.comboNumbers = Queue.New()
     Game.combo = 0
   end)
 
@@ -212,6 +209,8 @@ Game.totalTime = 0
 Game.raycastHit = nil
 
 local accumulator = 0
+gf = 0
+pf = 0
 function Game.update(dt)
   if love.keyboard.isDown('z') then
     Game.timeScale = -1
@@ -246,21 +245,22 @@ function Game.update(dt)
         --if not ballref then return end
         --print('Ray cast hit something')
         if not Game.raycastHit or y < Game.raycastHit.y then
-          Game.raycastHit = Vector.new({x=x, y=y})
+          Game.raycastHit = Vector.New(x, y)
         end
         return 1
       end
 
-        Game.world:rayCast(Game.objects.ballPreview.position.x,
-          Game.objects.ballPreview.position.y,
-          Game.objects.ballPreview.position.x,
-          Game.objects.ballPreview.position.y + BASE_SCREEN_HEIGHT,
-          previewRaycastCallback)
+      Game.world:rayCast(Game.objects.ballPreview.position.x,
+        Game.objects.ballPreview.position.y,
+        Game.objects.ballPreview.position.x,
+        Game.objects.ballPreview.position.y + BASE_SCREEN_HEIGHT,
+        previewRaycastCallback)
     end
 
 
     while accumulator >= FIXED_DT do
       Game.world:update(FIXED_DT)
+      ParticleSystem.Update(FIXED_DT)
       totalSpeed = 0
       Game.objects.balls:forEach(function(ball)
         local px, py = ball.body:getPosition() 
@@ -301,6 +301,12 @@ function Game.update(dt)
 
       Game.objects.balls:Clean()
 
+
+      -- Make sure this will trigger only once
+      if Game.comboTimeLeft <= FIXED_DT and Game.comboTimeLeft > 0 then
+        Game.events.fire(EVENT_COMBO_TIMEOUT)
+      end
+
       Game.comboTimeLeft = math.max(Game.comboTimeLeft - FIXED_DT, 0)
       Game.timeSinceLastCombo = math.max(Game.timeSinceLastCombo + FIXED_DT, 0)
 
@@ -311,15 +317,11 @@ function Game.update(dt)
       end
       ]]--
 
-      if Game.comboTimeLeft <= 0 then
-        Game.events.fire(EVENT_COMBO_TIMEOUT)
-      end
-
-
-
+      pf = pf + 1
       accumulator = accumulator - FIXED_DT
     end
   end
+  gf = gf + 1
 end
 
 function Game.inState(...)
@@ -336,10 +338,15 @@ function Game.inState(...)
   return false
 end
 
+t = 0
 function Game.validateHeight()
   local ballsTooHigh = false
   Game.objects.balls:forEach(function(ball)
-    if not ball:isInGame() then return end
+    if not ball:isInGame() then 
+      t = t + 1
+      print('checking height with not all balls', gf, pf)
+      return
+    end
     if ball.body:getY() < MIN_DISTANCE_TO_TOP + ball.radius then
       ballsTooHigh = true
     end
@@ -359,7 +366,7 @@ end
 function Game.lose()
   Game.clearWhiteBalls()
   Game.state = STATE_GAME_LOST
-  Game.events.add(EVENT_ON_BALLS_STATIC, Game.gameOver)
+  Game.events.add(EVENT_COMBO_TIMEOUT, Game.gameOver)
 end
 
 
@@ -403,7 +410,7 @@ function Game.ReleaseBall()
   Game.objects.ballPreview.enterGameCallback = function()
     Game.events.fire(EVENT_NEW_BALL_INGAME)
   end
-  local newBall = Balls.newBall(Game.objects.ballPreview, Game.world)
+  local newBall = Balls.NewBall(Game.objects.ballPreview, Game.world)
   Game.objects.balls:add(newBall)
 
   Game.objects.ballPreview = nil
@@ -431,8 +438,9 @@ function Game.GetNextBall()
 end
 
 function Game.ScheduleBallDestruction(ball)
-  ball:toggleInGame()
+  ball:exitGame()
   ball.timeDestroyed = Game.totalTime
+  ball.startDeathParticleSystem()
   Scheduler.add(function()
     Game.DestroyBall(ball)
   end, BALL_TIME_TO_DESTROY)

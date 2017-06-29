@@ -1,6 +1,6 @@
 local RandomBag = {}
 
-function RandomBag.new(size, modifier, initialValues)
+function RandomBag.New(size, modifier, initialValues)
   local rb = initialValues or {}
   rb.size = size
   rb.modifier = modifier

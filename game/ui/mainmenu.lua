@@ -3,31 +3,44 @@ local SaveSystem = require 'savesystem'
 local Backend = require 'backend'
 local Scheduler = require 'lib/scheduler'
 
-Text{
+
+local BlinkingText = function(textObj)
+  textObj.colorF = 0.75
+  textObj.lastColorSwap = 0
+  textObj.lastColor = math.floor(3 + math.random() * 5)
+  textObj.getColor = function(self)
+    if self.lastColorSwap + self.colorF < Game.totalTime then
+      self.lastColor = math.floor(3 + math.random() * 5)
+      self.lastColorSwap = Game.totalTime
+    end
+    return self.lastColor
+  end
+  return Text(textObj)
+end
+
+BlinkingText{
   name='subtitle',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
   y=11*UI_HEIGHT_UNIT,
   font=FONT_MD,
-  color=7,
   width=HOLE_WIDTH,
   getText = function()
-    return 'Definetely not'
+    return 'Synth'
   end,
 }
 
-Text{
+BlinkingText{
   name='title',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
   y=14*UI_HEIGHT_UNIT,
   font=FONT_XL,
-  color=6,
   width=HOLE_WIDTH,
   getText = function()
-    return 'Balltris'
+    return 'Balls'
   end,
 }
 

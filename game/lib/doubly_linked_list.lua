@@ -1,6 +1,6 @@
 local List = {}
 
-function List.new(free)
+function List.New(free)
   local l = {list=nil, __free = free or function() end}
   setmetatable(l, {__index=List})
   return l
@@ -25,7 +25,7 @@ end
 
 function List:SetToDelete(elem)
   if not self._toDelete then
-    self._toDelete = List.new()
+    self._toDelete = List.New()
   end
   self._toDelete:add(elem._ref)
 end
@@ -55,7 +55,16 @@ function List:Clear()
   self:forEach(function(del)
     self:SetToDelete(del)
   end)
+  self:Clean()
   self.list = nil
+end
+
+function List:Count()
+  local c = 0
+  self:forEach(function()
+    c = c + 1
+  end)
+  return c
 end
 
 return List

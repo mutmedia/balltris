@@ -4,6 +4,7 @@ require 'lib/math_utils'
 require 'data_constants'
 UI = require 'ui'
 Game = require 'game'
+ParticleSystem = require 'lib/particle_system'
 
 function FadeInTween(k)
   k = math.clamp(k, 0, 1)
@@ -112,4 +113,10 @@ function False()
   return Not(True())
 end
 
+Custom{
+  name='Particle Systems',
+  layer=LAYER_GAME,
+  condition = True(),
+  draw=ParticleSystem.Draw,
+}
 

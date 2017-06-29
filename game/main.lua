@@ -131,14 +131,14 @@ function love.load()
   --print('Time to shader Scanlines: \t\t'..love.timer.getTime() - loadtime)
   Shaders.GammaCorrect = love.graphics.newShader('shaders/addalpha.fs')
 
-  GaussianBlurEffect = (require 'shaders/effect_gaussianblur').new{
+  GaussianBlurEffect = (require 'shaders/effect_gaussianblur').New{
     sigma=4,
     scale=2,
     width=BASE_SCREEN_WIDTH,
     height=BASE_SCREEN_HEIGHT,
   }
 
-  CRTEffect = (require 'shaders/effect_crt').new{
+  CRTEffect = (require 'shaders/effect_crt').New{
     width=BASE_SCREEN_WIDTH,
     height=BASE_SCREEN_HEIGHT,
   }
@@ -275,11 +275,11 @@ function beginContact(a, b, coll)
   local bref = b:getUserData() and b:getUserData().ref
   if aref then 
     if aref.isWall then return end
-    aref:toggleInGame()
+    aref:enterGame()
   end
   if bref then 
     if bref.isWall then return end
-    bref:toggleInGame()
+    bref:enterGame()
   end
   if not aref or not bref then return end
 
