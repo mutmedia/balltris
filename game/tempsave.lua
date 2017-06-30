@@ -5,14 +5,17 @@ local Balls = require 'balls'
 local Queue = require 'lib/queue'
 local RandomBag = require 'lib/randombag'
 
-local SaveSystem = {}
+local TempSave = {}
 
 local SAVE_PATH = 'save_temp.lua'
 
+local error = function(str)
+  return print('TEMP SAVE ERROR: '..(str or ''))
+end
 
-function SaveSystem.save(game)
-  local savestring = {}
-  table.insert(savestring,
+function TempSave.Save(game)
+  local savestrings = {}
+  table.insert(savestrings,
     [[
 local rawGame = {}
 rawGame.objects = {}
@@ -20,7 +23,7 @@ rawGame.objects = {}
     )
 
   -- Scores
-  table.insert(savestring, string.format(
+  table.insert(savestrings, string.format(
       [[
 
 rawGame.score = %d
@@ -31,7 +34,7 @@ rawGame.maxCombo = %d
     )
 
   -- Ball Preview
-  table.insert(savestring, string.format([[
+  table.insert(savestrings, string.format([[
 
 rawGame.objects.ballPreview = {
   number = %d,
@@ -45,13 +48,13 @@ rawGame.objects.ballPreview = {
     )
 
   -- Next Ball Previews
-  table.insert(savestring, [[
+  table.insert(savestrings, [[
 
 rawGame.objects.nextBallPreviews = {
 ]])
 
   game.objects.nextBallPreviews:forEach(function(nextBallPreview)
-    table.insert(savestring, string.format([[
+    table.insert(savestrings, string.format([[
   {
     number = %d,
     radius = %f,
@@ -64,19 +67,19 @@ rawGame.objects.nextBallPreviews = {
       )
   end)
 
-  table.insert(savestring, [[
+  table.insert(savestrings, [[
 }
 ]])
 
 
   -- Balls
-  table.insert(savestring, [[
+  table.insert(savestrings, [[
 
 rawGame.objects.balls = {
 ]])
 
   game.objects.balls:forEach(function(ball)
-    table.insert(savestring, string.format([[
+    table.insert(savestrings, string.format([[
   {
     position = {
       x = %f, y = %f,
@@ -93,12 +96,12 @@ rawGame.objects.balls = {
       )
   end)
 
-  table.insert(savestring, [[
+  table.insert(savestrings, [[
 }
 ]])
 
   -- Random bags
-  table.insert(savestring, string.format([[
+  table.insert(savestrings, string.format([[
 
 rawGame.ballChances = {
   size = %d,
@@ -111,7 +114,7 @@ rawGame.ballChances = {
       game.ballChances:toString())
     )
 
-  table.insert(savestring, string.format([[
+  table.insert(savestrings, string.format([[
 
 rawGame.radiusChances = {
   size = %d,
@@ -124,35 +127,34 @@ rawGame.radiusChances = {
       game.radiusChances:toString())
     )
 
-  table.insert(savestring, [[
+  table.insert(savestrings, [[
 
 return rawGame
 ]])
 
-  local saveconcat = table.concat(savestring)
-  --print(saveconcat)
+  local savestring = table.concat(savestrings)
+  --print(savestring)
 
   local file, errorstr = love.filesystem.newFile(SAVE_PATH, 'w') 
   if errorstr then 
-    print('SAVE SYSTEM ERROR: '..errorstr)
+    error(errorstr)
     return 
   end
 
-  local s, err = file:write(saveconcat)
+  local s, err = file:write(savestring)
   if err then
-    print('SAVE SYSTEM ERROR: '..err)
+    error(err)
   end
 end
 
-function SaveSystem.clearSave()
+function TempSave.Clear()
   local ok = love.filesystem.remove(SAVE_PATH)
   if not ok then
-    print('SAVE SYSTEM ERROR: Failed to delete temporary save')
+    error('Failed to delete temporary save')
   end
-  
 end
 
-function SaveSystem.CreateLoadFunc()
+function TempSave.CreateLoadFunc()
   local ok, rawGame = Load.luafile(SAVE_PATH)
 
   if not ok or not rawGame then return end
@@ -198,4 +200,4 @@ function SaveSystem.CreateLoadFunc()
 end
 
 
-return SaveSystem
+return TempSave

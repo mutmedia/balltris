@@ -6,7 +6,7 @@ Button{
   layer=LAYER_MENUS,
   condition=And(function() return Backend.isOffline end,  inGameState(STATE_GAME_OPTIONS)),
   x=BASE_SCREEN_WIDTH/2,
-  y=20*UI_HEIGHT_UNIT,
+  y=16*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   color=0,
@@ -27,7 +27,7 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OPTIONS),
   x=BASE_SCREEN_WIDTH/2,
-  y=24*UI_HEIGHT_UNIT,
+  y=20*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   color=0,
@@ -48,6 +48,49 @@ Button{
     end
   end,
 }
+
+Button{
+  name='reset tutorial',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_OPTIONS),
+  x=BASE_SCREEN_WIDTH/2,
+  y=24*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.8,
+  height=2*UI_HEIGHT_UNIT,
+  color=0,
+  lineColor=1,
+  lineWidth=3,
+  font=FONT_SM,
+  textColor=1,
+  getText = function() 
+    return 'reset tutorial'
+  end,
+  onPress = function(self, x, y)
+    Game.ResetTutorial()
+  end,
+}
+
+Button{
+  name='clear tutorial',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_OPTIONS),
+  x=BASE_SCREEN_WIDTH/2,
+  y=28*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.8,
+  height=2*UI_HEIGHT_UNIT,
+  color=0,
+  lineColor=1,
+  lineWidth=3,
+  font=FONT_SM,
+  textColor=1,
+  getText = function() 
+    return 'skip tutorial'
+  end,
+  onPress = function(self, x, y)
+    Game.SkipTutorial()
+  end,
+}
+
 
 Button{
   name='Back',

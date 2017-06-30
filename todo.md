@@ -4,10 +4,11 @@ MVP
 - [x] Add combo ending widget
 - [ ] Gameplay balance
 - [ ] Basic options
-- [ ] Make a tutorial
+- [x] Make a tutorial
 
 - [ ] Open to more playtesters
 
+- [ ] Improve tutorial after playtest
 - [ ] Finish basic effects
 - [ ] Game Options
 - [ ] Improve high score after playtest feedback
@@ -23,9 +24,10 @@ After MVP
 
 Effects:
 --------
-- [ ] Ball being dropped (similar particle fx to exit?)
+- [x] Ball being dropped (similar particle fx to exit?)
 - [x] Balls dissapearing particle effects
-- [ ] Next balls changing (?)
+
+- [ ] Next balls changing (POST MVP)
 
 
 High score Improvements

@@ -1,16 +1,16 @@
 local Scheduler = require 'lib/scheduler'
 local Game = require 'game'
+local LocalSave = require 'localsave'
 
 local print = function(str)
   print('TUTORIAL: '..(str or ''))
 end
 
-
-
 function MoveToLearn(learnCallback)
   Game.events.schedule(EVENT_MOVED_PREVIEW, function()
     Game.tutorial.state = STATE_TUTORIAL_NONE
     learnCallback()
+    LocalSave.Save(Game)
   end)
 end
 
@@ -22,8 +22,7 @@ function MoveToLearnAfterTimeout(learnCallback, timeout)
     TUTORIAL_MIN_TIME)
 end
 
-function Game.InitializeTutorial()
-  -- TODO: load user tutorial file
+function Game.ResetTutorial()
   Game.tutorial = {
     learnedAimBall = false,
     learnedDropBall = false,
@@ -36,8 +35,43 @@ function Game.InitializeTutorial()
     learnedNewComboClearsat = false,
     learnedCombometerScore = false,
     learnedCombometerDrop = false,
-    state = STATE_TUTORIAL_NONE,
+  } 
+  LocalSave.Save(Game)
+end
+
+function Game.SkipTutorial()
+  Game.tutorial = {
+    learnedAimBall = true,
+    learnedDropBall = true,
+    learnedSlomo = true,
+    learnedScore = true,
+    learnedWhiteBalls = true,
+    learnedCombo = true,
+    learnedLoseCombo = true,
+    learnedClearCombo = true,
+    learnedNewComboClearsat = true,
+    learnedCombometerScore = true,
+    learnedCombometerDrop = true,
+  } 
+  LocalSave.Save(Game)
+end
+
+function Game.InitializeTutorial(loadedTutorial)
+  -- TODO: load user tutorial file
+  Game.tutorial = Game.tutorial or {
+    learnedAimBall = false,
+    learnedDropBall = false,
+    learnedSlomo = false,
+    learnedScore = false,
+    learnedWhiteBalls = false,
+    learnedCombo = false,
+    learnedLoseCombo = false,
+    learnedClearCombo = false,
+    learnedNewComboClearsat = false,
+    learnedCombometerScore = false,
+    learnedCombometerDrop = false,
   }
+  Game.tutorial.state = STATE_TUTORIAL_NONE
 
   if not Game.tutorial.learnedAimBall or not Game.tutorial.learnedDropBall then
     Game.tutorial.state = STATE_TUTORIAL_AIMBALL
@@ -50,7 +84,7 @@ function Game.InitializeTutorial()
         print('finished drop tutorial')
         Game.tutorial.state = STATE_TUTORIAL_NONE
         Game.tutorial.learnedDropBall = true
-
+        LocalSave.Save(Game)
       end)
     end)
   end
@@ -104,7 +138,7 @@ function Game.InitializeTutorial()
     learnCombometerScore()
   end
 
-  if Game.tutorial.learnedNewComboClearsat then
+  if not Game.tutorial.learnedNewComboClearsat then
     Game.events.schedule(EVENT_COMBO_NEW_CLEARSAT, function()
       Game.tutorial.state = STATE_TUTORIAL_NEW_COMBO_CLEARSAT
       MoveToLearnAfterTimeout(function() Game.tutorial.learnedNewComboClearsat = true end)

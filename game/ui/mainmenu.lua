@@ -1,5 +1,5 @@
 require 'ui/base'
-local SaveSystem = require 'savesystem'
+local TempSave = require 'tempsave'
 local Backend = require 'backend'
 local Scheduler = require 'lib/scheduler'
 
@@ -61,7 +61,7 @@ Button{
     return 'new'
   end,
   onPress = function(self, x, y)
-    SaveSystem.clearSave()
+    TempSave.Clear()
     Game.start()
   end,
 }
@@ -71,7 +71,7 @@ Button{
   layer=LAYER_MENUS,
   condition=And(
     inGameState(STATE_GAME_MAINMENU),
-  function() return SaveSystem.CreateLoadFunc or false end),
+  function() return TempSave.CreateLoadFunc or false end),
   x=BASE_SCREEN_WIDTH/2,
   y=24*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
@@ -85,16 +85,14 @@ Button{
     return 'continue'
   end,
   onPress = function(self, x, y)
-    Game.start(SaveSystem.CreateLoadFunc())
+    Game.start(TempSave.CreateLoadFunc())
   end,
 }
 
 Button{
   name='top10 button',
   layer=LAYER_MENUS,
-  condition=And(
-    inGameState(STATE_GAME_MAINMENU),
-  function() return SaveSystem.CreateLoadFunc or false end),
+  condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
   y=28*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
@@ -121,9 +119,7 @@ end,
 Button{
   name='options button',
   layer=LAYER_MENUS,
-  condition=And(
-    inGameState(STATE_GAME_MAINMENU),
-  function() return SaveSystem.CreateLoadFunc or false end),
+  condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
   y=32*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,

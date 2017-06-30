@@ -4,7 +4,8 @@ local Queue = require 'lib/queue'
 local Stack = require 'lib/stack'
 local RandomBag = require 'lib/randombag'
 local Vector = require 'lib/vector2d'
-local SaveSystem = require 'savesystem'
+local TempSave = require 'tempsave'
+local LocalSave = require 'localsave'
 
 local Balls = require 'balls'
 
@@ -39,27 +40,7 @@ Game.usernameText = 'name'
 -- TODO: move to ballpreview.lua
 Game.ballChances = RandomBag.New(BALL_COLORS, BALL_CHANCE_MODIFIER)
 Game.radiusChances = RandomBag.New(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIER)
-
-function Game.load()
-  Game.savePath = 'save.lua'
-  if love.filesystem.exists(Game.savePath) then
-    local loadChunk = love.filesystem.load(Game.savePath)
-    loadChunk()
-  end
-end
-
-function Game.save()
-  local file, errorstr = love.filesystem.newFile(Game.savePath, 'w') 
-  if errorstr then 
-    return 
-  end
-  local savestring = [[
-      Game.highScore = %d
-      ]]
-  savestring = savestring:format(Game.highScore)
-  local s, err = file:write(savestring)
-
-end
+Game.tutorial = {}
 
 function Game.start(loadGame)
   Game.totalTime = 0
@@ -175,7 +156,7 @@ function Game.start(loadGame)
   end)
   Game.events.add(EVENT_ON_BALLS_STATIC,  function()
     Game.events.schedule(EVENT_NEW_BALL, function()
-      SaveSystem.save(Game)
+      TempSave.Save(Game)
     end)
     Game.validateHeight()
     if Game.combo > 0 then
@@ -184,7 +165,7 @@ function Game.start(loadGame)
   end)
   Game.events.add(EVENT_COMBO_TIMEOUT, function()
     Game.events.schedule(EVENT_NEW_BALL, function()
-      SaveSystem.save(Game)
+      TempSave.Save(Game)
     end)
     if Game.combo > 0 then
       Game.events.fire(EVENT_COMBO_END)
@@ -398,13 +379,13 @@ function Game.gameOver()
   Game.setHighScore(Game.score)
   Backend.sendScore(Game.highScore)
   Game.state = STATE_GAME_OVER
-  SaveSystem.clearSave()
+  TempSave.Clear()
+  LocalSave.Save(Game)
 end
 
 function Game.setHighScore(score)
   if score > Game.highScore then
     Game.highScore = score
-    Game.save()
     Game.newHighScore = true
   end
 end

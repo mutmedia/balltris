@@ -1,4 +1,5 @@
 require 'ui/base'
+local LocalSave = require 'localsave'
 
 Button{
   name='gamemenu unpouse',

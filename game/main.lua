@@ -14,10 +14,11 @@ local Backend = require 'backend'
 
 -- Game Files
 local Game = require 'game'
-local SaveSystem = require 'savesystem'
-require 'data_constants'
+local TempSave = require 'tempsave'
+local LocalSave = require 'localsave'
 local Balls = require 'balls'
 require 'tutorial'
+require 'data_constants'
 
 -- Helper functions
 function IsInsideScreen(x, y)
@@ -145,7 +146,8 @@ function love.load()
   }
 
   Game.options = DEFAULT_OPTIONS
-  Game.load()
+
+  LocalSave.Load()
 
   -- TODO: move to place where game actually starts
   loaded = true
@@ -327,7 +329,7 @@ function love.keypressed(key)
   end
 
   if key == 's' then
-    SaveSystem.save(Game)
+    TempSave.Save(Game)
   end
 
   if key == 'escape' then
