@@ -284,7 +284,7 @@ function beginContact(a, b, coll)
   end
   if not aref or not bref then return end
 
-  Game.ballCollision(aref, bref)
+  Game.BallCollision(aref, bref)
 end
 
 function endContact(a, b, coll)

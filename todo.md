@@ -17,6 +17,10 @@ MVP
 - [ ] Improve game icon
 - [ ] Credits
 
+After MVP
+=========
+- [ ] Better server security
+
 Effects:
 --------
 - [ ] Ball being dropped (similar particle fx to exit?)

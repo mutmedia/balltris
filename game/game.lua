@@ -176,7 +176,7 @@ function Game.start(loadGame)
     Game.events.schedule(EVENT_NEW_BALL, function()
       SaveSystem.save(Game)
     end)
-    --Game.validateHeight()
+    Game.validateHeight()
     if Game.combo > 0 then
       --Game.events.fire(EVENT_COMBO_END)
     end
@@ -186,13 +186,13 @@ function Game.start(loadGame)
       SaveSystem.save(Game)
     end)
     Game.events.fire(EVENT_COMBO_END)
-    Game.validateHeight()
+    --Game.validateHeight()
   end)
   Game.events.add(EVENT_SAFE_TO_DROP, function()
     Game.GetNextBall()
   end)
   Game.events.add(EVENT_NEW_BALL_INGAME, function()
-    Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
+    --Game.IncrementComboTimeout()
   end)
   Game.events.add(EVENT_BALLS_TOO_HIGH, Game.lose)
   Game.events.add(EVENT_SCORED, function() 
@@ -203,11 +203,14 @@ function Game.start(loadGame)
     end
   end)
   Game.events.add(EVENT_COMBO_END, function()
-    if Game.combo <= 0 then return end
+    if Game.combo <= 0 then 
+      Game.combo = 0
+      return 
+    end
     if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
     if Game.combo >= Game.comboObjective then
-      Game.comboObjective = Game.comboObjective + 5
       Game.comboObjectiveCleared = false
+      Game.comboObjective = Game.comboObjective + 5
     end
     Game.comboNumbers = Queue.New()
     Game.combo = 0
@@ -356,7 +359,7 @@ function Game.validateHeight()
   Game.objects.balls:forEach(function(ball)
     if not ball:isInGame() then 
       t = t + 1
-      print('checking height with not all balls', gf, pf)
+      --print('checking height with not all balls', gf, pf)
       return
     end
     if ball.body:getY() < MIN_DISTANCE_TO_TOP + ball.radius then
@@ -429,6 +432,7 @@ function Game.ReleaseBall()
   --Game.objects.ballPreview = Balls.NewBallPreview(Game.objects.ballPreview.position.x)
   Game.lastDroppedBall = newBall
   newBall.startSpawnParticleSystem()
+  Game.IncrementComboTimeout()
 end
 
 function Game.GetNextBall() 
@@ -450,10 +454,15 @@ function Game.GetNextBall()
   end
 end
 
+function Game.IncrementComboTimeout()
+    Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
+end
+
 function Game.ScheduleBallDestruction(ball)
   ball:exitGame()
   ball.timeDestroyed = Game.totalTime
   ball.startDeathParticleSystem()
+  Game.IncrementComboTimeout()
   Scheduler.add(function()
     Game.DestroyBall(ball)
   end, BALL_TIME_TO_DESTROY)
@@ -471,8 +480,8 @@ function Game.DestroyBall(ball)
   ball.destroyed = true
 end
 
-function Game.ballCollision(ball1, ball2)
-  --Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
+function Game.BallCollision(ball1, ball2)
+  --Game.IncrementComboTimeout()
 
   if ball1.indestructible or ball2.indestructible then return end
   if ball1.number == ball2.number then
