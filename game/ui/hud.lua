@@ -102,7 +102,7 @@ Text{
   layer=LAYER_HUD,
   condition = And(inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
-  y=13*UI_HEIGHT_UNIT,
+  y=14*UI_HEIGHT_UNIT,
   font=FONT_SM,
   color=1,
   width=BORDER_THICKNESS,
@@ -116,15 +116,15 @@ Text{
 Text{
   name='combo objective',
   layer=LAYER_HUD,
-  condition = False(),--inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
+  condition = And(inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST), function() return Game.comboObjectiveCleared end),
   --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
-  y=16*UI_HEIGHT_UNIT,
-  font=FONT_SM,
-  color=1,
+  y=12*UI_HEIGHT_UNIT,
+  font=FONT_XS,
+  color=COLOR_YELLOW,
   width=BORDER_THICKNESS,
   getText = function()
-    return 'objective' ..(Game.comboObjectiveCleared and ' CLEARED' or '\n'..Game.comboObjective)
+    return 'objective\ncleared!' 
   end,
 }
 
@@ -134,7 +134,7 @@ Custom{
   condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
   --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
-  y=15.5*UI_HEIGHT_UNIT,
+  y=16.5*UI_HEIGHT_UNIT,
   radius=UI_HEIGHT_UNIT,
   width=1*UI_HEIGHT_UNIT,
   height=9*UI_HEIGHT_UNIT,

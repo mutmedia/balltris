@@ -28,7 +28,7 @@ Game.comboObjective = 5
 Game.comboObjectiveCleared = false
 Game.comboNumbers = nil
 
-Game.timeScale = TIME_SCALE_REGULAR
+Game.timeScale = TIME_SCALE_SLOMO
 Game.startTime = love.timer.getTime()
 
 Game.usernameText = 'name'
@@ -141,8 +141,8 @@ function Game.start(loadGame)
     if Game.objects.ballPreview then
       Game.objects.ballPreview.drawStyle = 'line'
       Game.objects.ballPreview.position.x = math.clamp(x, BORDER_THICKNESS + Game.objects.ballPreview.radius + 1, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + Game.objects.ballPreview.radius) - 1)
-      Game.timeScale = TIME_SCALE_SLOMO
-    else
+      Game.timeScale = Game.options.slomoType == OPTIONS_SLOMO_REVERSE and TIME_SCALE_REGULAR or TIME_SCALE_SLOMO
+    elseif Game.options.slomoType == OPTIONS_SLOMO_DEFAULT then
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
         -- HACK: didnt want to implement proper UI hold just for this
         -- TODO: implement ui.hold
@@ -156,6 +156,21 @@ function Game.start(loadGame)
   Game.events.add(EVENT_RELEASED_PREVIEW, function()
     Game.ReleaseBall()
     Game.timeScale = TIME_SCALE_REGULAR
+    if Game.options.slomoType == OPTIONS_SLOMO_REVERSE then
+      Game.events.schedule(EVENT_SAFE_TO_DROP, function()
+        if Game.state == STATE_GAME_RUNNING and not love.mouse.isDown(1) then
+          Game.timeScale = TIME_SCALE_SLOMO
+        end
+      end)
+    end
+  if Game.options.slomoType == OPTIONS_SLOMO_ALWAYSON then
+      Game.events.schedule(EVENT_SAFE_TO_DROP, function()
+        if Game.state == STATE_GAME_RUNNING then
+          Game.timeScale = TIME_SCALE_SLOMO
+        end
+      end)
+    end
+
   end)
   Game.events.add(EVENT_ON_BALLS_STATIC,  function()
     Game.events.schedule(EVENT_NEW_BALL, function()
@@ -212,9 +227,6 @@ local accumulator = 0
 gf = 0
 pf = 0
 function Game.update(dt)
-  if love.keyboard.isDown('z') then
-    Game.timeScale = -1
-  end
 
   dt = dt * Game.timeScale
   Scheduler.update(dt)

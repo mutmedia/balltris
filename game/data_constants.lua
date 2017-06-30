@@ -117,4 +117,12 @@ EVENT_NEW_BALL = 'newball'
 EVENT_COMBO_TIMEOUT = 'timeout'
 EVENT_NEW_BALL_INGAME = 'newballingame'
 
+-- Options
+OPTIONS_SLOMO_DEFAULT = 'default'
+OPTIONS_SLOMO_REVERSE = 'reverse'
+OPTIONS_SLOMO_ALWAYSON = 'always on'
 
+
+DEFAULT_OPTIONS = {
+  slomoType = OPTIONS_SLOMO_DEFAULT,
+}

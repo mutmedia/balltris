@@ -143,6 +143,7 @@ function love.load()
     height=BASE_SCREEN_HEIGHT,
   }
 
+  Game.options = DEFAULT_OPTIONS
   Game.load()
 
   -- TODO: move to place where game actually starts

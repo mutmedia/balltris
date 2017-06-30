@@ -71,7 +71,7 @@ Button{
   layer=LAYER_MENUS,
   condition=And(
     inGameState(STATE_GAME_MAINMENU),
-    function() return SaveSystem.CreateLoadFunc or false end),
+  function() return SaveSystem.CreateLoadFunc or false end),
   x=BASE_SCREEN_WIDTH/2,
   y=24*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
@@ -88,13 +88,13 @@ Button{
     Game.start(SaveSystem.CreateLoadFunc())
   end,
 }
- 
+
 Button{
   name='top10 button',
   layer=LAYER_MENUS,
   condition=And(
     inGameState(STATE_GAME_MAINMENU),
-    function() return SaveSystem.CreateLoadFunc or false end),
+  function() return SaveSystem.CreateLoadFunc or false end),
   x=BASE_SCREEN_WIDTH/2,
   y=28*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
@@ -111,9 +111,11 @@ Button{
     Game.state = STATE_GAME_LEADERBOARD_LOADING
     Scheduler.add(function() 
       Backend.getTopPlayers()
-      Game.state = STATE_GAME_LEADERBOARD
+      if Game.state == STATE_GAME_LEADERBOARD_LOADING then
+        Game.state = STATE_GAME_LEADERBOARD
+      end
     end, 0.1)
-  end,
+end,
 }
 
 Button{
@@ -121,7 +123,7 @@ Button{
   layer=LAYER_MENUS,
   condition=And(
     inGameState(STATE_GAME_MAINMENU),
-    function() return SaveSystem.CreateLoadFunc or false end),
+  function() return SaveSystem.CreateLoadFunc or false end),
   x=BASE_SCREEN_WIDTH/2,
   y=32*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
@@ -139,4 +141,4 @@ Button{
   end,
 }
 
-  
+
