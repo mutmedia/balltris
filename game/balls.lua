@@ -76,6 +76,8 @@ function Ball.New(ballData, world)
   newBall.startDeathParticleSystem = function()
     local ballPos = newBall:getPosition()
     local particleColor = UI.GetColor(newBall:getColor())
+    -- TODO:
+    -- could make this with HSL
     particleColor[1] = particleColor[1] * 2.0
     particleColor[2] = particleColor[2] * 2.0
     particleColor[3] = particleColor[3] * 2.0

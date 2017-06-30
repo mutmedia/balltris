@@ -1,13 +1,14 @@
 MVP
 ====
-- [ ] Finish very basic high score
-- [ ] Finish basic effects
+- [x] Finish very basic high score
 - [x] Add combo ending widget
-- [ ] Change game behaviour
-- [ ] Basic Game Options
+- [ ] Gameplay balance
+- [ ] Basic options
 
 - [ ] Open to more playtesters
 
+- [ ] Finish basic effects
+- [ ] Game Options
 - [ ] Improve high score after playtest feedback
 - [ ] Add achievements, see (Achievements)
 - [ ] Make a tutorial
@@ -36,8 +37,11 @@ Gameplay
 
 Options
 -------
-- [ ] Choose how you want your slow motion to work
+Basic:
+- [x] Choose how you want your slow motion to work
+- [ ] Save options to local file
 
+Advanced:
 
 DEBUG STUFF / TOOLS
 -------------------

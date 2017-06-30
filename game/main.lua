@@ -284,12 +284,7 @@ function beginContact(a, b, coll)
   end
   if not aref or not bref then return end
 
-  Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
-
-  if aref.indestructible or bref.indestructible then return end
-  if aref.number == bref.number then
-    Game.sameColorBallCollision(aref, bref)
-  end
+  Game.ballCollision(aref, bref)
 end
 
 function endContact(a, b, coll)

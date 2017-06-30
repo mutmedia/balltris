@@ -192,7 +192,7 @@ function Game.start(loadGame)
     Game.GetNextBall()
   end)
   Game.events.add(EVENT_NEW_BALL_INGAME, function()
-    --Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
+    Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
   end)
   Game.events.add(EVENT_BALLS_TOO_HIGH, Game.lose)
   Game.events.add(EVENT_SCORED, function() 
@@ -469,6 +469,15 @@ function Game.DestroyBall(ball)
     ball.body:setActive(false)
   end
   ball.destroyed = true
+end
+
+function Game.ballCollision(ball1, ball2)
+  --Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
+
+  if ball1.indestructible or ball2.indestructible then return end
+  if ball1.number == ball2.number then
+    Game.sameColorBallCollision(ball1, ball2)
+  end
 end
 
 function Game.sameColorBallCollision(ball1, ball2)
