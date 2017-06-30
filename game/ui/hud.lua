@@ -102,7 +102,7 @@ Text{
   layer=LAYER_HUD,
   condition = And(inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
-  y=13*UI_HEIGHT_UNIT,
+  y=12*UI_HEIGHT_UNIT,
   font=FONT_SM,
   color=1,
   width=BORDER_THICKNESS,
@@ -119,14 +119,14 @@ Text{
   condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
   --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
-  y=15.15*UI_HEIGHT_UNIT,
+  y=13.15*UI_HEIGHT_UNIT,
   font=FONT_XS,
   getColor=function()
     return Game.comboObjectiveCleared and COLOR_GREEN or COLOR_YELLOW
   end,
   width=BORDER_THICKNESS,
   getText = function()
-  return Game.comboObjectiveCleared and 'cleared' or string.format('clear at %2d', Game.comboObjective)
+  return Game.comboObjectiveCleared and 'cleared' or string.format('clears at %2d', Game.comboObjective)
   end,
 }
 
@@ -136,7 +136,7 @@ Custom{
   condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
   --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
-  y=17*UI_HEIGHT_UNIT,
+  y=15*UI_HEIGHT_UNIT,
   radius=UI_HEIGHT_UNIT,
   width=1*UI_HEIGHT_UNIT,
   height=9*UI_HEIGHT_UNIT,

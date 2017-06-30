@@ -95,7 +95,7 @@ function Backend.getTopPlayers()
     print(k, v.username, v.score)
   end
   Backend.top10Data = top10Data
-  Game.state = GAME_STATE_LEADERBOARD
+  Game.state = STATE_GAME_LEADERBOARD
 end
 
 return Backend

@@ -13,6 +13,7 @@ local Backend = require 'backend'
 Game = {}
 Game.UI = require 'ui'
 Game.events = require 'lib/events'
+Game.tutorial = {state = STATE_TUTORIAL_NONE}
 
 Game.objects = {}
 Game.isOffline = true
@@ -163,7 +164,7 @@ function Game.start(loadGame)
         end
       end)
     end
-  if Game.options.slomoType == OPTIONS_SLOMO_ALWAYSON then
+    if Game.options.slomoType == OPTIONS_SLOMO_ALWAYSON then
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
         if Game.state == STATE_GAME_RUNNING then
           Game.timeScale = TIME_SCALE_SLOMO
@@ -185,7 +186,9 @@ function Game.start(loadGame)
     Game.events.schedule(EVENT_NEW_BALL, function()
       SaveSystem.save(Game)
     end)
-    Game.events.fire(EVENT_COMBO_END)
+    if Game.combo > 0 then
+      Game.events.fire(EVENT_COMBO_END)
+    end
     --Game.validateHeight()
   end)
   Game.events.add(EVENT_SAFE_TO_DROP, function()
@@ -198,25 +201,29 @@ function Game.start(loadGame)
   Game.events.add(EVENT_SCORED, function() 
     Game.timeSinceLastCombo = 0
     if Game.combo >= Game.comboObjective and not Game.comboObjectiveCleared then
-      Game.clearWhiteBalls()
-      Game.comboObjectiveCleared = true
+      Game.events.fire(EVENT_COMBO_CLEARED)
     end
   end)
+  Game.events.add(EVENT_COMBO_CLEARED, function()
+    Game.clearWhiteBalls()
+    Game.comboObjectiveCleared = true
+  end)
   Game.events.add(EVENT_COMBO_END, function()
-    if Game.combo <= 0 then 
-      Game.combo = 0
-      return 
-    end
+    if Game.combo <= 0 then print('CALLING COMBO END EVENT IN A WEIRD CIRUCUNSTANCE') end
     if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
     if Game.combo >= Game.comboObjective then
       Game.comboObjectiveCleared = false
       Game.comboObjective = Game.comboObjective + 5
+      Game.events.fire(EVENT_COMBO_NEW_CLEARSAT)
     end
     Game.comboNumbers = Queue.New()
     Game.combo = 0
   end)
 
   Game.state = STATE_GAME_RUNNING
+  if not Game.options.ignoreTutorial then
+    Game.InitializeTutorial()
+  end
 end
 
 Game.staticFrameCount = 0
@@ -241,10 +248,31 @@ function Game.update(dt)
   --print('STATE_GAME_LOADING = '..STATE_GAME_LOADING)
   --print('STATE_GAME_MAINMENU = '..STATE_GAME_MAINMENU)
 
+  Game.raycastHit = nil
+  --Raycast to get preview
+  if Game.objects.ballPreview then
+    function previewRaycastCallback(fixture, x, y, xn, yn, fraction)
+      --ballref = fixture:getUserData() and fixture:getUserData().ref
+      --if not ballref then return end
+      --print('Ray cast hit something')
+      if not Game.raycastHit or y < Game.raycastHit.y then
+        Game.raycastHit = Vector.New(x, y)
+      end
+      return 1
+    end
+
+    Game.world:rayCast(Game.objects.ballPreview.position.x,
+      Game.objects.ballPreview.position.y,
+      Game.objects.ballPreview.position.x,
+      Game.objects.ballPreview.position.y + BASE_SCREEN_HEIGHT,
+      previewRaycastCallback)
+  end
+
 
   -- NOTE: this might break
   Game.totalTime = Game.totalTime + dt
-  if Game.inState(STATE_GAME_RUNNING, STATE_GAME_LOST, STATE_GAME_PAUSED) then
+  --print('game.state = '..Game.state..' tutorial.state = '..Game.tutorial.state)
+  if Game.inState(STATE_GAME_RUNNING, STATE_GAME_LOST, STATE_GAME_PAUSED) and Game.tutorial.state == STATE_TUTORIAL_NONE then
     -- To prevent spiral of death
     accumulator = accumulator + dt
     if accumulator > MAX_DT_ACC then
@@ -252,25 +280,6 @@ function Game.update(dt)
       return
     end
 
-    Game.raycastHit = nil
-    --Raycast to get preview
-    if Game.objects.ballPreview then
-      function previewRaycastCallback(fixture, x, y, xn, yn, fraction)
-        --ballref = fixture:getUserData() and fixture:getUserData().ref
-        --if not ballref then return end
-        --print('Ray cast hit something')
-        if not Game.raycastHit or y < Game.raycastHit.y then
-          Game.raycastHit = Vector.New(x, y)
-        end
-        return 1
-      end
-
-      Game.world:rayCast(Game.objects.ballPreview.position.x,
-        Game.objects.ballPreview.position.y,
-        Game.objects.ballPreview.position.x,
-        Game.objects.ballPreview.position.y + BASE_SCREEN_HEIGHT,
-        previewRaycastCallback)
-    end
 
 
     while accumulator >= FIXED_DT do
@@ -455,7 +464,7 @@ function Game.GetNextBall()
 end
 
 function Game.IncrementComboTimeout()
-    Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
+  Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
 end
 
 function Game.ScheduleBallDestruction(ball)
@@ -483,6 +492,9 @@ end
 function Game.BallCollision(ball1, ball2)
   --Game.IncrementComboTimeout()
 
+  if ball1.indestructible and ball2.indestructible then
+    Game.events.fire(EVENT_WHITE_BALLS_HIT)
+  end
   if ball1.indestructible or ball2.indestructible then return end
   if ball1.number == ball2.number then
     Game.sameColorBallCollision(ball1, ball2)

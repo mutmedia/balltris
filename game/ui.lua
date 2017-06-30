@@ -253,10 +253,18 @@ function UI.button(params)
 
     UI.setColor(self.textColor, self.visibility)
     love.graphics.setFont(self.font)
+    local text = self:getText()
+    local _, lineCount = text:gsub('\n', '\n')
+    lineCount = (lineCount or 0)
+    --print(text)
+    --print(string.byte(text:sub(-1, -1)))
+    if text:sub(-1, -1) ~= "\n" then
+      lineCount = lineCount + 1
+    end
     love.graphics.printf(
-      self:getText(),
+      text,
       self.x - (self.width/2) * (1 - self.anchor.x),
-      self.y - (self.font:getHeight()/2) * (1 - self.anchor.y),
+      self.y - ((self.font:getHeight() * lineCount)/2) * (1 - self.anchor.y),
       self.width,
       'center',
       self.orientation,

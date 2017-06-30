@@ -4,6 +4,7 @@ MVP
 - [x] Add combo ending widget
 - [ ] Gameplay balance
 - [ ] Basic options
+- [ ] Make a tutorial
 
 - [ ] Open to more playtesters
 
@@ -11,7 +12,6 @@ MVP
 - [ ] Game Options
 - [ ] Improve high score after playtest feedback
 - [ ] Add achievements, see (Achievements)
-- [ ] Make a tutorial
 - [ ] Music / Sound(?)
 - [ ] More Game Options
 - [ ] Improve game icon
@@ -36,7 +36,7 @@ High score Improvements
 
 Gameplay
 --------
-- [ ] Balance combo system (make it more predictable and harder)
+- [x] Balance combo system (make it more predictable and harder)
 - [ ] Make having a lot of whites not so bad (?)
 
 Options
@@ -47,9 +47,14 @@ Basic:
 
 Advanced:
 
+Tutorial
+--------
+- [ ] Make tutorial a stack so it is less prone to errors
+
 DEBUG STUFF / TOOLS
 -------------------
 - [ ] Make debug print tell file (just rename print function to print('filename:', ...)
+- [ ] Make ui loader load entire folder
 
 MISC
 ----
