@@ -116,7 +116,7 @@ Text{
 Text{
   name='combo objective',
   layer=LAYER_HUD,
-  condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
+  condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
   --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
   y=13.15*UI_HEIGHT_UNIT,

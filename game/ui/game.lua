@@ -137,7 +137,7 @@ Rectangle{
   name='inner visible pit',
   layer=LAYER_BACKGROUND,
   condition=Not(inGameState(STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION, STATE_GAME_USERNAME_LOADING)),
-  lineColor=COLOR_TRANSPARENT,
+  lineColor=COLOR_WHITE,
   lineWidth=BALL_LINE_WIDTH_IN,
   x=BASE_SCREEN_WIDTH/2,
   y=0,
@@ -149,7 +149,7 @@ Rectangle{
   name='outer visible pit',
   layer=LAYER_BACKGROUND,
   condition=Not(inGameState(STATE_GAME_USERNAME, STATE_GAME_OFFLINE_CONFIRMATION, STATE_GAME_USERNAME_LOADING)),
-  lineColor=COLOR_TRANSPARENT,
+  lineColor=COLOR_WHITE,
   lineWidth=BALL_LINE_WIDTH_OUT,
   x=BASE_SCREEN_WIDTH/2,
   y=0,
@@ -176,18 +176,6 @@ function DrawBall(color, center, radius, rotation)
   love.graphics.translate(center[1], center[2])
   love.graphics.rotate(rotation or 0)
   --love.graphics.scale(1+s, 1-s)
-  if color ~= COLOR_BLUE and color ~= COLOR_GREEN then 
-    color = COLOR_TRANSPARENT
-  end
-  if color == COLOR_BLUE then
-    color = COLOR_PINK
-  end
-  if color == COLOR_GREEN then
-    color = COLOR_BLUE
-  end
-  if color == COLOR_BLUE and radius == BALL_MAX_RADIUS then
-    color = COLOR_TRANSPARENT
-  end
   UI.setColor(color)
   love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
   radius = radius * BALL_DRAW_SCALE
