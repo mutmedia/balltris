@@ -19,6 +19,7 @@ function addNew(eventName, callback, type)
 end
 
 function Events.add(eventName, callback)
+  if not callback then callback = function() print('EVENT WARN: default callback being called') end end
   addNew(eventName, callback, EVENT_PERMANENT)
 end
 

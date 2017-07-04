@@ -42,7 +42,9 @@ Game.tutorial.learnedRaw = {
     return 
   end
 
-  print(savestring)
+  --print('Save file contents: ////')
+  --print(savestring)
+  --print('////////////////////////')
 
   local s, err = file:write(savestring)
   if err then

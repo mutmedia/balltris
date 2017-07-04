@@ -3,15 +3,16 @@ local TempSave = require 'tempsave'
 local Backend = require 'backend'
 local Scheduler = require 'lib/scheduler'
 
+MUSIC_BPM = 90
 
 local BlinkingText = function(textObj)
-  textObj.colorF = 0.75
+  textObj.colorF = MUSIC_BPM/60
   textObj.lastColorSwap = 0
   textObj.lastColor = math.floor(3 + math.random() * 5)
   textObj.getColor = function(self)
-    if self.lastColorSwap + self.colorF < Game.totalTime then
+    if self.lastColorSwap + self.colorF < Game.totalTimeUnscaled then
       self.lastColor = math.floor(3 + math.random() * 5)
-      self.lastColorSwap = Game.totalTime
+      self.lastColorSwap = Game.totalTimeUnscaled
     end
     return self.lastColor
   end

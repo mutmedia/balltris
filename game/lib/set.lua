@@ -10,7 +10,9 @@ function Set.New(list)
 end
 
 function Set:add(element)
-  self[element] = true
+  if element then
+    self[element] = true
+  end
 end
 
 function Set:remove(element)

@@ -27,9 +27,11 @@ function TutorialText(data)
   data.height=8 * UI_HEIGHT_UNIT
   data.lineColor=COLOR_WHITE
   data.lineWidth=3
+  data.onPress = function()
+    Game.events.fire(EVENT_CLICKED_TUTORIAL)
+  end
   return Button(data)
 end
-
 
 TutorialText{
   name='aim ball',
@@ -173,6 +175,32 @@ cleared combo
 'clears at' value
 increases
 ]]
+  end,
+}
+
+TutorialText{
+  name='game lose',
+  condition=inTutorialState(LEARN_GAMELOSE),
+  getText = function()
+    return [[
+When balls
+pass the line
+you lose
+]]
+  end,
+}
+
+Button{
+  name='game lose screen button',
+  x=BASE_SCREEN_WIDTH/2,
+  y=BASE_SCREEN_HEIGHT/2,
+  condition=inTutorialState(LEARN_GAMELOSE),
+  width = BASE_SCREEN_WIDTH, 
+  height = BASE_SCREEN_HEIGHT,
+  layer=LAYER_MENUS,
+  color=COLOR_TRANSPARENT,
+  onPress = function()
+    Game.events.fire(EVENT_CLICKED_TUTORIAL)
   end,
 }
 

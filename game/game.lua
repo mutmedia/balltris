@@ -173,6 +173,7 @@ function Game.start(loadGame)
     --Game.validateHeight()
   end)
   Game.events.add(EVENT_SAFE_TO_DROP, function()
+    Game.IncrementComboTimeout(COMBO_INCREMENT_DROP)
     Game.GetNextBall()
   end)
   Game.events.add(EVENT_NEW_BALL_INGAME, function()
@@ -181,7 +182,7 @@ function Game.start(loadGame)
   Game.events.add(EVENT_BALLS_TOO_HIGH, Game.lose)
   Game.events.add(EVENT_SCORED, function() 
     Game.timeSinceLastCombo = 0
-    if Game.combo >= Game.comboObjective and not Game.comboObjectiveCleared then
+    if Game.combo >= Game.comboObjective and not Game.comboObjectiveCleared and not Game.inState(STATE_GAME_LOST, STATE_GAME_OVER) then
       Game.events.fire(EVENT_COMBO_CLEARED)
     end
   end)
@@ -212,6 +213,7 @@ Game.staticFrameCount = 0
 Game.timeSinceLastCombo = 0
 Game.comboTimeLeft = 0
 Game.totalTime = 0
+Game.totalTimeUnscaled = 0
 
 Game.raycastHit = nil
 
@@ -220,6 +222,7 @@ gf = 0
 pf = 0
 function Game.update(dt)
 
+  Game.totalTimeUnscaled = Game.totalTimeUnscaled + dt
   dt = dt * Game.timeScale
   Scheduler.update(dt)
   --print(' Game State: '.. Game.state)
@@ -313,15 +316,10 @@ function Game.update(dt)
         Game.events.fire(EVENT_COMBO_TIMEOUT)
       end
 
-      Game.comboTimeLeft = math.max(Game.comboTimeLeft - FIXED_DT, 0)
-      Game.timeSinceLastCombo = math.max(Game.timeSinceLastCombo + FIXED_DT, 0)
-
-      --[[
-      if Game.timeSinceLastCombo > COMBO_TIMEOUT then
-        Game.events.fire(EVENT_COMBO_TIMEOUT)
-        Game.timeSinceLastCombo = 0
+      if Game.objects.ballPreview then
+        Game.comboTimeLeft = math.max(Game.comboTimeLeft - FIXED_DT, 0)
       end
-      ]]--
+      Game.timeSinceLastCombo = math.max(Game.timeSinceLastCombo + FIXED_DT, 0)
 
       pf = pf + 1
       accumulator = accumulator - FIXED_DT
@@ -423,7 +421,6 @@ function Game.ReleaseBall()
   --Game.objects.ballPreview = Balls.NewBallPreview(Game.objects.ballPreview.position.x)
   Game.lastDroppedBall = newBall
   newBall.startSpawnParticleSystem()
-  Game.IncrementComboTimeout()
 end
 
 function Game.GetNextBall() 
@@ -445,15 +442,15 @@ function Game.GetNextBall()
   end
 end
 
-function Game.IncrementComboTimeout()
-  Game.comboTimeLeft = math.min(Game.comboTimeLeft + NEW_BALL_COMBO_INCREMENT, MAX_COMBO_TIMEOUT)
+function Game.IncrementComboTimeout(inc)
+  Game.comboTimeLeft = math.min(Game.comboTimeLeft + inc, COMBO_MAX_TIMEOUT)
 end
 
 function Game.ScheduleBallDestruction(ball)
   ball:exitGame()
   ball.timeDestroyed = Game.totalTime
   ball.startDeathParticleSystem()
-  Game.IncrementComboTimeout()
+  Game.IncrementComboTimeout(COMBO_INCREMENT_SCORE)
   Scheduler.add(function()
     Game.DestroyBall(ball)
   end, BALL_TIME_TO_DESTROY)

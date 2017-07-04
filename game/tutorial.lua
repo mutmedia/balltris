@@ -13,24 +13,26 @@ function MoveToLearnAfterTimeout()
   Scheduler.add(
     function() 
       Game.events.schedule(EVENT_MOVED_PREVIEW, function()
-        Learn()
+        Learn(MoveToLearnAfterTimeout)
       end)
     end,
     TUTORIAL_MIN_TIME)
 end
 
 local learnedThing = nil
-function Learn()
+function Learn(fallback)
   if learnedThing then 
     print('already learned '..learnedThing..' this event')
-    MoveToLearnAfterTimeout()
+    fallback()
     return 
   end
   learnedThing = Game.tutorial.state:pop()
-  Game.tutorial.learned:add(learnedThing)
-  print('learned '..learnedThing)
-  LocalSave.Save(Game)
-  Scheduler.add(function() learnedThing = nil end, 0)
+  if learnedThing then
+    Game.tutorial.learned:add(learnedThing)
+    print('learned '..learnedThing)
+    LocalSave.Save(Game)
+    Scheduler.add(function() learnedThing = nil end, 0)
+  end
 end
 
 function Game.IsTutorialOver()
@@ -75,6 +77,15 @@ function Game.InitializeTutorial(loadedTutorial)
   Game.tutorial.learned = Game.tutorial.learned or Set.New(Game.tutorial.learnedRaw)
   Game.tutorial.state = Stack.New()
   --Game.tutorial.state:push(LEARN_NOTHING)
+
+
+  function learnNextFrame()
+    Scheduler.add(function()
+      Learn(learnNextFrame)
+    end)
+  end
+
+  Game.events.add(EVENT_CLICKED_TUTORIAL, function() Learn(learnNextFrame) end)
 
 
   if not Game.tutorial.learned:contains(LEARN_AIMBALL) or not Game.tutorial.learned:contains(LEARN_DROPBALL) then
@@ -159,6 +170,13 @@ function Game.InitializeTutorial(loadedTutorial)
         end, TUTORIAL_CLEAR_TIMEOUT)
     end)
   end
+
+  if not Game.tutorial.learned:contains(LEARN_GAMELOSE) then
+    Game.events.schedule(EVENT_BALLS_TOO_HIGH, function()
+      Game.tutorial.state:push(LEARN_GAMELOSE)
+      MoveToLearnAfterTimeout()
+    end)
+  end
 end
 
 function learnCombometerDrop()
@@ -202,9 +220,12 @@ end
 function learnToLoseCombo()
   function learnToLoseComboRecursion()
     --print('waiting to learn lose combo')
+  end
+  Game.events.schedule(EVENT_COMBO_END, function()
     Game.tutorial.state:push(LEARN_LOSECOMBO)
     MoveToLearnAfterTimeout()
-  end
-  Game.events.schedule(EVENT_COMBO_END, learnToLoseComboRecursion)
+    learnCombometerDrop()
+    learnCombometerScore()
+  end)
 end
 

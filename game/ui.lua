@@ -267,7 +267,7 @@ function UI.button(params)
       text,
       self.x - (self.width/2) * (1 - self.anchor.x),
       self.y - ((self.font:getHeight() * lineCount)/2) * (1 - self.anchor.y),
-      self.width,
+      self.width * 1.1,
       'center',
       self.orientation,
       1,

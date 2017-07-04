@@ -64,9 +64,6 @@ Custom{
       local position = (self.initialPosition + currentSize) % maxSize
 
       local step = stepSize
-      if currentBall == Game.comboNumbers.size then
-        --step = step * math.max( 1 - Game.timeSinceLastCombo / COMBO_TIMEOUT, 0)
-      end
       while step > 0 do
         if position < HOLE_WIDTH/2 then 
           local hstep = math.min(step, HOLE_WIDTH/2 - position)

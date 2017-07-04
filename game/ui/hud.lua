@@ -126,12 +126,12 @@ Text{
   end,
   width=BORDER_THICKNESS,
   getText = function()
-  return Game.comboObjectiveCleared and 'cleared' or string.format('clears at %2d', Game.comboObjective)
+    return Game.comboObjectiveCleared and 'cleared' or string.format('clears at %2d', Game.comboObjective)
   end,
 }
 
 Custom{
-  name='combo thermometer',
+  name='combometer',
   layer=LAYER_HUD,
   condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
   --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
@@ -141,47 +141,50 @@ Custom{
   width=1*UI_HEIGHT_UNIT,
   height=9*UI_HEIGHT_UNIT,
   draw=function(self)
-    local value = Game.comboTimeLeft / MAX_COMBO_TIMEOUT
-      local color = COLOR_GREEN
+    local value = (Game.comboTimeLeft - COMBO_TIMEOUT_BUFFER) / (COMBO_MAX_TIMEOUT - COMBO_TIMEOUT_BUFFER)
+    value = value
+    local color = COLOR_GREEN
     if value < 1/3 then
-        color = COLOR_RED
-      elseif value < 2/3 then
-        color = COLOR_YELLOW
-      end
+      color = COLOR_RED
+    elseif value < 2/3 then
+      color = COLOR_YELLOW
+    end
 
     local NUM_SEGMENTS = 9
     local maxFill = 1/NUM_SEGMENTS
     for i=1,NUM_SEGMENTS do
       local fill = math.clamp(value - (i-1) * maxFill, 0, maxFill)
-            UI.setColor(color)
+      UI.setColor(color)
 
       local h = self.height * fill
-      love.graphics.rectangle('fill',
-        self.x - self.width/2,
-        self.y + ((NUM_SEGMENTS-i) * (maxFill)) * self.height + (maxFill-fill) * self.height,
-        self.width,
-        h
-        )
+      if h > 0 then
+        love.graphics.rectangle('fill',
+          self.x - self.width/2,
+          self.y + ((NUM_SEGMENTS-i) * (maxFill)) * self.height + (maxFill-fill) * self.height,
+          self.width,
+          h, RECTANGLE_BORDER_RADIUS
+          )
 
-      UI.setColor(COLOR_BLACK)
-      love.graphics.rectangle('fill',
-        self.x - self.width/2,
-        self.y + ((NUM_SEGMENTS-i) * (maxFill)) * self.height + maxFill * self.height,
-        self.width,
-        UI_HEIGHT_UNIT * 0.2
-        )
+        UI.setColor(COLOR_BLACK)
+        love.graphics.rectangle('fill',
+          self.x - self.width/2,
+          self.y + ((NUM_SEGMENTS-i) * (maxFill)) * self.height + maxFill * self.height,
+          self.width,
+          UI_HEIGHT_UNIT * 0.2
+          )
+      end
     end
 
     UI.setColor(COLOR_WHITE)
     love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
-    love.graphics.rectangle('line', self.x - self.width/2, self.y, self.width, self.height)
+    love.graphics.rectangle('line', self.x - self.width/2, self.y, self.width, self.height, RECTANGLE_BORDER_RADIUS)
 
 
     UI.setColor(COLOR_WHITE)
     love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
     local w = self.width + 2*BALL_LINES_DISTANCE
     local h = self.height + 2 * BALL_LINES_DISTANCE
-    love.graphics.rectangle('line', self.x - w/2, self.y - BALL_LINES_DISTANCE, w, h)
+    love.graphics.rectangle('line', self.x - w/2, self.y - BALL_LINES_DISTANCE, w, h, RECTANGLE_BORDER_RADIUS)
     --[[ Circular
     local angle = math.pi * value
     love.graphics.arc('fill', self.x, self.y, self.radius, 0, -angle)

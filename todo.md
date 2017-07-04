@@ -2,14 +2,15 @@ MVP
 ====
 - [x] Finish very basic high score
 - [x] Add combo ending widget
-- [ ] Gameplay balance
-- [ ] Basic options
+- [x] Gameplay balance
+- [x] Basic options
 - [x] Make a tutorial
 
 - [ ] Open to more playtesters
 
 - [ ] Improve tutorial after playtest
 - [ ] Finish basic effects
+- [ ] Fix Continue
 - [ ] Game Options
 - [ ] Improve high score after playtest feedback
 - [ ] Add achievements, see (Achievements)
@@ -32,6 +33,7 @@ Effects:
 
 High score Improvements
 -----------------------
+- [ ] Make it async so there are no stupid delays
 - [ ] Make it more arcade like
 - [ ] Add scores close to player
 - [ ] Save name after each new high score (?)
