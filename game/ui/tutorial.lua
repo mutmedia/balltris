@@ -5,11 +5,8 @@ function inTutorialState(...)
   return function()
     local tutorialStates = vars
     for _, tutorialState in pairs(tutorialStates) do
-      if tutorialState ~= 1 and tutorialState % 2 ~= 0 then
-        print('STATE ERROR: comparing against invalid state')
-      end
-
-      if Game.tutorial.state == tutorialState then
+      --print(tutorialState)
+      if Game.tutorial and Game.tutorial.state and Game.tutorial.state:peek() == tutorialState then
         return true
       end
     end
@@ -33,9 +30,10 @@ function TutorialText(data)
   return Button(data)
 end
 
+
 TutorialText{
   name='aim ball',
-  condition=inTutorialState(STATE_TUTORIAL_AIMBALL),
+  condition=inTutorialState(LEARN_AIMBALL),
   getText = function()
     return [[
 Drag you finger
@@ -47,7 +45,7 @@ to aim the ball
 
 TutorialText{
   name='drop ball',
-  condition=inTutorialState(STATE_TUTORIAL_DROPBALL),
+  condition=inTutorialState(LEARN_DROPBALL),
   getText = function()
     return [[
 Release your finger 
@@ -60,7 +58,7 @@ to drop the ball
 
 TutorialText{
   name='score',
-  condition=inTutorialState(STATE_TUTORIAL_SCORE),
+  condition=inTutorialState(LEARN_SCORE),
   getText = function()
     return [[
 When balls with
@@ -73,7 +71,7 @@ and you score
 
 TutorialText{
   name='white balls',
-  condition=inTutorialState(STATE_TUTORIAL_WHITEBALLS),
+  condition=inTutorialState(LEARN_WHITEBALLS),
   getText = function()
     return [[
 White balls don't 
@@ -84,7 +82,7 @@ destroy each other
 
 TutorialText{
   name='slomo',
-  condition=inTutorialState(STATE_TUTORIAL_SLOMO),
+  condition=inTutorialState(LEARN_SLOMO),
   getText = function()
     return [[
 While aiming,
@@ -95,7 +93,7 @@ time moves slowly
 
 TutorialText{
   name='slomo',
-  condition=inTutorialState(STATE_TUTORIAL_SLOMO_OPTIONS),
+  condition=inTutorialState(LEARN_SLOMOOPTIONS),
   getText = function()
     return [[
 Slow motion
@@ -107,7 +105,7 @@ in options menu
 
 TutorialText{
   name='combo',
-  condition=inTutorialState(STATE_TUTORIAL_COMBO),
+  condition=inTutorialState(LEARN_COMBO),
   getText = function()
     return [[
 Destroy balls
@@ -119,7 +117,7 @@ to combo
 
 TutorialText{
   name='lose combo',
-  condition=inTutorialState(STATE_TUTORIAL_LOSECOMBO),
+  condition=inTutorialState(LEARN_LOSECOMBO),
   getText = function()
     return [[
 When the 
@@ -132,7 +130,7 @@ your combo ends
 
 TutorialText{
   name='combo meter drop',
-  condition=inTutorialState(STATE_TUTORIAL_COMBOMETER_DROP),
+  condition=inTutorialState(LEARN_COMBOMETERDROP),
   getText = function()
     return [[
 Releasing a ball
@@ -143,7 +141,7 @@ fills combo meter
 
 TutorialText{
   name='combo meter score',
-  condition=inTutorialState(STATE_TUTORIAL_COMBOMETER_SCORE),
+  condition=inTutorialState(LEARN_COMBOMETERSCORE),
   getText = function()
     return [[
 Balls disappearing
@@ -154,7 +152,7 @@ fills combo meter
 
 TutorialText{
   name='combo clear',
-  condition=inTutorialState(STATE_TUTORIAL_CLEARCOMBO),
+  condition=inTutorialState(LEARN_CLEARCOMBO),
   getText = function()
     return [[
 When combo higher
@@ -167,7 +165,7 @@ disappear
 
 TutorialText{
   name='combo new clearsat',
-  condition=inTutorialState(STATE_TUTORIAL_NEW_COMBO_CLEARSAT),
+  condition=inTutorialState(LEARN_NEWCOMBOCLEARSAT),
   getText = function()
     return [[
 After losing a
@@ -181,7 +179,7 @@ increases
 --[[
 TutorialText{
   name='debug',
-  condition=True(),inTutorialState(STATE_TUTORIAL_NEW_COMBO_CLEARSAT),
+  condition=True(),inTutorialState(LEARN_NEWCOMBOCLEARSAT),
   getText = function()
 print(Game.tutorial.state)
     return 'test' 
@@ -193,7 +191,7 @@ print(Game.tutorial.state)
 Button{
   name='new game button',
   layer=LAYER_MENUS,
-  condition=False(),--False(Not(inTutorialState(STATE_TUTORIAL_NONE))),
+  condition=False(),--False(Not(inTutorialState(LEARN_NONE))),
   x=BASE_SCREEN_WIDTH/2,
   y=20*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
@@ -207,7 +205,7 @@ Button{
     return 'ok'
   end,
   onPress = function(self, x, y)
-    Game.tutorial.state = STATE_TUTORIAL_NONE
+    Game.tutorial.state = LEARN_NONE
   end,
 }
 ]]--

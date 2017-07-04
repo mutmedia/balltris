@@ -153,6 +153,7 @@ function love.load()
   loaded = true
   love.keyboard.setTextInput(false)
   Game.state = STATE_GAME_MAINMENU
+  Game.InitializeTutorial()
   Backend.init()
 end
 
@@ -343,6 +344,9 @@ function love.keypressed(key)
 
   if key == 'f' then
     DEBUG_SHOW_FPS = not DEBUG_SHOW_FPS
+  end
+  if key == 't' then
+    print(Game.tutorial.state:peek())
   end
 
   if key == 'r' then

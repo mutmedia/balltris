@@ -23,36 +23,16 @@ Game.highScore = %d
       game.highScore)
     )
 
-  table.insert(savestrings, string.format([[
-Game.tutorial = {
-  learnedAimBall = %s,
-  learnedDropBall = %s,
-  learnedSlomo = %s,
-  learnedScore = %s,
-  learnedWhiteBalls = %s,
-  learnedCombo = %s,
-  learnedLoseCombo = %s,
-  learnedClearCombo = %s,
-  learnedNewComboClearsat = %s,
-  learnedCombometerScore = %s,
-  learnedCombometerDrop = %s,
-}
-
-]],
-
-      Game.tutorial.learnedAimBall and 'true' or 'false',
-      Game.tutorial.learnedDropBall and 'true' or 'false',
-      Game.tutorial.learnedSlomo and 'true' or 'false',
-      Game.tutorial.learnedScore and 'true' or 'false',
-      Game.tutorial.learnedWhiteBalls and 'true' or 'false',
-      Game.tutorial.learnedCombo and 'true' or 'false',
-      Game.tutorial.learnedLoseCombo and 'true' or 'false',
-      Game.tutorial.learnedClearCombo and 'true' or 'false',
-      Game.tutorial.learnedNewComboClearsat and 'true' or 'false',
-      Game.tutorial.learnedCombometerScore and 'true' or 'false',
-      Game.tutorial.learnedCombometerDrop and 'true' or 'false')
-    )
-
+  if Game.tutorial then
+    table.insert(savestrings, [[
+Game.tutorial = {}
+Game.tutorial.learnedRaw = {
+]])
+    for k, v in pairs(Game.tutorial.learned) do
+      table.insert(savestrings, string.format("\t'%s',\n", k))
+    end
+    table.insert(savestrings, '}')
+  end
   local savestring = table.concat(savestrings)
   --print(savestring)
 
@@ -62,11 +42,12 @@ Game.tutorial = {
     return 
   end
 
+  print(savestring)
+
   local s, err = file:write(savestring)
   if err then
     error(err)
   end
-
 end
 
 function LocalSave.Load()

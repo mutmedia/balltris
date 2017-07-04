@@ -57,11 +57,12 @@ Button{
   y=24*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
-  color=0,
-  lineColor=1,
+  color=COLOR_BLACK,
+  getLineColor=function()
+    return not Game.IsTutorialReset() and COLOR_WHITE or COLOR_GRAY
+  end,
   lineWidth=3,
   font=FONT_SM,
-  textColor=1,
   getText = function() 
     return 'reset tutorial'
   end,
@@ -71,7 +72,7 @@ Button{
 }
 
 Button{
-  name='clear tutorial',
+  name='skip tutorial',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OPTIONS),
   x=BASE_SCREEN_WIDTH/2,
@@ -79,10 +80,11 @@ Button{
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   color=0,
-  lineColor=1,
+  getLineColor=function()
+    return not Game.IsTutorialOver() and COLOR_WHITE or COLOR_GRAY
+  end,
   lineWidth=3,
   font=FONT_SM,
-  textColor=1,
   getText = function() 
     return 'skip tutorial'
   end,

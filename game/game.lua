@@ -14,7 +14,7 @@ local Backend = require 'backend'
 Game = {}
 Game.UI = require 'ui'
 Game.events = require 'lib/events'
-Game.tutorial = {state = STATE_TUTORIAL_NONE}
+Game.tutorial = {}
 
 Game.objects = {}
 Game.isOffline = true
@@ -198,7 +198,8 @@ function Game.start(loadGame)
       Game.events.fire(EVENT_COMBO_NEW_CLEARSAT)
     end
     Game.comboNumbers = Queue.New()
-    Game.combo = 0
+    -- Reset on next frame
+    Scheduler.add(function() Game.combo = 0 end, 0)
   end)
 
   Game.state = STATE_GAME_RUNNING
@@ -253,7 +254,7 @@ function Game.update(dt)
   -- NOTE: this might break
   Game.totalTime = Game.totalTime + dt
   --print('game.state = '..Game.state..' tutorial.state = '..Game.tutorial.state)
-  if Game.inState(STATE_GAME_RUNNING, STATE_GAME_LOST, STATE_GAME_PAUSED) and Game.tutorial.state == STATE_TUTORIAL_NONE then
+  if Game.inState(STATE_GAME_RUNNING, STATE_GAME_LOST, STATE_GAME_PAUSED) and not Game.tutorial.state:peek() then
     -- To prevent spiral of death
     accumulator = accumulator + dt
     if accumulator > MAX_DT_ACC then

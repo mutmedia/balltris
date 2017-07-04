@@ -218,7 +218,7 @@ end
 function UI.button(params)
   local btn = params
 
-  if (btn.text or btn.getText) and not btn.textColor then
+  if (btn.text or btn.getText) and not btn.textColor and not btn.getTextColor and not btn.lineColor and not btn.getLineColor then
     print(string.format('UI ERROR: Object %s has no text color', btn.name or 'unnamed'))
   end
 
@@ -239,8 +239,9 @@ function UI.button(params)
         self.height,
         RECTANGLE_BORDER_RADIUS) 
     end
-    if self.lineWidth and self.lineColor then
-      UI.setColor(self.lineColor, self.visibility)
+    local lineColor = (self.getLineColor and self:getLineColor()) or self.lineColor
+    if self.lineWidth and lineColor then
+      UI.setColor(lineColor, self.visibility)
       love.graphics.setLineWidth(self.lineWidth)
       love.graphics.rectangle(
         'line',
@@ -251,7 +252,8 @@ function UI.button(params)
         RECTANGLE_BORDER_RADIUS)
     end
 
-    UI.setColor(self.textColor, self.visibility)
+    local textColor = (self.getTextColor and self:getTextColor()) or self.textColor or lineColor
+    UI.setColor(textColor, self.visibility)
     love.graphics.setFont(self.font)
     local text = self:getText()
     local _, lineCount = text:gsub('\n', '\n')
