@@ -2,7 +2,7 @@
 *.love
 *.swp
 *.exe
+*.lnk
 build/
-android-files
 server/
 node_modules
