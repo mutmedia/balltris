@@ -220,11 +220,9 @@ Game.raycastHit = nil
 local accumulator = 0
 gf = 0
 pf = 0
-function Game.update(dt)
 
+function Game.update(dt)
   Game.totalTimeUnscaled = Game.totalTimeUnscaled + dt
-  dt = dt * Game.timeScale
-  Scheduler.update(dt)
   --print(' Game State: '.. Game.state)
   --print('STATE_GAME_RUNNING ='..STATE_GAME_RUNNING)
   --print('STATE_GAME_LOST ='..STATE_GAME_LOST)
@@ -253,6 +251,11 @@ function Game.update(dt)
       previewRaycastCallback)
   end
 
+  if Game.inState(STATE_GAME_RUNNING) then
+    dt = dt * Game.timeScale
+  end
+  -- NOTE: THis might cause problems
+  Scheduler.update(dt)
 
   -- NOTE: this might break
   Game.totalTime = Game.totalTime + dt

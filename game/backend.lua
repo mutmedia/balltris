@@ -1,6 +1,8 @@
 local json = require 'lib/json'
-local Request = require 'lib/request'
+local Async = require 'lib/async'
+local Request = require 'lib/async/request'
 local Load = require 'lib/load'
+local Scheduler = require 'lib/scheduler'
 
 local USER_DATA_FILE_PATH = 'user_data.lua'
 --local BACKEND_PATH = 'http://localhost:1234'
@@ -26,25 +28,34 @@ function Backend.init()
 end
 
 function Backend.tryCreateUser(username)
-  local exists, _ = Request.get(BACKEND_PATH..'/users/'..username)
-  if exists then
-    return false, 'Username already exists'
-  else
-    local success, response = Request.post(BACKEND_PATH..'/users', {
-        username=username,
-        score=0,
-      })
-    if success then 
-      print('Created new user:', json.encode(response))
-      local userData = {username=username, score=0} 
-      Backend.setUser(userData)
-      SaveUserDataToFile(userData)
-      return true, 'Created new user'
+  Async(function()
+    local exists, _ = Request.Get(BACKEND_PATH..'/users/'..username)
+    if exists then
+      Game.usernameErrorMsg = "name already taken"
+      Game.state = STATE_GAME_USERNAME
+      Scheduler.add(function() Game.usernameErrorMsg = nil end, 4) -- invalid username will be displayed for 4 seconds
+      return 
     else
-      print('Error creating new user')
-      return false, response
+      local success, response = Request.Post(BACKEND_PATH..'/users', {
+          username=username,
+          score=0,
+        })
+      if success then 
+        print('Created new user:', json.encode(response))
+        local userData = {username=username, score=0} 
+        Backend.setUser(userData)
+        SaveUserDataToFile(userData)
+        Game.state = STATE_GAME_MAINMENU
+        print('Crated new user: '..username)
+        return
+      else
+        Game.usernameErrorMsg = response
+      --Scheduler.add(function() Game.usernameErrorMsg = nil end, 4) -- invalid username will be displayed for 4 seconds
+        print('Error creating new user: '..response)
+        return
+      end
     end
-  end
+  end)
 end
 
 function SaveUserDataToFile(userData)
@@ -84,18 +95,24 @@ function Backend.sendScore(score)
   }
   print(json.encode(data))
   print(BACKEND_PATH..'/'..Backend.userData.username)
-  local _, response = Request.patch(BACKEND_PATH..'/users/'..Backend.userData.username, data)
-  userId = response['_id']
-  print(userId)
+  Async(function()
+    local _, response = Request.Patch(BACKEND_PATH..'/users/'..Backend.userData.username, data)
+    userId = response['_id']
+    print(userId)
+  end)
 end
 
 function Backend.getTopPlayers()
-  local ok, top10Data = Request.get(BACKEND_PATH..'/top10')
-  for k, v in ipairs(top10Data) do
-    print(k, v.username, v.score)
-  end
-  Backend.top10Data = top10Data
-  Game.state = STATE_GAME_LEADERBOARD
+  Async(function()
+    local ok, top10Data = Request.Get(BACKEND_PATH..'/top10')
+    for k, v in ipairs(top10Data) do
+      print(k, v.username, v.score)
+    end
+    Backend.top10Data = top10Data
+    if Game.inState(STATE_GAME_LEADERBOARD_LOADING) then
+      Game.state = STATE_GAME_LEADERBOARD
+    end
+  end)
 end
 
 return Backend

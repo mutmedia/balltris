@@ -51,9 +51,6 @@ local auxCanvas2
 
 
 local loader
-local dataToLoadChannel
-local dataLoadedChannel
-local threadPrintChannel
 
 local Palette
 
@@ -74,20 +71,6 @@ function love.load()
 
   -- Physics
   love.physics.setMeter(METER)
-
-  -- Loading actual stuff
-  --[[
-  loader = love.thread.newThread('loader.lua')
-  dataToLoadChannel = love.thread.getChannel('data_to_load')
-  dataLoadedChannel = love.thread.getChannel('data_loaded')
-  threadPrintChannel = love.thread.getChannel('thread_print')
-  loader:start()
-  Scheduler.add(function() 
-    dataToLoadChannel:push({
-        type='shader', value={'shaders/edgeshader.fs', 'shaders/edgeshader.vs'},
-      })
-  end, 1)
-  ]]--
 
   -- Load Game Palette
 
@@ -265,7 +248,6 @@ function love.update(dt)
 end
 
 function love.textinput(t)
-  print(t)
   if Game.state ~= STATE_GAME_USERNAME then return end
   Game.usernameText = Game.usernameText..t
 end

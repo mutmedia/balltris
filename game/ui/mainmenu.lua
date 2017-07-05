@@ -110,10 +110,7 @@ Button{
     Game.state = STATE_GAME_LEADERBOARD_LOADING
     Scheduler.add(function() 
       Backend.getTopPlayers()
-      if Game.state == STATE_GAME_LEADERBOARD_LOADING then
-        Game.state = STATE_GAME_LEADERBOARD
-      end
-    end, 0.1)
+    end, 0)
 end,
 }
 

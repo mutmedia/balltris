@@ -68,7 +68,7 @@ Button{
 Text{
   name='invalid username',
   layer=LAYER_MENUS,
-  condition=And(inGameState(STATE_GAME_USERNAME), function() return Game.invalidUsername == true end),
+  condition=And(inGameState(STATE_GAME_USERNAME), function() return Game.usernameErrorMsg and true or false end),
   x=BASE_SCREEN_WIDTH/2,
   y=18*UI_HEIGHT_UNIT,
   font=FONT_SM,
@@ -79,7 +79,7 @@ Text{
   lastCursorSwap = 0,
   showCursor = true,
   getText= function(self)
-    return 'error: '..(Game.createUsernameErrorMsg or '')
+    return 'error: '..(Game.usernameErrorMsg or '')
   end,
 }
 
@@ -104,19 +104,8 @@ Button{
     if Game.state == STATE_GAME_USERNAME_LOADING then return end
     Game.state = STATE_GAME_USERNAME_LOADING
     love.keyboard.setTextInput(false)
-    Scheduler.add(function()
-      local validUser, msg = Backend.tryCreateUser(Game.usernameText)
-      if validUser then
-        Game.state = STATE_GAME_MAINMENU
-      else
-        Game.createUsernameErrorMsg = msg
-        Game.invalidUsername  = true
-        Scheduler.add(function() Game.invalidUsername = false end, 5) -- invalid username will be displayed for 4 seconds
-    Game.state = STATE_GAME_USERNAME
-      end
-
-    end, 0.1)
-end,
+    Backend.tryCreateUser(Game.usernameText)
+  end,
 }
 
 Button{

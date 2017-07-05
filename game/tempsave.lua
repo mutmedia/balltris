@@ -14,6 +14,7 @@ local error = function(str)
 end
 
 function TempSave.Save(game)
+  if game.inState(STATE_GAME_RUNNING) then return end
   local savestrings = {}
   table.insert(savestrings,
     [[
