@@ -33,13 +33,12 @@ for i=1,10 do
   Text{
     name='leader'..i,
     layer=LAYER_MENUS,
-    condition=inGameState(STATE_GAME_LEADERBOARD),
+    condition=And(function() return Backend.top10Error == nil end ,inGameState(STATE_GAME_LEADERBOARD)),
     x=BASE_SCREEN_WIDTH/2,
     y=2*(i + 2)*UI_HEIGHT_UNIT,
     font=FONT_SM,
     getColor=function(self)
-      return Backend.top10Data[i].username == Backend.userData.username and
-      COLOR_GREEN or COLOR_BLUE
+      return (not Backend.isOffline) and Backend.top10Data[i].username == Backend.userData.username and COLOR_GREEN or COLOR_BLUE
     end,
     width=HOLE_WIDTH,
     getText= function()
@@ -48,6 +47,44 @@ for i=1,10 do
     end,
   }
 end
+
+Text{
+  name='top10 error',
+  layer=LAYER_MENUS,
+  condition=And(function() return Backend.top10Error ~= nil end ,inGameState(STATE_GAME_LEADERBOARD)),
+  x = BASE_SCREEN_WIDTH/2,
+  y=8*UI_HEIGHT_UNIT,
+  font = FONT_SM,
+  color= COLOR_RED,
+  width=HOLE_WIDTH,
+  getText=function()
+    return 'Error: \n'..Backend.top10Error
+  end,
+}
+
+Button{
+  name='retry',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_LEADERBOARD, STATE_GAME_LEADERBOARD_LOADING),
+  x=BASE_SCREEN_WIDTH/2,
+  y=32*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.8,
+  height=2*UI_HEIGHT_UNIT,
+  color=0,
+  lineColor=1,
+  lineWidth=3,
+  font=FONT_MD,
+  textColor=1,
+  getText = function() 
+    return 'retry'
+  end,
+  onPress = function(self, x, y)
+    Backend.top10Error = nil
+    Game.state:push(STATE_GAME_LEADERBOARD_LOADING)
+    Backend.getTopPlayers()
+    Backend.sendScore(Game.highScore)
+  end,
+}
 
 Button{
   name='back',
@@ -66,7 +103,7 @@ Button{
     return 'back'
   end,
   onPress = function(self, x, y)
-    Game.state = STATE_GAME_MAINMENU
+    Game.state:pop()
   end,
 }
 

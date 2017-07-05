@@ -135,7 +135,7 @@ function love.load()
   -- TODO: move to place where game actually starts
   loaded = true
   love.keyboard.setTextInput(false)
-  Game.state = STATE_GAME_MAINMENU
+  Game.state:push(STATE_GAME_MAINMENU)
   Game.InitializeTutorial()
   Backend.init()
 end
@@ -248,7 +248,7 @@ function love.update(dt)
 end
 
 function love.textinput(t)
-  if Game.state ~= STATE_GAME_USERNAME then return end
+  if not Game.inState(STATE_GAME_USERNAME) then return end
   Game.usernameText = Game.usernameText..t
 end
 
@@ -282,7 +282,7 @@ end
 
 -- INPUT
 function love.keypressed(key)
-  if Game.state == STATE_GAME_USERNAME then 
+  if Game.inState(STATE_GAME_USERNAME) then 
     if key == 'backspace' then
       Game.usernameText = Game.usernameText:sub(1, -2)
     end
@@ -290,7 +290,7 @@ function love.keypressed(key)
 
   if love.keyboard.hasTextInput() then return end
 
-  if Game.state == STATE_GAME_RUNNING then
+  if Game.inState(STATE_GAME_RUNNING) then
     if key == INPUT_RELEASE_BALL then
       ReleaseBall() 
     end 
@@ -317,9 +317,9 @@ function love.keypressed(key)
 
   if key == 'escape' then
     if Game.inState(STATE_GAME_RUNNING) then
-      Game.state = STATE_GAME_PAUSED
+      Game.state:push(STATE_GAME_PAUSED)
     elseif Game.inState(STATE_GAME_PAUSED) then
-      Game.state = STATE_GAME_RUNNING
+      Game.state:push(STATE_GAME_RUNNING)
     end
   end
 
@@ -335,7 +335,7 @@ function love.keypressed(key)
 
   if key == 'r' then
     --[[
-    Game.state = STATE_GAME_RUNNING
+    Game.state:push(STATE_GAME_RUNNING)
     if Game.objects then 
       Game.objects.ballPreview = Balls.NewBallPreview()
       if Game.objects.nextBallPreviews then

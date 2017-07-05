@@ -30,14 +30,21 @@ function DoRequestSync(request)
   headersString = {}
   table.insert(headersString, 'response_headers: {\n')
 
-  for k, v in ipairs(response_headers) do 
-    table.insert(headersString, '\t'..k..' = '..v..',\n')
+  if response_headers then 
+    if type(response_headers) == 'string' then
+      print(response_headers)
+    else
+    for k, v in ipairs(response_headers) do 
+      table.insert(headersString, '\t'..k..' = '..v..',\n')
+    end
+    table.insert(headersString, '}')
+    print(table.concat(headersString))
   end
-  table.insert(headersString, '}')
-  print(table.concat(headersString))
+  end
 
   local body = table.concat(response_body)
   print('response: '..body)
+  print('code: '..(code or 'no code'))
   if code ~= 200 and code ~= 209 then
     return false, code
   end

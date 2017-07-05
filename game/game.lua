@@ -6,6 +6,7 @@ local RandomBag = require 'lib/randombag'
 local Vector = require 'lib/vector2d'
 local TempSave = require 'tempsave'
 local LocalSave = require 'localsave'
+local Stack = require 'lib/stack'
 
 local Balls = require 'balls'
 
@@ -18,7 +19,7 @@ Game.tutorial = {}
 
 Game.objects = {}
 Game.isOffline = true
-Game.state = 0
+Game.state = Stack.New()
 Game.world = nil
 
 Game.score = 0
@@ -44,7 +45,7 @@ Game.tutorial = {}
 
 function Game.start(loadGame)
   Game.totalTime = 0
-  Game.state = STATE_GAME_LOADING
+  Game.state:push(STATE_GAME_LOADING)
 
   -- Physics
   Game.world = love.physics.newWorld(0, GRAVITY, true)
@@ -128,7 +129,7 @@ function Game.start(loadGame)
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
         -- HACK: didnt want to implement proper UI hold just for this
         -- TODO: implement ui.hold
-        if Game.state == STATE_GAME_RUNNING and love.mouse.isDown(1) then
+        if Game.inState(STATE_GAME_RUNNING) and love.mouse.isDown(1) then
           Game.timeScale = TIME_SCALE_SLOMO
         end
       end)
@@ -140,14 +141,14 @@ function Game.start(loadGame)
     Game.timeScale = TIME_SCALE_REGULAR
     if Game.options.slomoType == OPTIONS_SLOMO_REVERSE then
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
-        if Game.state == STATE_GAME_RUNNING and not love.mouse.isDown(1) then
+        if Game.inState(STATE_GAME_RUNNING) and not love.mouse.isDown(1) then
           Game.timeScale = TIME_SCALE_SLOMO
         end
       end)
     end
     if Game.options.slomoType == OPTIONS_SLOMO_ALWAYSON then
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
-        if Game.state == STATE_GAME_RUNNING then
+        if Game.inState(STATE_GAME_RUNNING) then
           Game.timeScale = TIME_SCALE_SLOMO
         end
       end)
@@ -203,7 +204,7 @@ function Game.start(loadGame)
     Scheduler.add(function() Game.combo = 0 end, 0)
   end)
 
-  Game.state = STATE_GAME_RUNNING
+  Game.state:push(STATE_GAME_RUNNING)
   if not Game.options.ignoreTutorial then
     Game.InitializeTutorial()
   end
@@ -223,13 +224,6 @@ pf = 0
 
 function Game.update(dt)
   Game.totalTimeUnscaled = Game.totalTimeUnscaled + dt
-  --print(' Game State: '.. Game.state)
-  --print('STATE_GAME_RUNNING ='..STATE_GAME_RUNNING)
-  --print('STATE_GAME_LOST ='..STATE_GAME_LOST)
-  --print('STATE_GAME_OVER  = '..STATE_GAME_OVER)
-  --print('STATE_GAME_PAUSED  = '..STATE_GAME_PAUSED)
-  --print('STATE_GAME_LOADING = '..STATE_GAME_LOADING)
-  --print('STATE_GAME_MAINMENU = '..STATE_GAME_MAINMENU)
 
   Game.raycastHit = nil
   --Raycast to get preview
@@ -259,7 +253,6 @@ function Game.update(dt)
 
   -- NOTE: this might break
   Game.totalTime = Game.totalTime + dt
-  --print('game.state = '..Game.state..' tutorial.state = '..Game.tutorial.state)
   if Game.inState(STATE_GAME_RUNNING, STATE_GAME_LOST, STATE_GAME_PAUSED) and not Game.tutorial.state:peek() then
     -- To prevent spiral of death
     accumulator = accumulator + dt
@@ -338,7 +331,7 @@ function Game.inState(...)
       print('STATE ERROR: comparing against invalid state')
     end
 
-    if Game.state == gameState then
+    if Game.state:peek() == gameState then
       return true
     end
   end
@@ -372,7 +365,7 @@ end
 
 function Game.lose()
   Game.clearWhiteBalls()
-  Game.state = STATE_GAME_LOST
+  Game.state:push(STATE_GAME_LOST)
   Game.events.add(EVENT_COMBO_TIMEOUT, Game.gameOver)
 end
 
@@ -380,7 +373,7 @@ end
 function Game.gameOver()
   Game.setHighScore(Game.score)
   Backend.sendScore(Game.highScore)
-  Game.state = STATE_GAME_OVER
+  Game.state:push(STATE_GAME_OVER)
   TempSave.Clear()
   LocalSave.Save(Game)
 end

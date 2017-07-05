@@ -97,7 +97,7 @@ Button{
     return 'quit'
   end,
   onPress = function(self, x, y)
-    Game.state = STATE_GAME_MAINMENU
+    Game.state:push(STATE_GAME_MAINMENU)
   end,
 }
 

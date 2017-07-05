@@ -1,6 +1,20 @@
 require 'ui/base'
 local LocalSave = require 'localsave'
 
+Text{
+  name='pause title',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_PAUSED),
+  x=BASE_SCREEN_WIDTH/2,
+  y=10*UI_HEIGHT_UNIT,
+  font=FONT_MD,
+  color=COLOR_PINK,
+  width=HOLE_WIDTH*1.4,
+  getText= function()
+    return 'PAUSED'
+  end,
+}
+
 Button{
   name='gamemenu unpouse',
   condition=inGameState(STATE_GAME_PAUSED),
@@ -18,7 +32,7 @@ Button{
     return 'unpause'
   end,
   onPress = function() 
-    Game.state = STATE_GAME_RUNNING
+    Game.state:push(STATE_GAME_RUNNING)
   end,
 }
 
@@ -48,7 +62,7 @@ Button{
 }
 
 Button{
-  name='pause back to mainmenu',
+  name='options button pause',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_PAUSED),
   x=BASE_SCREEN_WIDTH/2,
@@ -61,13 +75,33 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'quit'
+    return 'options'
   end,
   onPress = function(self, x, y)
-    Game.state = STATE_GAME_MAINMENU
+    Game.state:push(STATE_GAME_OPTIONS)
   end,
 }
 
+Button{
+  name='pause back to mainmenu',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_PAUSED),
+  x=BASE_SCREEN_WIDTH/2,
+  y=28*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.8,
+  height=2*UI_HEIGHT_UNIT,
+  color=0,
+  lineColor=1,
+  lineWidth=3,
+  font=FONT_MD,
+  textColor=1,
+  getText = function() 
+    return 'quit'
+  end,
+  onPress = function(self, x, y)
+    Game.state:push(STATE_GAME_MAINMENU)
+  end,
+}
 --[[
 Rectangle{
   name="animation cover",

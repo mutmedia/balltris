@@ -8,7 +8,6 @@ local USER_DATA_FILE_PATH = 'user_data.lua'
 --local BACKEND_PATH = 'http://localhost:1234'
 local BACKEND_PATH = 'https://balltris.herokuapp.com'
 
-
 local Backend = {}
 
 local print = function(str)
@@ -21,7 +20,7 @@ function Backend.init()
   local ok, userData = Load.luafile(USER_DATA_FILE_PATH)
   if not ok then 
     print('No user set')
-    Game.state = STATE_GAME_USERNAME
+    Game.state:push(STATE_GAME_USERNAME)
   else
     Backend.setUser(userData)
   end
@@ -29,10 +28,14 @@ end
 
 function Backend.tryCreateUser(username)
   Async(function()
+    if string.match(username, USERNAME_PATTERN) ~= username then
+      print('Invalid username')
+      return
+    end
     local exists, _ = Request.Get(BACKEND_PATH..'/users/'..username)
     if exists then
       Game.usernameErrorMsg = "name already taken"
-      Game.state = STATE_GAME_USERNAME
+      Game.state:push(STATE_GAME_USERNAME)
       Scheduler.add(function() Game.usernameErrorMsg = nil end, 4) -- invalid username will be displayed for 4 seconds
       return 
     else
@@ -45,12 +48,14 @@ function Backend.tryCreateUser(username)
         local userData = {username=username, score=0} 
         Backend.setUser(userData)
         SaveUserDataToFile(userData)
-        Game.state = STATE_GAME_MAINMENU
+        Game.state:push(STATE_GAME_MAINMENU)
         print('Crated new user: '..username)
+        Backend.sendScore(Game.highScore or 0)
         return
       else
         Game.usernameErrorMsg = response
-      --Scheduler.add(function() Game.usernameErrorMsg = nil end, 4) -- invalid username will be displayed for 4 seconds
+        Game.state:push(STATE_GAME_USERNAME)
+        Scheduler.add(function() Game.usernameErrorMsg = nil end, 4) -- invalid username will be displayed for 4 seconds
         print('Error creating new user: '..response)
         return
       end
@@ -105,12 +110,24 @@ end
 function Backend.getTopPlayers()
   Async(function()
     local ok, top10Data = Request.Get(BACKEND_PATH..'/top10')
-    for k, v in ipairs(top10Data) do
-      print(k, v.username, v.score)
-    end
-    Backend.top10Data = top10Data
-    if Game.inState(STATE_GAME_LEADERBOARD_LOADING) then
-      Game.state = STATE_GAME_LEADERBOARD
+    if not ok then
+      print('error: '..top10Data)
+      Backend.top10Error = 'Could not connect\nto game server.'
+      if Game.inState(STATE_GAME_LEADERBOARD_LOADING) then
+        Game.state:pop()
+        Game.state:push(STATE_GAME_LEADERBOARD)
+      end
+      return
+    else
+      Backend.top10Error = nil
+      for k, v in ipairs(top10Data) do
+        print(k, v.username, v.score)
+      end
+      Backend.top10Data = top10Data
+      if Game.inState(STATE_GAME_LEADERBOARD_LOADING) then
+        Game.state:pop()
+        Game.state:push(STATE_GAME_LEADERBOARD)
+      end
     end
   end)
 end

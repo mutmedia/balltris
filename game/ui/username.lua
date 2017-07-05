@@ -51,11 +51,11 @@ Button{
       self.lastCursorSwap = Game.totalTime
     end
 
-    if Game.state == STATE_GAME_USERNAME_LOADING then self.showCursor = false end
+    if Game.inState(STATE_GAME_USERNAME_LOADING) then self.showCursor = false end
     return Game.usernameText..(self.showCursor and '_' or '') 
   end,
   onPress = function(self, x, y)
-    if Game.state == STATE_GAME_USERNAME_LOADING then return end
+    if Game.inState(STATE_GAME_USERNAME_LOADING) then return end
     if not love.keyboard.hasTextInput() then
       Game.usernameText = ''
     end
@@ -97,12 +97,12 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    if Game.state == STATE_GAME_USERNAME_LOADING then return 'loading...' end
+    if Game.inState(STATE_GAME_USERNAME_LOADING) then return 'loading...' end
     return 'enter'
   end,
   onPress = function(self, x, y)
-    if Game.state == STATE_GAME_USERNAME_LOADING then return end
-    Game.state = STATE_GAME_USERNAME_LOADING
+    if Game.inState(STATE_GAME_USERNAME_LOADING) then return end
+    Game.state:push(STATE_GAME_USERNAME_LOADING)
     love.keyboard.setTextInput(false)
     Backend.tryCreateUser(Game.usernameText)
   end,
@@ -125,10 +125,10 @@ Button{
     return 'offline'
   end,
   onPress = function(self, x, y)
-    Game.state = STATE_GAME_OFFLINE_CONFIRMATION
+    Game.state:push(STATE_GAME_OFFLINE_CONFIRMATION)
     Scheduler.add(function() 
-      if Game.state == STATE_GAME_OFFLINE_CONFIRMATION then
-        Game.state = STATE_GAME_MAINMENU
+      if Game.inState(STATE_GAME_OFFLINE_CONFIRMATION) then
+        Game.state:push(STATE_GAME_MAINMENU)
       end
     end, 7) -- Offline confirmation will exit after 7 seconds
 end,
@@ -171,7 +171,7 @@ Button{
     return 'ok'
   end,
   onPress = function(self, x, y)
-    Game.state = STATE_GAME_MAINMENU
+    Game.state:push(STATE_GAME_MAINMENU)
   end,
 }
 

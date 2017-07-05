@@ -60,10 +60,10 @@ Button{
     return 'menu'
   end,
   onPress = function() 
-    if Game.state ~= STATE_GAME_PAUSED then
-      Game.state = STATE_GAME_PAUSED
+    if not Game.inState(STATE_GAME_PAUSED) then
+      Game.state:push(STATE_GAME_PAUSED)
     else
-      Game.state = STATE_GAME_RUNNING
+      Game.state:push(STATE_GAME_RUNNING)
     end
   end,
 }
@@ -83,6 +83,7 @@ Text{
     return string.format('score: %04d', Game.score)
   end,
 }
+
 Text{
   name='highscore',
   layer=LAYER_HUD,

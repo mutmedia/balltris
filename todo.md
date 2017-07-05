@@ -9,9 +9,8 @@ MVP
 - [ ] Open to more playtesters
 
 - [ ] Improve tutorial after playtest
-- [ ] Finish basic effects
+- [x] Finish basic effects
 - [ ] Fix Continue
-- [ ] Game Options
 - [ ] Improve high score after playtest feedback
 - [ ] Add achievements, see (Achievements)
 - [ ] Music / Sound(?)
@@ -22,6 +21,8 @@ MVP
 After MVP
 =========
 - [ ] Better server security
+- [ ] Online stats
+- [ ] Fixed seed games
 
 Effects:
 --------
@@ -33,7 +34,7 @@ Effects:
 
 High score Improvements
 -----------------------
-- [ ] Make it async so there are no stupid delays
+- [x] Make it async so there are no stupid delays
 - [ ] Make it more arcade like
 - [ ] Add scores close to player
 - [ ] Save name after each new high score (?)
@@ -47,13 +48,13 @@ Options
 -------
 Basic:
 - [x] Choose how you want your slow motion to work
-- [ ] Save options to local file
+- [x] Save options to local file
 
 Advanced:
 
 Tutorial
 --------
-- [ ] Make tutorial a stack so it is less prone to errors
+- [x] Make tutorial a stack so it is less prone to errors
 
 DEBUG STUFF / TOOLS
 -------------------

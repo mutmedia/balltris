@@ -107,11 +107,24 @@ Button{
     return 'top 10'
   end,
   onPress = function(self, x, y)
-    Game.state = STATE_GAME_LEADERBOARD_LOADING
-    Scheduler.add(function() 
-      Backend.getTopPlayers()
-    end, 0)
+    Game.state:push(STATE_GAME_LEADERBOARD_LOADING)
+    Backend.getTopPlayers()
+    Backend.sendScore(Game.highScore)
 end,
+}
+
+Text{
+  name='HIGHSCORE',
+  layer=LAYER_HUD,
+  condition=inGameState(STATE_GAME_MAINMENU),
+  x=BORDER_THICKNESS/2,
+  y=6*UI_HEIGHT_UNIT,
+  font=FONT_MD,
+  color=1,
+  width=BORDER_THICKNESS,
+  getText = function()
+    return string.format('score: %04d', Game.highScore or 0)
+  end,
 }
 
 Button{
@@ -131,7 +144,7 @@ Button{
     return 'options'
   end,
   onPress = function(self, x, y)
-    Game.state = STATE_GAME_OPTIONS
+    Game.state:push(STATE_GAME_OPTIONS)
   end,
 }
 
