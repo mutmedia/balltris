@@ -12,6 +12,25 @@ local print = function(str)
   print('LOCAL SAVE: '..(str or ''))
 end
 
+function serialize (o)
+  local str = {}
+  if type(o) == 'number' then
+    table.insert(str, o)
+  elseif type(o) == 'string' then
+    table.insert(str, string.format('%q', o))
+  elseif type(o) == 'table' then
+    table.insert(str, '{\n')
+    for k,v in pairs(o) do
+      table.insert(str, '\t['..serialize(k)..'] = ')
+      table.insert(str, serialize(v))
+      table.insert(str, ',\n')
+    end
+    table.insert(str, '}\n')
+  else
+    error('cannot serialize a ' .. type(o))
+  end
+  return table.concat(str)
+end
 
 function LocalSave.Save(game)
   local savestrings = {}
@@ -23,16 +42,26 @@ Game.highScore = %d
       game.highScore)
     )
 
-  if Game.tutorial then
+  -- TUTORIAL
+  if game.tutorial then
     table.insert(savestrings, [[
 Game.tutorial = {}
 Game.tutorial.learnedRaw = {
 ]])
-    for k, v in pairs(Game.tutorial.learned) do
+    for k, v in pairs(game.tutorial.learned) do
       table.insert(savestrings, string.format("\t'%s',\n", k))
     end
-    table.insert(savestrings, '}')
+    table.insert(savestrings, '}\n')
   end
+
+  -- OPTIONS
+  if game.options then
+    table.insert(savestrings, [[
+Game.options = ]])
+    table.insert(savestrings, serialize(game.options))
+  end
+
+
   local savestring = table.concat(savestrings)
   --print(savestring)
 
@@ -42,9 +71,9 @@ Game.tutorial.learnedRaw = {
     return 
   end
 
-  --print('Save file contents: ////')
-  --print(savestring)
-  --print('////////////////////////')
+  print('Save file contents: ////')
+  print(savestring)
+  print('////////////////////////')
 
   local s, err = file:write(savestring)
   if err then

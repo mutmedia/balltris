@@ -316,10 +316,9 @@ function love.keypressed(key)
   end
 
   if key == 'escape' then
-    if Game.state ~= STATE_GAME_PAUSED then
+    if Game.inState(STATE_GAME_RUNNING) then
       Game.state = STATE_GAME_PAUSED
-    else
-      -- TODO: this might be buggy if there is more than a running state
+    elseif Game.inState(STATE_GAME_PAUSED) then
       Game.state = STATE_GAME_RUNNING
     end
   end
@@ -327,9 +326,12 @@ function love.keypressed(key)
   if key == 'f' then
     DEBUG_SHOW_FPS = not DEBUG_SHOW_FPS
   end
+
+  --[[
   if key == 't' then
     print(Game.tutorial.state:peek())
   end
+  ]]--
 
   if key == 'r' then
     --[[

@@ -167,5 +167,4 @@ OPTIONS_SLOMO_ALWAYSON = 'always'
 
 DEFAULT_OPTIONS = {
   slomoType = OPTIONS_SLOMO_DEFAULT,
-  ignoreTutorial = false,
 }

@@ -1,5 +1,6 @@
 require 'ui/base'
 local Backend = require 'backend'
+local LocalSave = require 'localsave'
 
 Button{
   name='Set user',
@@ -46,6 +47,7 @@ Button{
     elseif Game.options.slomoType == OPTIONS_SLOMO_ALWAYSON then
       Game.options.slomoType = OPTIONS_SLOMO_DEFAULT
     end
+    LocalSave.Save(Game)
   end,
 }
 

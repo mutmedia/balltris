@@ -78,15 +78,15 @@ Button{
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   color=0,
-  lineColor=1,
+  lineColor=COLOR_GRAY,
   lineWidth=3,
   font=FONT_MD,
-  textColor=1,
   getText = function() 
     return 'continue'
   end,
   onPress = function(self, x, y)
-    Game.start(TempSave.CreateLoadFunc())
+    -- TODO: fix
+    -- Game.start(TempSave.CreateLoadFunc())
   end,
 }
 

@@ -304,7 +304,7 @@ function Game.update(dt)
 
       Game.lastMeanSpeed = Game.meanSpeed
 
-      if Game.lastDroppedBall then
+      if Game.lastDroppedBall and Game.lastDroppedBall.body and not Game.lastDroppedBall.body:isDestroyed() then
         if Game.lastDroppedBall.body:getY() > MIN_DISTANCE_TO_TOP + Game.lastDroppedBall.radius or Game.lastDroppedBall.destroyed then
           Game.events.fire(EVENT_SAFE_TO_DROP)
           Game.lastDroppedBall = nil
