@@ -8,3 +8,4 @@ Achievements
 - Clear N white balls in a single objective clear
 - End the game with no balls left
 - Lose the game in less then N movements
+- Drop balls really fast and score better than random

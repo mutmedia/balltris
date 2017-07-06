@@ -23,7 +23,7 @@ Game.state = Stack.New()
 Game.world = nil
 
 Game.score = 0
-Game.highScore = 0
+Game.highscoreStats = {}
 Game.newHighScore = false
 Game.combo = 0
 Game.maxCombo = 0
@@ -116,6 +116,9 @@ function Game.start(loadGame)
   Game.timeSinceLastCombo = 0
   Game.comboTimeLeft = 0
   Game.comboNumbers = Queue.New()
+  Game.playTime = 0
+  Game.playTimeScaled = 0
+  Game.slomoPlayTime = 0
   --
   -- End of information that can be saved
 
@@ -209,6 +212,8 @@ function Game.start(loadGame)
   if not Game.options.ignoreTutorial then
     Game.InitializeTutorial()
   end
+  Game.InitilizeStats()
+  Game.SetStatsEvents()
 end
 
 Game.staticFrameCount = 0
@@ -224,14 +229,14 @@ gf = 0
 pf = 0
 
 function Game.update(dt)
-  Game.totalTimeUnscaled = Game.totalTimeUnscaled + dt
-
-
+  local unscaledDT = dt
   if Game.inState(STATE_GAME_RUNNING) then
     dt = dt * Game.timeScale
   end
+
   -- NOTE: THis might cause problems
   Scheduler.update(dt)
+  Game.totalTimeUnscaled = Game.totalTimeUnscaled + unscaledDT
 
   -- NOTE: this might break
   Game.totalTime = Game.totalTime + dt
@@ -243,7 +248,14 @@ function Game.update(dt)
       return
     end
 
-
+    if Game.inState(STATE_GAME_RUNNING) then
+      Game.playTime = Game.playTime + unscaledDT
+      Game.playTimeScaled = Game.playTimeScaled + dt
+      if Game.timeScale == TIME_SCALE_SLOMO then
+        Game.slomoPlayTime = Game.slomoPlayTime + unscaledDT
+      end
+      Game.SetEndGameStats()
+    end
 
     while accumulator >= FIXED_DT do
       Game.world:update(FIXED_DT)
@@ -327,7 +339,6 @@ function Game.update(dt)
       previewRaycastCallback)
   end
 
-
   gf = gf + 1
 end
 
@@ -379,15 +390,15 @@ end
 
 function Game.gameOver()
   Game.setHighScore(Game.score)
-  Backend.SendScore(Game.highScore)
+  Backend.SendStats(Game.stats)
   Game.state:push(STATE_GAME_OVER)
   TempSave.Clear()
   LocalSave.Save(Game)
 end
 
 function Game.setHighScore(score)
-  if score > Game.highScore then
-    Game.highScore = score
+  if (not Game.highscoreStats.score) or score > Game.highscoreStats.score then
+    Game.highscoreStats = Game.stats
     Game.newHighScore = true
   end
 end
@@ -424,6 +435,7 @@ function Game.ReleaseBall()
   --Game.objects.ballPreview = Balls.NewBallPreview(Game.objects.ballPreview.position.x)
   Game.lastDroppedBall = newBall
   newBall.startSpawnParticleSystem()
+  Game.events.fire(EVENT_DROPPED_BALL)
 end
 
 function Game.GetNextBall() 
@@ -454,6 +466,7 @@ function Game.ScheduleBallDestruction(ball)
   ball.timeDestroyed = Game.totalTime
   ball.startDeathParticleSystem()
   Game.IncrementComboTimeout(COMBO_INCREMENT_SCORE)
+  Game.events.fire(EVENT_CLEARED_BALL, ball)
   Scheduler.add(function()
     Game.DestroyBall(ball)
   end, BALL_TIME_TO_DESTROY)

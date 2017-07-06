@@ -18,6 +18,7 @@ local TempSave = require 'tempsave'
 local LocalSave = require 'localsave'
 local Balls = require 'balls'
 require 'tutorial'
+require 'stats'
 require 'data_constants'
 
 -- Helper functions
@@ -84,7 +85,7 @@ function love.load()
 
   -- Loading UI
   loadtime = love.timer.getTime()
-  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua', 'ui/leaderboard.lua', 'ui/username.lua', 'ui/options.lua', 'ui/tutorial.lua')
+  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua', 'ui/leaderboard.lua', 'ui/username.lua', 'ui/options.lua', 'ui/tutorial.lua', 'ui/stats.lua')
   Game.UI.initialize(NewPalette('content/palette.png'))
   love.graphics.setCanvas(loadingCanvas)
   love.graphics.clear()
@@ -350,7 +351,7 @@ function love.keypressed(key)
   end
 
   if key == 'b' then
-    Backend.SendScore(Game.score)
+    Backend.SendStats(Game.stats)
   end
 end
 

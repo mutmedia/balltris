@@ -98,7 +98,9 @@ Button{
   onPress = function(self, x, y)
     Backend.top10Error = nil
     Backend.GetTopPlayers()
-    Backend.SendScore(Game.highScore)
+    if Game.highscoreStats then
+      Backend.SendStats(Game.highscoreStats)
+    end
   end,
 }
 

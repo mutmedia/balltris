@@ -35,12 +35,11 @@ end
 function LocalSave.Save(game)
   local savestrings = {}
 
-  table.insert(savestrings, string.format([[
-Game.highScore = %d
-
-]],
-      game.highScore)
-    )
+  if Game.highscoreStats then
+    table.insert(savestrings, [[
+Game.highscoreStats = ]])
+    table.insert(savestrings, serialize(game.highscoreStats))
+  end
 
   -- TUTORIAL
   if game.tutorial then

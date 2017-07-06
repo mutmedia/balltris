@@ -164,6 +164,9 @@ EVENT_WHITE_BALLS_HIT = 'whiteballshit'
 EVENT_COMBO_CLEARED = 'combocleared'
 EVENT_COMBO_NEW_CLEARSAT = 'newclearsatvalue'
 EVENT_CLICKED_TUTORIAL = 'clickedtutorial'
+EVENT_CLEARED_BALL = 'clearedball'
+EVENT_DROPPED_BALL = 'dropedball'
+
 
 -- Options
 OPTIONS_SLOMO_DEFAULT = 'default'
@@ -174,3 +177,4 @@ OPTIONS_SLOMO_ALWAYSON = 'always'
 DEFAULT_OPTIONS = {
   slomoType = OPTIONS_SLOMO_DEFAULT,
 }
+

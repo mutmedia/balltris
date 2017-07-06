@@ -52,7 +52,9 @@ function Backend.TryCreateUser(username)
         SaveUserDataToFile(userData)
         Game.state:push(STATE_GAME_MAINMENU)
         print('Crated new user: '..username)
-        Backend.SendScore(Game.highScore or 0)
+        if Game.highscoreStats then
+          Backend.SendStats(Game.highscoreStats)
+        end
         return
       else
         Game.usernameErrorMsg = response
@@ -93,19 +95,17 @@ function Backend.SetUser(userData)
   Backend.isOffline = false
 end
 
-function Backend.SendScore(score)
+function Backend.SendStats(stats)
   if Backend.isOffline then return end
-  print('Sending score')
+  print('Sending stats')
   local data = {
     username=Backend.userData.username,
-    score=score 
+    stats=stats 
   }
   print(json.encode(data))
-  print(BACKEND_PATH..'/'..Backend.userData.username)
+  --print(BACKEND_PATH..'/'..Backend.userData.username)
   Async(function()
-    local _, response = Request.Patch(BACKEND_PATH..'/users/'..Backend.userData.username, data)
-    userId = response['_id']
-    print(userId)
+    local _, response = Request.Post(BACKEND_PATH..'/games', data)
   end)
 end
 
