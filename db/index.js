@@ -9,7 +9,7 @@ class Db {
     if(!db) {
       db = await MongoClient.connect(config.db.url);
       this.User = new Model(db, 'users');
-      this.User.createUniqueIndex('username');
+      //this.User.createUniqueIndex('username');
       this.Game = new Model(db, 'games');
     }
   }
