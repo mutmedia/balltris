@@ -137,7 +137,7 @@ function love.load()
   love.keyboard.setTextInput(false)
   Game.state:push(STATE_GAME_MAINMENU)
   Game.InitializeTutorial()
-  Backend.init()
+  Backend.Init()
 end
 
 local bv = 0
@@ -350,7 +350,7 @@ function love.keypressed(key)
   end
 
   if key == 'b' then
-    Backend.sendScore(Game.score)
+    Backend.SendScore(Game.score)
   end
 end
 

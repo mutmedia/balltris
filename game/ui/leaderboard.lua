@@ -34,7 +34,7 @@ for i=1,10 do
     name='leader'..i,
     layer=LAYER_MENUS,
     condition=And(function() return Backend.top10Error == nil end ,inGameState(STATE_GAME_LEADERBOARD)),
-    x=BASE_SCREEN_WIDTH/2,
+    x=BASE_SCREEN_WIDTH/2 - HOLE_WIDTH/6,
     y=2*(i + 2)*UI_HEIGHT_UNIT,
     font=FONT_SM,
     getColor=function(self)
@@ -43,9 +43,26 @@ for i=1,10 do
     width=HOLE_WIDTH,
     getText= function()
       local user = Backend.top10Data[i]
-      return user.username..': '..user.score
+      return string.format('%-10s', user.username)
     end,
   }
+  Text{
+    name='leader'..i,
+    layer=LAYER_MENUS,
+    condition=And(function() return Backend.top10Error == nil end ,inGameState(STATE_GAME_LEADERBOARD)),
+    x=BASE_SCREEN_WIDTH/2 + HOLE_WIDTH/3.5,
+    y=2*(i + 2)*UI_HEIGHT_UNIT,
+    font=FONT_SM,
+    getColor=function(self)
+      return (not Backend.isOffline) and Backend.top10Data[i].username == Backend.userData.username and COLOR_GREEN or COLOR_BLUE
+    end,
+    width=HOLE_WIDTH,
+    getText= function()
+      local user = Backend.top10Data[i]
+      return string.format('%5d', user.score)
+    end,
+  }
+
 end
 
 Text{
@@ -81,8 +98,8 @@ Button{
   onPress = function(self, x, y)
     Backend.top10Error = nil
     Game.state:push(STATE_GAME_LEADERBOARD_LOADING)
-    Backend.getTopPlayers()
-    Backend.sendScore(Game.highScore)
+    Backend.GetTopPlayers()
+    Backend.SendScore(Game.highScore)
   end,
 }
 

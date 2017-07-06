@@ -6,7 +6,7 @@ Text{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_PAUSED),
   x=BASE_SCREEN_WIDTH/2,
-  y=10*UI_HEIGHT_UNIT,
+  y=2*UI_HEIGHT_UNIT,
   font=FONT_MD,
   color=COLOR_PINK,
   width=HOLE_WIDTH*1.4,

@@ -14,7 +14,7 @@ local print = function(str)
   print('BACKEND: '..(str or ''))
 end
 
-function Backend.init()
+function Backend.Init()
   Backend.isOffline = true
 
   local ok, userData = Load.luafile(USER_DATA_FILE_PATH)
@@ -22,19 +22,21 @@ function Backend.init()
     print('No user set')
     Game.state:push(STATE_GAME_USERNAME)
   else
-    Backend.setUser(userData)
+    Backend.SetUser(userData)
   end
 end
 
-function Backend.tryCreateUser(username)
+function Backend.CheckUsername(username)
+  return string.match(username, USERNAME_PATTERN) == username and string.len(username) <= USERNAME_MAX_LENGTH and string.len(username) >= USERNAME_MIN_LENGTH
+end
+
+function Backend.TryCreateUser(username)
   Async(function()
-    if string.match(username, USERNAME_PATTERN) ~= username then
-      print('Invalid username')
-      return
-    end
+    Game.usernameErrorMsg = nil
+    Game.state:push(STATE_GAME_USERNAME_LOADING)
     local exists, _ = Request.Get(BACKEND_PATH..'/users/'..username)
     if exists then
-      Game.usernameErrorMsg = "name already taken"
+      Game.usernameErrorMsg = 'name already taken'
       Game.state:push(STATE_GAME_USERNAME)
       Scheduler.add(function() Game.usernameErrorMsg = nil end, 4) -- invalid username will be displayed for 4 seconds
       return 
@@ -46,11 +48,11 @@ function Backend.tryCreateUser(username)
       if success then 
         print('Created new user:', json.encode(response))
         local userData = {username=username, score=0} 
-        Backend.setUser(userData)
+        Backend.SetUser(userData)
         SaveUserDataToFile(userData)
         Game.state:push(STATE_GAME_MAINMENU)
         print('Crated new user: '..username)
-        Backend.sendScore(Game.highScore or 0)
+        Backend.SendScore(Game.highScore or 0)
         return
       else
         Game.usernameErrorMsg = response
@@ -83,7 +85,7 @@ function SaveUserDataToFile(userData)
   end
 end
 
-function Backend.setUser(userData)
+function Backend.SetUser(userData)
   for k, v in pairs(userData) do
     print(k, v)
   end
@@ -91,7 +93,7 @@ function Backend.setUser(userData)
   Backend.isOffline = false
 end
 
-function Backend.sendScore(score)
+function Backend.SendScore(score)
   if Backend.isOffline then return end
   print('Sending score')
   local data = {
@@ -107,7 +109,7 @@ function Backend.sendScore(score)
   end)
 end
 
-function Backend.getTopPlayers()
+function Backend.GetTopPlayers()
   Async(function()
     local ok, top10Data = Request.Get(BACKEND_PATH..'/top10')
     if not ok then

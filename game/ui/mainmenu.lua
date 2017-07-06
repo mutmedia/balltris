@@ -108,8 +108,8 @@ Button{
   end,
   onPress = function(self, x, y)
     Game.state:push(STATE_GAME_LEADERBOARD_LOADING)
-    Backend.getTopPlayers()
-    Backend.sendScore(Game.highScore)
+    Backend.GetTopPlayers()
+    Backend.SendScore(Game.highScore)
 end,
 }
 

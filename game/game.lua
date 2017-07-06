@@ -372,7 +372,7 @@ end
 
 function Game.gameOver()
   Game.setHighScore(Game.score)
-  Backend.sendScore(Game.highScore)
+  Backend.SendScore(Game.highScore)
   Game.state:push(STATE_GAME_OVER)
   TempSave.Clear()
   LocalSave.Save(Game)
