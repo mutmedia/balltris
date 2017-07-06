@@ -11,7 +11,7 @@ local BACKEND_PATH = 'https://balltris.herokuapp.com'
 local Backend = {}
 
 local print = function(str)
-  print('BACKEND: '..(str or ''))
+  print('BACKEND: ', (str or ''))
 end
 
 function Backend.Init()
@@ -20,7 +20,7 @@ function Backend.Init()
   local ok, userData = Load.luafile(USER_DATA_FILE_PATH)
   if not ok then 
     print('No user set')
-    Game.state:push(STATE_GAME_USERNAME)
+    Backend.ConnectFirstTime()
   else
     Backend.SetUser(userData)
   end
@@ -28,6 +28,22 @@ end
 
 function Backend.CheckUsername(username)
   return string.match(username, USERNAME_PATTERN) == username and string.len(username) <= USERNAME_MAX_LENGTH and string.len(username) >= USERNAME_MIN_LENGTH
+end
+
+function Backend.ConnectFirstTime()
+  Async(function()
+    Game.state:push(STATE_GAME_FIRST_CONNECTION)
+    Game.backendConnectionError = nil
+    local ok, response = Request.Post(BACKEND_PATH..'/users', {
+        username='',
+      })
+    if not ok then 
+      backendConnectionError = response 
+    else
+      print(response)
+      Game.state:push(STATE_GAME_RUNNING)
+    end
+  end)
 end
 
 function Backend.TryCreateUser(username)
