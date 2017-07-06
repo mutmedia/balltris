@@ -64,6 +64,7 @@ end
 function Game.ResetTutorial()
   Game.tutorial.learned = Set.New() 
   LocalSave.Save(Game)
+  Game.InitializeTutorial()
 end
 
 function Game.SkipTutorial()
@@ -71,7 +72,7 @@ function Game.SkipTutorial()
   LocalSave.Save(Game)
 end
 
-function Game.InitializeTutorial(loadedTutorial)
+function Game.InitializeTutorial()
   -- TODO: load user tutorial file
   Game.tutorial = Game.tutorial or {}
   Game.tutorial.learned = Game.tutorial.learned or Set.New(Game.tutorial.learnedRaw)
