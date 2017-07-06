@@ -1,3 +1,4 @@
+IS_EXTRAPOLATING = false
 love.graphics.clear(0, 255, 0)
 love.graphics.present()
 
@@ -351,7 +352,11 @@ function love.keypressed(key)
   end
 
   if key == 'b' then
-    Backend.SendStats(Game.stats)
+    Backend.SendStats(Game.stats, Game.number)
+  end
+
+  if key == 'e' then 
+    IS_EXTRAPOLATING = not IS_EXTRAPOLATING
   end
 end
 

@@ -23,7 +23,9 @@ Game.state = Stack.New()
 Game.world = nil
 
 Game.score = 0
-Game.highscoreStats = {}
+Game.highscore = {}
+Game.highscore.stats = {}
+Game.highscore.number = {}
 Game.newHighScore = false
 Game.combo = 0
 Game.maxCombo = 0
@@ -119,6 +121,7 @@ function Game.start(loadGame)
   Game.playTime = 0
   Game.playTimeScaled = 0
   Game.slomoPlayTime = 0
+  Game.number = (Game.number or 0) + 1
   --
   -- End of information that can be saved
 
@@ -315,7 +318,7 @@ function Game.update(dt)
       accumulator = accumulator - FIXED_DT
     end
   end
-  Game.extrapolationTime = accumulator
+  Game.extrapolationTime = accumulator * (IS_EXTRAPOLATING and 1 or 0)
 
   Game.raycastHit = nil
   --Raycast to get preview
@@ -390,15 +393,16 @@ end
 
 function Game.gameOver()
   Game.setHighScore(Game.score)
-  Backend.SendStats(Game.stats)
+  Backend.SendStats(Game.stats, Game.number)
   Game.state:push(STATE_GAME_OVER)
   TempSave.Clear()
   LocalSave.Save(Game)
 end
 
 function Game.setHighScore(score)
-  if (not Game.highscoreStats.score) or score > Game.highscoreStats.score then
-    Game.highscoreStats = Game.stats
+  if (not Game.highscore.stats.score) or score > Game.highscore.stats.score then
+    Game.highscore.stats = Game.stats
+    Game.highscore.number = Game.number
     Game.newHighScore = true
   end
 end

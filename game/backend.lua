@@ -31,6 +31,7 @@ function Backend.CheckUsername(username)
 end
 
 function Backend.TryCreateUser(username)
+  Game.highscore.number = {}
   Async(function()
     Game.usernameErrorMsg = nil
     Game.state:push(STATE_GAME_USERNAME_LOADING)
@@ -52,8 +53,8 @@ function Backend.TryCreateUser(username)
         SaveUserDataToFile(userData)
         Game.state:push(STATE_GAME_MAINMENU)
         print('Crated new user: '..username)
-        if Game.highscoreStats then
-          Backend.SendStats(Game.highscoreStats)
+        if Game.highscore.stats then
+          Backend.SendStats(Game.highscore.stats, Game.highscore.number)
         end
         return
       else
@@ -95,12 +96,13 @@ function Backend.SetUser(userData)
   Backend.isOffline = false
 end
 
-function Backend.SendStats(stats)
+function Backend.SendStats(stats, gamenumber)
   if Backend.isOffline then return end
   print('Sending stats')
   local data = {
     username=Backend.userData.username,
-    stats=stats 
+    game=gamenumber,
+    stats=stats,
   }
   print(json.encode(data))
   --print(BACKEND_PATH..'/'..Backend.userData.username)

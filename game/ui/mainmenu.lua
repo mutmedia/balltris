@@ -108,8 +108,8 @@ Button{
   end,
   onPress = function(self, x, y)
     Backend.GetTopPlayers()
-    if Game.highscoreStats then
-      Backend.SendStats(Game.highscoreStats)
+    if Game.highscore.stats then
+      Backend.SendStats(Game.highscore.stats, Game.highscore.number)
     end
 end,
 }
@@ -124,7 +124,7 @@ Text{
   color=1,
   width=BORDER_THICKNESS,
   getText = function()
-    return string.format('score: %04d', Game.highscoreStats.score or 0)
+    return string.format('score: %04d', Game.highscore.stats.score or 0)
   end,
 }
 

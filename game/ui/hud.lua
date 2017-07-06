@@ -94,7 +94,7 @@ Text{
   color=1,
   width=BORDER_THICKNESS,
   getText = function()
-    return string.format('best: %04d', Game.highscoreStats.score)
+    return string.format('best: %04d', Game.highscore.stats.score)
   end,
 }
 
