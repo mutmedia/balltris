@@ -48,12 +48,12 @@ router.get('/top10', async (ctx, next) => {
 });
 
 router.get('/games', async (ctx, next) => {
-  ctx.body = await db.Games.find();
+  ctx.body = await db.Game.find();
 });
 
 router.post('/games', async (ctx, next) => {
   const data = ctx.request.body
-  ctx.body = await db.Games.insertOne(data)
+  ctx.body = await db.Game.insertOne(data)
 });
 
 app.use(router.routes())
