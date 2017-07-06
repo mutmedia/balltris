@@ -59,6 +59,7 @@ end
 
 function ParticleSystem:_draw()
   if self._over then return end
+  if self.drawCondition and not self.drawCondition() then return end
   self._particles:forEach(function(p)
     -- Draw particle
 

@@ -111,6 +111,7 @@ end
 
 function Backend.GetTopPlayers()
   Async(function()
+    Game.state:push(STATE_GAME_LEADERBOARD_LOADING)
     local ok, top10Data = Request.Get(BACKEND_PATH..'/top10')
     if not ok then
       print('error: '..top10Data)

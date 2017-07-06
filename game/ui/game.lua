@@ -168,11 +168,12 @@ Rectangle{
 
 
 
-function DrawBall(color, center, radius, rotation)
+function DrawBall(color, center, radius, rotation, scale)
   love.graphics.push()
   love.graphics.translate(center[1], center[2])
   love.graphics.rotate(rotation or 0)
-  --love.graphics.scale(1+s, 1-s)
+  scale = scale or {1, 1}
+  love.graphics.scale(scale[1] or 1, scale[2] or 1)
   UI.setColor(color)
   love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
   radius = radius * BALL_DRAW_SCALE
@@ -222,7 +223,10 @@ Custom{
     if not Game.objects or not Game.objects.balls then return end
     Game.objects.balls:forEach(function(ball) 
       --print('lots of balls')
-      local center = {ball.body:getX(), ball.body:getY()}
+      local vx, vy = ball.body:getLinearVelocity()
+      local center = {ball.body:getX() - vx * (FIXED_DT - Game.extrapolationTime), ball.body:getY() - vy * (FIXED_DT - Game.extrapolationTime)}
+      
+
       local radius = ball.radius
       local color = ball:getColor()
 
@@ -232,14 +236,12 @@ Custom{
         love.graphics.setShader(self.turnOffShader)
         self.turnOffShader:send('delta_time', Game.totalTime - ball.timeDestroyed)
       end
-      local vx, vy = ball.body:getLinearVelocity()
-      local s = BALL_SPEED_STRETCH * math.sqrt(vx * vx + vy * vy)
-      local rot = ball.body:getAngle() --math.atan2(vy, vx)
-      --love.graphics.push()
-      --love.graphics.rotate(rot)
-      --love.graphics.scale(1+s, 1-s)
-      DrawBall(color, center, radius, rot)
-      --love.graphics.pop()
+      local s = BALL_STRETCH_NORMALIZER * math.sqrt(vx * vx + vy * vy) -- ~0 - 3000
+      sx = math.pow(BALL_STRETCH_FACTOR, 1+s)/BALL_STRETCH_FACTOR
+      sy = math.pow(BALL_STRETCH_FACTOR, 1-s)/BALL_STRETCH_FACTOR
+      --local rot = ball.body:getAngle() 
+      local rot = math.atan2(vy, vx)
+      DrawBall(color, center, radius, rot, {sx, sy})
       if ball.timeDestroyed then
         love.graphics.setShader(lastShader)
       end

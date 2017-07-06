@@ -93,11 +93,10 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'retry'
+    return Backend.top10Error and 'retry' or 'refresh'
   end,
   onPress = function(self, x, y)
     Backend.top10Error = nil
-    Game.state:push(STATE_GAME_LEADERBOARD_LOADING)
     Backend.GetTopPlayers()
     Backend.SendScore(Game.highScore)
   end,

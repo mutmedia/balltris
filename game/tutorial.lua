@@ -76,7 +76,6 @@ function Game.InitializeTutorial(loadedTutorial)
   Game.tutorial = Game.tutorial or {}
   Game.tutorial.learned = Game.tutorial.learned or Set.New(Game.tutorial.learnedRaw)
   Game.tutorial.state = Stack.New()
-  --Game.tutorial.state:push(LEARN_NOTHING)
 
 
   function learnNextFrame()
@@ -92,6 +91,7 @@ function Game.InitializeTutorial(loadedTutorial)
     Game.tutorial.state:push(LEARN_AIMBALL)
     Game.events.schedule(EVENT_MOVED_PREVIEW, function()
       Game.tutorial.state:pop()
+      if Game.tutorial.learned:contains(LEARN_DROPBALL) then return end
       Game.tutorial.state:push(LEARN_DROPBALL)
       Game.tutorial.learned:add(LEARN_AIMBALL) 
 
@@ -108,9 +108,11 @@ function Game.InitializeTutorial(loadedTutorial)
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
         Scheduler.add(
           function()
+            if Game.tutorial.learned:contains(LEARN_SLOMO) then return end
             Game.tutorial.state:push(LEARN_SLOMO)
             MoveToLearnAfterTimeout()
             Game.events.schedule(EVENT_SAFE_TO_DROP, function()
+              if Game.tutorial.learned:contains(LEARN_SLOMOOPTIONS) then return end
               Game.tutorial.state:push(LEARN_SLOMOOPTIONS)
               MoveToLearnAfterTimeout()
             end)
@@ -124,6 +126,7 @@ function Game.InitializeTutorial(loadedTutorial)
     Game.events.schedule(EVENT_SCORED, function()
       Scheduler.add(
         function()
+          if Game.tutorial.learned:contains(LEARN_SCORE) then return end
           Game.tutorial.state:push(LEARN_SCORE)
           MoveToLearnAfterTimeout()
         end,
@@ -133,6 +136,7 @@ function Game.InitializeTutorial(loadedTutorial)
 
   if not Game.tutorial.learned:contains(LEARN_WHITEBALLS) then
     Game.events.schedule(EVENT_WHITE_BALLS_HIT, function()
+      if Game.tutorial.learned:contains(LEARN_WHITEBALLS) then return end
       Game.tutorial.state:push(LEARN_WHITEBALLS)
       MoveToLearnAfterTimeout()
     end)
@@ -152,6 +156,7 @@ function Game.InitializeTutorial(loadedTutorial)
 
   if not Game.tutorial.learned:contains(LEARN_NEWCOMBOCLEARSAT) then
     Game.events.schedule(EVENT_COMBO_NEW_CLEARSAT, function()
+      if Game.tutorial.learned:contains(LEARN_NEWCOMBOCLEARSAT) then return end
       Game.tutorial.state:push(LEARN_NEWCOMBOCLEARSAT)
       MoveToLearnAfterTimeout()
     end)
@@ -165,6 +170,7 @@ function Game.InitializeTutorial(loadedTutorial)
     Game.events.schedule(EVENT_COMBO_CLEARED, function()
       Scheduler.add(
         function()
+          if Game.tutorial.learned:contains(LEARN_CLEARCOMBO) then return end
           Game.tutorial.state:push(LEARN_CLEARCOMBO)
           MoveToLearnAfterTimeout()
         end, TUTORIAL_CLEAR_TIMEOUT)
@@ -173,6 +179,7 @@ function Game.InitializeTutorial(loadedTutorial)
 
   if not Game.tutorial.learned:contains(LEARN_GAMELOSE) then
     Game.events.schedule(EVENT_BALLS_TOO_HIGH, function()
+      if Game.tutorial.learned:contains(LEARN_GAMELOSE) then return end
       Game.tutorial.state:push(LEARN_GAMELOSE)
       MoveToLearnAfterTimeout()
     end)
@@ -184,6 +191,7 @@ function learnCombometerDrop()
   Game.events.schedule(EVENT_SAFE_TO_DROP, function()
     Scheduler.add(
       function()
+        if Game.tutorial.learned:contains(LEARN_COMBOMETERDROP) then return end
         Game.tutorial.state:push(LEARN_COMBOMETERDROP)
         MoveToLearnAfterTimeout()
       end, 0)
@@ -195,6 +203,7 @@ function learnCombometerScore()
   Game.events.schedule(EVENT_SCORED, function()
     Scheduler.add(
       function()
+        if Game.tutorial.learned:contains(LEARN_COMBOMETERSCORE) then return end
         Game.tutorial.state:push(LEARN_COMBOMETERSCORE)
         MoveToLearnAfterTimeout()
       end, 0)
@@ -206,6 +215,7 @@ function learnToCombo()
     Scheduler.add(
       function()
         if Game.combo > 1 then
+          if Game.tutorial.learned:contains(LEARN_COMBO) then return end
           Game.tutorial.state:push(LEARN_COMBO)
           MoveToLearnAfterTimeout()
         else
@@ -222,6 +232,7 @@ function learnToLoseCombo()
     --print('waiting to learn lose combo')
   end
   Game.events.schedule(EVENT_COMBO_END, function()
+    if Game.tutorial.learned:contains(LEARN_LOSECOMBO) then return end
     Game.tutorial.state:push(LEARN_LOSECOMBO)
     MoveToLearnAfterTimeout()
     learnCombometerDrop()

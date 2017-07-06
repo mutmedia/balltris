@@ -15,22 +15,27 @@ function inTutorialState(...)
 end
 
 function TutorialText(data)
-  data.name = 'tutorial '..data.name
-  data.layer=LAYER_MENUS
-  data.condition = And(inGameState(STATE_GAME_RUNNING, STATE_GAME_LOST), data.condition)
-  data.x=BASE_SCREEN_WIDTH/2
-  data.y=11*UI_HEIGHT_UNIT
-  data.font=FONT_SM
-  data.width=0.9 * HOLE_WIDTH
-  data.textColor=COLOR_WHITE
-  data.color=COLOR_BLACK
-  data.height=8 * UI_HEIGHT_UNIT
-  data.lineColor=COLOR_WHITE
-  data.lineWidth=3
-  data.onPress = function()
+  local transData = {}
+  transData.name = 'tutorial '..data.name
+  transData.layer=LAYER_MENUS
+  transData.condition = And(inGameState(STATE_GAME_RUNNING, STATE_GAME_LOST), data.condition)
+  transData.x=BASE_SCREEN_WIDTH/2
+  transData.y=11*UI_HEIGHT_UNIT
+  transData.font=FONT_SM
+  transData.width=0.9 * HOLE_WIDTH
+  transData.textColor=COLOR_WHITE
+  transData.color=COLOR_BLACK
+  transData.height=8 * UI_HEIGHT_UNIT
+  transData.lineColor=COLOR_WHITE
+  transData.lineWidth=3
+  transData.onPress = function()
     Game.events.fire(EVENT_CLICKED_TUTORIAL)
   end
-  return Button(data)
+  transData.getText = function()
+    local txt = data.getText()
+    return txt..string.format('\n%d/%d',Game.tutorial.learned:count() + 1, table.getn(TUTORIALS_TO_LEARN))
+  end
+  return Button(transData)
 end
 
 TutorialText{

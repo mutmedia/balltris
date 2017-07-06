@@ -112,7 +112,10 @@ function Ball.New(ballData, world)
         return 4 * (1-k) * (k)
       end,
       particleDraw = ParticleSystemUtils.SquareParticlesDraw(20 * newBall.radius/BALL_MAX_RADIUS),
-      rateOverTime = 40
+      rateOverTime = 40,
+      drawCondition=function()
+        return Game.inState(STATE_GAME_RUNNING, STATE_GAME_LOST, STATE_GAME_OVER)
+      end
     }
   end
 
@@ -170,7 +173,10 @@ newBall.startSpawnParticleSystem = function()
       end,
       particleDraw = ParticleSystemUtils.SquareParticlesDraw(20 * newBall.radius/BALL_MAX_RADIUS),
       rateOverTime = 240,
-      particleAcceleration = Vector.New(0, GRAVITY)
+      particleAcceleration = Vector.New(0, GRAVITY),
+      drawCondition=function()
+        return Game.inState(STATE_GAME_RUNNING, STATE_GAME_LOST, STATE_GAME_OVER)
+      end
     }
   end
 

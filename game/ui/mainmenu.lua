@@ -107,7 +107,6 @@ Button{
     return 'top 10'
   end,
   onPress = function(self, x, y)
-    Game.state:push(STATE_GAME_LEADERBOARD_LOADING)
     Backend.GetTopPlayers()
     Backend.SendScore(Game.highScore)
 end,

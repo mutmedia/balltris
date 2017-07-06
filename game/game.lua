@@ -31,6 +31,7 @@ Game.comboObjective = 5
 Game.comboObjectiveCleared = false
 Game.comboNumbers = nil
 
+Game.extrapolationTime = 0
 Game.timeScale = TIME_SCALE_SLOMO
 Game.startTime = love.timer.getTime()
 
@@ -225,25 +226,6 @@ pf = 0
 function Game.update(dt)
   Game.totalTimeUnscaled = Game.totalTimeUnscaled + dt
 
-  Game.raycastHit = nil
-  --Raycast to get preview
-  if Game.objects.ballPreview then
-    function previewRaycastCallback(fixture, x, y, xn, yn, fraction)
-      --ballref = fixture:getUserData() and fixture:getUserData().ref
-      --if not ballref then return end
-      --print('Ray cast hit something')
-      if not Game.raycastHit or y < Game.raycastHit.y then
-        Game.raycastHit = Vector.New(x, y)
-      end
-      return 1
-    end
-
-    Game.world:rayCast(Game.objects.ballPreview.position.x,
-      Game.objects.ballPreview.position.y,
-      Game.objects.ballPreview.position.x,
-      Game.objects.ballPreview.position.y + BASE_SCREEN_HEIGHT,
-      previewRaycastCallback)
-  end
 
   if Game.inState(STATE_GAME_RUNNING) then
     dt = dt * Game.timeScale
@@ -321,6 +303,31 @@ function Game.update(dt)
       accumulator = accumulator - FIXED_DT
     end
   end
+  Game.extrapolationTime = accumulator
+
+  Game.raycastHit = nil
+  --Raycast to get preview
+  if Game.objects.ballPreview then
+    function previewRaycastCallback(fixture, x, y, xn, yn, fraction)
+      --ballref = fixture:getUserData() and fixture:getUserData().ref
+      --if not ballref then return end
+      --print('Ray cast hit something')
+      if not Game.raycastHit or y < Game.raycastHit.y then
+        Game.raycastHit = Vector.New(x, y)
+        local vx, vy = fixture:getBody():getLinearVelocity()
+        Game.raycastHit.y = Game.raycastHit.y - vy * (FIXED_DT - Game.extrapolationTime)
+      end
+      return 1
+    end
+
+    Game.world:rayCast(Game.objects.ballPreview.position.x,
+      Game.objects.ballPreview.position.y,
+      Game.objects.ballPreview.position.x,
+      Game.objects.ballPreview.position.y + BASE_SCREEN_HEIGHT,
+      previewRaycastCallback)
+  end
+
+
   gf = gf + 1
 end
 
