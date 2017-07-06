@@ -47,6 +47,10 @@ router.get('/top10', async (ctx, next) => {
   ctx.body = await db.User.find(null, 10, {score: -1});
 });
 
+router.get('/games', async (ctx, next) => {
+  ctx.body = await db.Games.find();
+});
+
 router.post('/games', async (ctx, next) => {
   const data = ctx.request.body
   ctx.body = await db.Games.insertOne(data)
