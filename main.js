@@ -46,8 +46,8 @@ router.patch('/users/:username', async (ctx, next) => {
 });
 router.get('/top10', async (ctx, next) => {
   const games = await db.Game.find();
-  return _.take(
-    _.sortBy(
+  const bestgames =  _.take(
+    _.orderBy(
       _.values(
         _.reduce(
           games, 
@@ -62,8 +62,9 @@ router.get('/top10', async (ctx, next) => {
           }, {})),
       function(g) {
         return g.stats.score
-      }),
-    10);
+      }, ['desc']),
+    2);
+  ctx.body = bestgames
 });
 
 router.get('/games', async (ctx, next) => {
