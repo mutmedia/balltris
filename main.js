@@ -47,7 +47,7 @@ router.patch('/users/:username', async (ctx, next) => {
 router.get('/top10', async (ctx, next) => {
   const games = await db.Game.find();
   return _.take(
-    _.sortedIndexBy(
+    _.sortBy(
       _.values(
         _.reduce(
           games, 
