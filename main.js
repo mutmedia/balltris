@@ -3,6 +3,7 @@ const Router = require('koa-router');
 const bodyParser = require('koa-bodyparser')
 const config = require('config')
 const db = require('./db')
+const _ = require('lodash')
 
 const app = new Koa();
 const router = new Router()
@@ -44,7 +45,25 @@ router.patch('/users/:username', async (ctx, next) => {
   ctx.body = await db.User.updateOne({username: username}, ctx.request.body);
 });
 router.get('/top10', async (ctx, next) => {
-  ctx.body = await db.User.find(null, 10, {score: -1});
+  const games = await db.Game.find();
+  return _.take(
+    _.sortedIndexBy(
+      _.values(
+        _.reduce(
+          games, 
+          function(best, game) {
+            if (_.isUndefined(best[game.id])) {
+              best[game.id] = game
+            }
+            else if (best[game.id].stats.score < game.stats.score) {
+              best[game.id] = game
+            }
+            return best
+          }, {})),
+      function(g) {
+        return g.stats.score
+      }),
+    10);
 });
 
 router.get('/games', async (ctx, next) => {
