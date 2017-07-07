@@ -53,7 +53,7 @@ router.get('/top10', async (ctx, next) => {
           games, 
           function(best, game) {
             if (_.isUndefined(best[game.userid])) {
-              best[game.id] = game
+              best[game.userid] = game
             }
             else if (best[game.userid].stats.score < game.stats.score) {
               best[game.userid] = game
