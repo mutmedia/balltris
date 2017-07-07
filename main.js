@@ -63,7 +63,7 @@ router.get('/top10', async (ctx, next) => {
       function(g) {
         return g.stats.score
       }, ['desc']),
-    2);
+    10);
   ctx.body = bestgames
 });
 
