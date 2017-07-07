@@ -250,8 +250,9 @@ function love.update(dt)
 end
 
 function love.textinput(t)
-  if not Game.inState(STATE_GAME_USERNAME) then return end
-  Game.usernameText = Game.usernameText..t
+  if Game.inState(STATE_GAME_USERNAME, STATE_GAME_OVER) then
+    Game.usernameText = Game.usernameText..t
+  end
 end
 
 function ComboMultiplier(combo)
@@ -284,7 +285,7 @@ end
 
 -- INPUT
 function love.keypressed(key)
-  if Game.inState(STATE_GAME_USERNAME) then 
+  if Game.inState(STATE_GAME_USERNAME, STATE_GAME_OVER) then 
     if key == 'backspace' then
       Game.usernameText = Game.usernameText:sub(1, -2)
     end

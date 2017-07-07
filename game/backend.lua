@@ -14,15 +14,19 @@ local print = function(...)
   print('BACKEND: ', ...)
 end
 
+
 function Backend.Init()
   Backend.isOffline = true
 
-  local ok, userData = Load.luafile(USER_DATA_FILE_PATH)
+  local ok, rawUserData = Load.luafile(USER_DATA_FILE_PATH)
   if not ok then 
     print('No user set')
     Backend.ConnectFirstTime()
   else
-    Backend.SetUser(userData)
+      Backend.userData = {
+        id = rawUserData.id
+      }
+    Backend.isOffline = false
   end
 end
 
@@ -40,7 +44,11 @@ function Backend.ConnectFirstTime()
     if not ok then 
       Game.backendConnectionError = response 
     else
-      Backend.SetUser(response) 
+      Backend.userData = {
+        id = response._id
+      }
+      Backend.isOffline = false
+      SaveUserDataToFile(Backend.userData)
       Game.state:push(STATE_GAME_MAINMENU)
     end
   end)
@@ -87,10 +95,9 @@ end
 function SaveUserDataToFile(userData)
   local userDataFile = string.format([[
   return {
-    username='%s',
     id='%s'
     }
-  ]], userData.username, userData._id)
+  ]], userData.username, userData.id)
 
   local file, errorstr = love.filesystem.newFile(USER_DATA_FILE_PATH, 'w') 
   if errorstr then 
@@ -104,21 +111,15 @@ function SaveUserDataToFile(userData)
   end
 end
 
-function Backend.SetUser(userData)
-  for k, v in pairs(userData) do
-    print(k, v, type(v))
-  end
-  Backend.userData = userData
-  Backend.isOffline = false
-  SaveUserDataToFile(userData)
+function Backend.SetUser(rawUserData)
 end
 
 function Backend.SendStats(stats, gamenumber)
   if Backend.isOffline then return end
   print('Sending stats')
   local data = {
-    username=Backend.userData.username,
-    id=Backend.userData._id,
+    username=Game.usernameText,
+    userid=Backend.userData.id,
     game=gamenumber,
     stats=stats,
   }
@@ -131,6 +132,9 @@ end
 
 function Backend.GetTopPlayers()
   Async(function()
+    if Game.inState(STATE_GAME_LEADERBOARD_LOADING) then
+      return 
+    end
     Game.state:push(STATE_GAME_LEADERBOARD_LOADING)
     local ok, top10Data = Request.Get(BACKEND_PATH..'/top10')
     if not ok then
@@ -144,7 +148,7 @@ function Backend.GetTopPlayers()
     else
       Backend.top10Error = nil
       for k, v in ipairs(top10Data) do
-        print(k, v.username, v.score)
+        print(k, v.username, v.stats.score, v.userid)
       end
       Backend.top10Data = top10Data
       if Game.inState(STATE_GAME_LEADERBOARD_LOADING) then

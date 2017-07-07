@@ -107,18 +107,24 @@ function Game.InitializeTutorial()
   if not Game.tutorial.learned:contains(LEARN_SLOMO) then
     Game.events.schedule(EVENT_SAFE_TO_DROP, function()
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
-        Scheduler.add(
-          function()
-            if Game.tutorial.learned:contains(LEARN_SLOMO) then return end
-            Game.tutorial.state:push(LEARN_SLOMO)
-            MoveToLearnAfterTimeout()
+        Game.events.schedule(EVENT_SAFE_TO_DROP, function()
+          Game.events.schedule(EVENT_SAFE_TO_DROP, function()
             Game.events.schedule(EVENT_SAFE_TO_DROP, function()
-              if Game.tutorial.learned:contains(LEARN_SLOMOOPTIONS) then return end
-              Game.tutorial.state:push(LEARN_SLOMOOPTIONS)
-              MoveToLearnAfterTimeout()
+              Scheduler.add(
+                function()
+                  if Game.tutorial.learned:contains(LEARN_SLOMO) then return end
+                  Game.tutorial.state:push(LEARN_SLOMO)
+                  MoveToLearnAfterTimeout()
+                  Game.events.schedule(EVENT_SAFE_TO_DROP, function()
+                    if Game.tutorial.learned:contains(LEARN_SLOMOOPTIONS) then return end
+                    Game.tutorial.state:push(LEARN_SLOMOOPTIONS)
+                    MoveToLearnAfterTimeout()
+                  end)
+                end,
+                TUTORIAL_SLOMO_TIMEOUT_AFTERSAFE)
             end)
-          end,
-          TUTORIAL_SLOMO_TIMEOUT_AFTERSAFE)
+          end)
+        end)
       end)
     end)
   end

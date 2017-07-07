@@ -43,43 +43,50 @@ Game.highscore = ]])
     table.insert(savestrings, serialize(game.highscore))
   end
 
-  -- TUTORIAL
-  if game.tutorial then
-    table.insert(savestrings, [[
+  if game.usernameText then
+    table.insert(savestrings, string.format([[
+Game.usernameText = '%s' 
+]]
+      , game.usernameText))
+end
+
+-- TUTORIAL
+if game.tutorial then
+  table.insert(savestrings, [[
 Game.tutorial = {}
 Game.tutorial.learnedRaw = {
 ]])
-    for k, v in pairs(game.tutorial.learned) do
-      table.insert(savestrings, string.format("\t'%s',\n", k))
-    end
-    table.insert(savestrings, '}\n')
+  for k, v in pairs(game.tutorial.learned) do
+    table.insert(savestrings, string.format("\t'%s',\n", k))
   end
+  table.insert(savestrings, '}\n')
+end
 
-  -- OPTIONS
-  if game.options then
-    table.insert(savestrings, [[
+-- OPTIONS
+if game.options then
+  table.insert(savestrings, [[
 Game.options = ]])
-    table.insert(savestrings, serialize(game.options))
-  end
+  table.insert(savestrings, serialize(game.options))
+end
 
 
-  local savestring = table.concat(savestrings)
-  --print(savestring)
+local savestring = table.concat(savestrings)
+--print(savestring)
 
-  local file, errorstr = love.filesystem.newFile(SAVE_PATH, 'w') 
-  if errorstr then 
-    error(errorstr)
-    return 
-  end
+local file, errorstr = love.filesystem.newFile(SAVE_PATH, 'w') 
+if errorstr then 
+  error(errorstr)
+  return 
+end
 
-  print('Save file contents: ////')
-  print(savestring)
-  print('////////////////////////')
+print('Save file contents: ////')
+print(savestring)
+print('////////////////////////')
 
-  local s, err = file:write(savestring)
-  if err then
-    error(err)
-  end
+local s, err = file:write(savestring)
+if err then
+  error(err)
+end
 end
 
 function LocalSave.Load()

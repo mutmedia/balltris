@@ -139,7 +139,7 @@ function UI.object(params)
   }
   obj._lastState = {}
 
-  print('UI: Loaded '..obj.name)
+  --print('UI: Loaded '..obj.name)
 
 end
 

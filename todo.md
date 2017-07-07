@@ -55,6 +55,7 @@ Advanced:
 Tutorial
 --------
 - [x] Make tutorial a stack so it is less prone to errors
+- [ ] Make tutorial more spaced
 
 DEBUG STUFF / TOOLS
 -------------------

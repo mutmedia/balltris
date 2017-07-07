@@ -29,7 +29,7 @@ Game.highscore.number = {}
 Game.newHighScore = false
 Game.combo = 0
 Game.maxCombo = 0
-Game.comboObjective = 5
+Game.comboObjective = COMBO_INITIAL_OBJECTIVE
 Game.comboObjectiveCleared = false
 Game.comboNumbers = nil
 
@@ -37,7 +37,7 @@ Game.extrapolationTime = 0
 Game.timeScale = TIME_SCALE_SLOMO
 Game.startTime = love.timer.getTime()
 
-Game.usernameText = 'name'
+Game.usernameText = USERNAME_PLACEHOLDER
 
 -- Initialize game
 
@@ -84,7 +84,7 @@ function Game.start(loadGame)
     })
 
   -- TODO: save this later
-  Game.comboObjective = 5
+  Game.comboObjective = COMBO_INITIAL_OBJECTIVE
   -- Information that can be saved
   if loadGame then
     Game = loadGame(Game)
@@ -203,7 +203,7 @@ function Game.start(loadGame)
     if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
     if Game.combo >= Game.comboObjective then
       Game.comboObjectiveCleared = false
-      Game.comboObjective = Game.comboObjective + 5
+      Game.comboObjective = Game.comboObjective + COMBO_OBJECTIVE_INCREMENT
       Game.events.fire(EVENT_COMBO_NEW_CLEARSAT)
     end
     Game.comboNumbers = Queue.New()
@@ -393,7 +393,6 @@ end
 
 function Game.gameOver()
   Game.setHighScore(Game.score)
-  Backend.SendStats(Game.stats, Game.number)
   Game.state:push(STATE_GAME_OVER)
   TempSave.Clear()
   LocalSave.Save(Game)

@@ -1,4 +1,6 @@
 require 'ui/base'
+local LocalSave = require 'localsave'
+local Backend = require 'backend'
 
 -- Game Over Menu
 Text{
@@ -6,12 +8,12 @@ Text{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=09*UI_HEIGHT_UNIT,
+  y=06*UI_HEIGHT_UNIT,
   font=FONT_LG,
   color=7,
   width=HOLE_WIDTH,
   getText = function()
-    return 'game over'
+    return 'game\nover'
   end,
 }
 
@@ -20,7 +22,7 @@ Text{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=14*UI_HEIGHT_UNIT,
+  y=11*UI_HEIGHT_UNIT,
   font=FONT_MD,
   color=1,
   width=HOLE_WIDTH,
@@ -34,7 +36,7 @@ Text{
   layer=LAYER_MENUS,
   condition=And(inGameState(STATE_GAME_OVER), function() return Game.newHighScore end),
   x=BASE_SCREEN_WIDTH/2,
-  y=17.5*UI_HEIGHT_UNIT,
+  y=14.5*UI_HEIGHT_UNIT,
   font=FONT_SM,
   color=4,
   width=HOLE_WIDTH,
@@ -42,6 +44,59 @@ Text{
     return 'new high score!'
   end,
 }
+
+-- High score username stuff
+Rectangle{
+  name='leave enter username',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_OVER),
+  x=BASE_SCREEN_WIDTH/2,
+  y=BASE_SCREEN_HEIGHT/2,
+  color=COLOR_TRANSPARENT,
+  height=BASE_SCREEN_HEIGHT, 
+  width=BASE_SCREEN_WIDTH, 
+  onPress = function(self, x, y)
+    love.keyboard.setTextInput(false)
+  end
+}
+
+
+Button{
+  name='enter username',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_OVER),
+  x=BASE_SCREEN_WIDTH/2,
+  y=17*UI_HEIGHT_UNIT,
+  font=FONT_SM,
+  height=1.5*UI_HEIGHT_UNIT,
+  color=COLOR_BLACK,
+  lineColor=COLOR_WHITE,
+  lineWidth=2,
+  --textColor=COLOR_YELLOW,
+  width=HOLE_WIDTH * 0.9,
+  cursorF=0.5,
+  lastCursorSwap = 0,
+  showCursor = true,
+  getText= function(self)
+    if self.lastCursorSwap + self.cursorF < Game.totalTime then
+      self.showCursor = not self.showCursor
+      self.lastCursorSwap = Game.totalTime
+    end
+
+    return Game.usernameText..(self.showCursor and '_' or '') 
+  end,
+  onPress = function(self, x, y)
+    --if Game.inState(STATE_GAME_USERNAME_LOADING) then return end
+    if not love.keyboard.hasTextInput() then
+      Game.usernameText = ''
+    end
+    love.keyboard.setTextInput(true)
+    --Game.usernameErrorMsg = nil
+  end
+}
+
+
+
 
 --[[
 Text{
@@ -64,7 +119,7 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=20*UI_HEIGHT_UNIT,
+  y=28*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   lineColor=1,
@@ -76,6 +131,8 @@ Button{
     return 'replay'
   end,
   onPress = function(self, x, y)
+    Backend.SendStats(Game.stats, Game.number)
+    LocalSave.Save(Game)
     Game.start()
   end,
 }
@@ -85,7 +142,7 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=24*UI_HEIGHT_UNIT,
+  y=32*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   lineColor=1,
@@ -97,8 +154,12 @@ Button{
     return 'quit'
   end,
   onPress = function(self, x, y)
+    Backend.SendStats(Game.stats, Game.number)
+    LocalSave.Save(Game)
     Game.state:push(STATE_GAME_MAINMENU)
   end,
 }
+
+
 
 

@@ -1,8 +1,8 @@
 function And(...)
   local conditions = {...}
-  return function()
+  return function(...)
     for _, cond in pairs(conditions) do
-      if not cond() then
+      if not cond(...) then
         return false
       end
     end
