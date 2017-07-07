@@ -10,8 +10,8 @@ local BACKEND_PATH = 'https://balltris.herokuapp.com'
 
 local Backend = {}
 
-local print = function(str)
-  print('BACKEND: ', (str or ''))
+local print = function(...)
+  print('BACKEND: ', ...)
 end
 
 function Backend.Init()
@@ -38,10 +38,10 @@ function Backend.ConnectFirstTime()
         username='',
       })
     if not ok then 
-      backendConnectionError = response 
+      Game.backendConnectionError = response 
     else
-      print(response)
-      Game.state:push(STATE_GAME_RUNNING)
+      Backend.SetUser(response) 
+      Game.state:push(STATE_GAME_MAINMENU)
     end
   end)
 end
@@ -88,9 +88,9 @@ function SaveUserDataToFile(userData)
   local userDataFile = string.format([[
   return {
     username='%s',
-    score=%d,
+    id='%s'
     }
-  ]], userData.username, userData.score)
+  ]], userData.username, userData._id)
 
   local file, errorstr = love.filesystem.newFile(USER_DATA_FILE_PATH, 'w') 
   if errorstr then 
@@ -106,10 +106,11 @@ end
 
 function Backend.SetUser(userData)
   for k, v in pairs(userData) do
-    print(k, v)
+    print(k, v, type(v))
   end
   Backend.userData = userData
   Backend.isOffline = false
+  SaveUserDataToFile(userData)
 end
 
 function Backend.SendStats(stats, gamenumber)
@@ -117,6 +118,7 @@ function Backend.SendStats(stats, gamenumber)
   print('Sending stats')
   local data = {
     username=Backend.userData.username,
+    id=Backend.userData._id,
     game=gamenumber,
     stats=stats,
   }

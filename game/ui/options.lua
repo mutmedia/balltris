@@ -3,7 +3,7 @@ local Backend = require 'backend'
 local LocalSave = require 'localsave'
 
 Button{
-  name='Set user',
+  name='go online',
   layer=LAYER_MENUS,
   condition=And(function() return Backend.isOffline end,  inGameState(STATE_GAME_OPTIONS)),
   x=BASE_SCREEN_WIDTH/2,
@@ -16,10 +16,10 @@ Button{
   font=FONT_SM,
   textColor=1,
   getText = function() 
-    return 'set username'
+    return 'go online'
   end,
   onPress = function(self, x, y)
-    Game.state:push(STATE_GAME_USERNAME)
+    Backend.ConnectFirstTime()
   end,
 }
 
