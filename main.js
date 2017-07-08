@@ -4,6 +4,7 @@ const bodyParser = require('koa-bodyparser')
 const config = require('config')
 const db = require('./db')
 const _ = require('lodash')
+const cors = require('kcors');
 
 const app = new Koa();
 const router = new Router()
@@ -24,6 +25,9 @@ app.use(async (ctx, next) => {
     Object.assign(ctx, {body: resError, status: e.status || 500});
   }
 });
+app.use(cors({
+allowMethods='GET',
+}));
 app.use(bodyParser());
 
 router.get('/', (ctx) => ctx.body = {hello: 'world'})
