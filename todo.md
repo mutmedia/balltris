@@ -10,7 +10,7 @@ MVP
 
 - [ ] Improve tutorial after playtest
 - [x] Finish basic effects
-- [ ] Fix Continue
+- [ ] Fix Continue (?)
 - [ ] Improve high score after playtest feedback
 - [ ] Add achievements, see (Achievements)
 - [ ] Music / Sound(?)
@@ -21,7 +21,7 @@ MVP
 After MVP
 =========
 - [ ] Better server security
-- [ ] Online stats
+- [x] Online stats
 - [ ] Fixed seed games
 
 Effects:
@@ -35,9 +35,9 @@ Effects:
 High score Improvements
 -----------------------
 - [x] Make it async so there are no stupid delays
-- [ ] Make it more arcade like
+- [x] Make it more arcade like
 - [ ] Add scores close to player
-- [ ] Save name after each new high score (?)
+- [x] Save name after each new high score (?)
 
 Gameplay
 --------

@@ -38,6 +38,7 @@ Game.timeScale = TIME_SCALE_SLOMO
 Game.startTime = love.timer.getTime()
 
 Game.usernameText = USERNAME_PLACEHOLDER
+Game.selectedLeaderboardGame = nil
 
 -- Initialize game
 

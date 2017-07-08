@@ -100,6 +100,7 @@ STATE_GAME_OPTIONS = 512 --main menu options
 STATE_GAME_LEADERBOARD_LOADING = 1024 --when in leaderboard screen loading
 STATE_GAME_USERNAME_LOADING = 2048 --when in user name input screen loading
 STATE_GAME_FIRST_CONNECTION = 4096 --when connecting to server for first time
+STATE_GAME_LEADERBOARD_STATS = 8192 --when looking at a players stats on the leaderboard
 
 -- Tutorial states
 LEARN_AIMBALL = 'aim ball'

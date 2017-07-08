@@ -19,7 +19,7 @@ function Backend.Init()
   Backend.isOffline = true
 
   local ok, rawUserData = Load.luafile(USER_DATA_FILE_PATH)
-  if not ok then 
+  if not ok or not rawUserData.id then 
     print('No user set')
     Backend.ConnectFirstTime()
   else
@@ -47,9 +47,9 @@ function Backend.ConnectFirstTime()
       Backend.userData = {
         id = response._id
       }
-      Backend.isOffline = false
       SaveUserDataToFile(Backend.userData)
       Game.state:push(STATE_GAME_MAINMENU)
+      Backend.isOffline = false
     end
   end)
 end
@@ -74,7 +74,6 @@ function Backend.TryCreateUser(username)
         print('Created new user:', json.encode(response))
         local userData = {username=username, score=0} 
         Backend.SetUser(userData)
-        SaveUserDataToFile(userData)
         Game.state:push(STATE_GAME_MAINMENU)
         print('Crated new user: '..username)
         if Game.highscore.stats then
@@ -97,7 +96,7 @@ function SaveUserDataToFile(userData)
   return {
     id='%s'
     }
-  ]], userData.username, userData.id)
+  ]], userData.id)
 
   local file, errorstr = love.filesystem.newFile(USER_DATA_FILE_PATH, 'w') 
   if errorstr then 

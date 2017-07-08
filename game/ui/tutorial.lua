@@ -25,7 +25,7 @@ function TutorialText(data)
   transData.width=0.9 * HOLE_WIDTH
   transData.textColor=COLOR_WHITE
   transData.color=COLOR_BLACK
-  transData.height=8 * UI_HEIGHT_UNIT
+  transData.height=9 * UI_HEIGHT_UNIT
   transData.lineColor=COLOR_WHITE
   transData.lineWidth=3
   transData.onPress = function()
@@ -92,6 +92,7 @@ TutorialText{
   condition=inTutorialState(LEARN_SLOMO),
   getText = function()
     return [[
+IMPORTANT!
 While aiming,
 time moves slowly 
 ]]
@@ -162,6 +163,7 @@ TutorialText{
   condition=inTutorialState(LEARN_CLEARCOMBO),
   getText = function()
     return [[
+IMPORTANT!
 When combo higher
 than 'clear at' value
 all the white balls
@@ -175,10 +177,11 @@ TutorialText{
   condition=inTutorialState(LEARN_NEWCOMBOCLEARSAT),
   getText = function()
     return [[
-After losing a
-cleared combo
-'clears at' value
-increases
+IMPORTANT!
+You can only
+try clearing again
+after losing
+a combo
 ]]
   end,
 }

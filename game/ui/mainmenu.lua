@@ -91,7 +91,7 @@ Button{
 }
 
 Button{
-  name='top10 button',
+  name='leaderboard button',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
@@ -104,7 +104,7 @@ Button{
   font=FONT_MD,
   textColor=1,
   getText = function() 
-    return 'top 10'
+    return 'scoreboard'
   end,
   onPress = function(self, x, y)
     Backend.GetTopPlayers()
@@ -124,7 +124,7 @@ Text{
   color=1,
   width=BORDER_THICKNESS,
   getText = function()
-    return string.format('best: %04d', Game.highscore.stats.score or 0)
+    return string.format('best: \n%04d', Game.highscore.stats.score or 0)
   end,
 }
 

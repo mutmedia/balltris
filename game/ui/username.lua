@@ -140,7 +140,7 @@ Button{
     if Game.inState(STATE_GAME_USERNAME_LOADING) then return end
     if not Backend.CheckUsername(Game.usernameText) then return end
     love.keyboard.setTextInput(false)
-    Backend.TryCreateUser(Game.usernameText)
+    --Backend.TryCreateUser(Game.usernameText)
   end,
 }
 

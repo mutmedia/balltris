@@ -117,10 +117,10 @@ Text{
 Text{
   name='combo objective',
   layer=LAYER_HUD,
-  condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
+  condition = And(inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED), function() return not Game.comboObjectiveCleared end),
   --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
-  y=13.15*UI_HEIGHT_UNIT,
+  y=13.55*UI_HEIGHT_UNIT,
   font=FONT_XS,
   getColor=function()
     return Game.comboObjectiveCleared and COLOR_GREEN or COLOR_YELLOW
@@ -131,13 +131,29 @@ Text{
   end,
 }
 
+Text{
+  name='next combo objective',
+  layer=LAYER_HUD,
+  condition = And(inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED), function() return Game.comboObjectiveCleared end),
+  --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
+  x=BORDER_THICKNESS/2,
+  y=13.15*UI_HEIGHT_UNIT,
+  font=FONT_XS,
+  color=COLOR_RED,
+  width=BORDER_THICKNESS,
+  getText = function()
+    return string.format('next combo \nclears at %2d', Game.comboObjective + COMBO_OBJECTIVE_INCREMENT)
+  end,
+}
+
+
 Custom{
   name='combometer',
   layer=LAYER_HUD,
   condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
   --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
-  y=15*UI_HEIGHT_UNIT,
+  y=15.15*UI_HEIGHT_UNIT,
   radius=UI_HEIGHT_UNIT,
   width=1*UI_HEIGHT_UNIT,
   height=9*UI_HEIGHT_UNIT,

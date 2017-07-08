@@ -4,7 +4,7 @@ local Backend = require 'backend'
 Text{
   name='leaderboard title',
   layer=LAYER_MENUS,
-  condition=inGameState(STATE_GAME_LEADERBOARD, STATE_GAME_LEADERBOARD_LOADING),
+  condition=inGameState(STATE_GAME_LEADERBOARD, STATE_GAME_LEADERBOARD_LOADING, STATE_GAME_LEADERBOARD_STATS),
   x=BASE_SCREEN_WIDTH/2,
   y=2*UI_HEIGHT_UNIT,
   font=FONT_MD,
@@ -12,6 +12,20 @@ Text{
   width=HOLE_WIDTH*1.4,
   getText= function()
     return 'top players'
+  end,
+}
+
+Text{
+  name='leaderboard title',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_LEADERBOARD, STATE_GAME_LEADERBOARD_LOADING),
+  x=BASE_SCREEN_WIDTH/2,
+  y=3.5*UI_HEIGHT_UNIT,
+  font=FONT_XS,
+  color=4,
+  width=HOLE_WIDTH*1.4,
+  getText= function()
+    return 'click on entry for stats'
   end,
 }
 
@@ -29,7 +43,6 @@ Text{
   end,
 }
 
-local selected = nil
 
 local leaderBoardThing = function(func)
   return function(num)
@@ -42,7 +55,6 @@ local leaderBoardThing = function(func)
       if not obj.color then
         obj.getColor= obj.getColor or function(self)
           return Backend.top10Data[self.number].userid == Backend.userData.id and COLOR_GREEN 
-          or selected == self.number and COLOR_RED 
           or COLOR_BLUE
         end
       end
@@ -72,7 +84,8 @@ for i=1,10 do
     color=COLOR_TRANSPARENT,
     height=UI_HEIGHT_UNIT * 1.3,
     onEnter=function(self)
-      selected = self.number
+      Game.selectedLeaderboardGame = self.number
+      Game.state:push(STATE_GAME_LEADERBOARD_STATS)
     end
   }
   leaderBoardThing(Text)(i){
@@ -95,49 +108,116 @@ for i=1,10 do
       return string.format('%5d', gameData.stats.score)
     end,
   }
-  --[[
-  Text{
-    name='stats leader '..i,
-    layer=LAYER_HUD,
-    condition=And(
-      function() return Backend.top10Data[i] ~= nil end,
-      function() return Backend.top10Error == nil end,
-      function() return selected == i end,
-      inGameState(STATE_GAME_LEADERBOARD)),
-    x=-BORDER_THICKNESS/2,
-    y=12*UI_HEIGHT_UNIT + 2.0,
-    font=FONT_XS,
-    color=COLOR_WHITE,
-    width=BORDER_THICKNESS,
-    getText = function()
-      local str = ''
-      local stats = Backend.top10Data[i].stats
-      for k, v in pairs(stats) do
-        str = str..string.format('%s\n%4.2f\n', k, stats[k])
-      end
-      return str
-    end,
-  }
-  ]]--
   i = i + 1
 end
+
+
+Text{
+  name='stat name',
+  layer=LAYER_HUD,
+  condition=And(
+    function() return Game.selectedLeaderboardGame ~= nil end,
+    inGameState(STATE_GAME_LEADERBOARD_STATS)),
+  x=BASE_SCREEN_WIDTH/2 - HOLE_WIDTH/6,
+  y=6*UI_HEIGHT_UNIT, 
+  font=FONT_SM,
+  getColor = function(self)
+    return Backend.top10Data[Game.selectedLeaderboardGame].userid == Backend.userData.id and COLOR_GREEN 
+    or COLOR_BLUE
+  end,
+  width=BORDER_THICKNESS,
+  getText = function()
+    local gameData = Backend.top10Data[Game.selectedLeaderboardGame]
+    return string.format('%-10s', gameData.username)
+  end,
+}
+
+Text{
+  name='stat score',
+  layer=LAYER_HUD,
+  condition=And(
+    function() return Game.selectedLeaderboardGame ~= nil end,
+    inGameState(STATE_GAME_LEADERBOARD_STATS)),
+  x=BASE_SCREEN_WIDTH/2 + HOLE_WIDTH/3.5,
+  y=6*UI_HEIGHT_UNIT, 
+  font=FONT_SM,
+  getColor = function(self)
+    return Backend.top10Data[Game.selectedLeaderboardGame].userid == Backend.userData.id and COLOR_GREEN 
+    or COLOR_BLUE
+  end,
+  width=BORDER_THICKNESS,
+  getText = function()
+    local gameData = Backend.top10Data[Game.selectedLeaderboardGame]
+    return string.format('%5d', gameData.stats.score)
+  end,
+}
 
 Text{
   name='stat title',
   layer=LAYER_HUD,
   condition=And(
-    function() return selected and true or false end,
-    inGameState(STATE_GAME_LEADERBOARD)
-    ),
-  x=-BORDER_THICKNESS/2,
-  y=10*UI_HEIGHT_UNIT, 
+    function() return Game.selectedLeaderboardGame ~= nil end,
+    inGameState(STATE_GAME_LEADERBOARD_STATS)),
+  x=BASE_SCREEN_WIDTH/2,
+  y=9*UI_HEIGHT_UNIT, 
   font=FONT_MD,
-  color=COLOR_RED,
+  color=COLOR_WHITE,
   width=BORDER_THICKNESS,
   getText = function()
-    return 'stats'
+    return 'Stats'
   end,
 }
+
+Text{
+  name='stats leader text',
+  layer=LAYER_HUD,
+  condition=And(
+    function() return Game.selectedLeaderboardGame ~= nil end,
+    inGameState(STATE_GAME_LEADERBOARD_STATS)),
+  x=BASE_SCREEN_WIDTH/2 - HOLE_WIDTH/6,
+  y=11*UI_HEIGHT_UNIT ,
+  font=FONT_SM,
+  color=COLOR_WHITE,
+  width=HOLE_WIDTH,
+  getText = function()
+    local str = ''
+    local stats = Backend.top10Data[Game.selectedLeaderboardGame].stats
+    for k, v in pairs(stats) do
+      if k == 'frequency' then
+        str = str..string.format('%s\n', k)
+      else
+        str = str..string.format('%s\n', k)
+      end
+    end
+    return str
+  end,
+}
+
+Text{
+  name='stats leader values',
+  layer=LAYER_HUD,
+  condition=And(
+    function() return Game.selectedLeaderboardGame ~= nil end,
+    inGameState(STATE_GAME_LEADERBOARD_STATS)),
+  x=BASE_SCREEN_WIDTH/2 + HOLE_WIDTH/3.5,
+  y=11*UI_HEIGHT_UNIT ,
+  font=FONT_SM,
+  color=COLOR_WHITE,
+  width=HOLE_WIDTH,
+  getText = function()
+    local str = ''
+    local stats = Backend.top10Data[Game.selectedLeaderboardGame].stats
+    for k, v in pairs(stats) do
+      if k == 'frequency' then
+        str = str..string.format('%4.2f\n', v)
+      else
+        str = str..string.format('%d\n', v)
+      end
+    end
+    return str
+  end,
+}
+
 
 
 Text{
@@ -184,7 +264,7 @@ Button{
 Button{
   name='back',
   layer=LAYER_MENUS,
-  condition=inGameState(STATE_GAME_LEADERBOARD, STATE_GAME_LEADERBOARD_LOADING),
+  condition=inGameState(STATE_GAME_LEADERBOARD, STATE_GAME_LEADERBOARD_LOADING, STATE_GAME_LEADERBOARD_STATS),
   x=BASE_SCREEN_WIDTH/2,
   y=28*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
@@ -198,7 +278,9 @@ Button{
     return 'back'
   end,
   onPress = function(self, x, y)
+    Game.selectedLeaderboardGame = nil
     Game.state:pop()
   end,
 }
+
 
