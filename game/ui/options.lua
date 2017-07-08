@@ -1,13 +1,14 @@
 require 'ui/base'
 local Backend = require 'backend'
 local LocalSave = require 'localsave'
+local NewPalette = require 'palette'
 
 Button{
   name='go online',
   layer=LAYER_MENUS,
   condition=And(function() return Backend.isOffline end,  inGameState(STATE_GAME_OPTIONS)),
   x=BASE_SCREEN_WIDTH/2,
-  y=16*UI_HEIGHT_UNIT,
+  y=12*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   color=0,
@@ -21,6 +22,35 @@ Button{
   onPress = function(self, x, y)
     Backend.ConnectFirstTime()
   end,
+}
+
+Button{
+  name='go online',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_OPTIONS),
+  x=BASE_SCREEN_WIDTH/2,
+  y=16*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.8,
+  height=2*UI_HEIGHT_UNIT,
+  color=0,
+  lineColor=1,
+  lineWidth=3,
+  font=FONT_SM,
+  textColor=1,
+  getText = function() 
+    return 'colorblind '..(Game.options.colorblind and 'on' or 'off')
+  end,
+  onPress = function()
+    if not Game.options.colorblind then
+      local palette = NewPalette(PALETTE_COLORBLIND_PATH)
+      Game.UI.initialize(palette)
+    else
+      local palette = NewPalette(PALETTE_DEFAULT_PATH)
+      Game.UI.initialize(palette)
+    end
+    Game.options.colorblind = not Game.options.colorblind
+    LocalSave.Save(Game)
+  end
 }
 
 Button{

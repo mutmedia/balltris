@@ -307,6 +307,7 @@ function UI.setFiles(...)
 end
 
 UI._loveSetColor = love.graphics.setColor
+
 function UI.initialize(palette)
   print('UI: Initializing')
   -- Adjust to current screen size

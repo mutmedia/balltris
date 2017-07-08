@@ -74,7 +74,9 @@ function love.load()
   -- Physics
   love.physics.setMeter(METER)
 
-  -- Load Game Palette
+  --Game options
+  Game.options = DEFAULT_OPTIONS
+  LocalSave.Load()
 
   -- Game Canvas
   loadtime = love.timer.getTime()
@@ -86,8 +88,8 @@ function love.load()
 
   -- Loading UI
   loadtime = love.timer.getTime()
-  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua', 'ui/leaderboard.lua', 'ui/username.lua', 'ui/options.lua', 'ui/tutorial.lua', 'ui/stats.lua', 'ui/connection.lua')
-  Game.UI.initialize(NewPalette('content/palette.png'))
+  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua', 'ui/leaderboard.lua', 'ui/username.lua', 'ui/options.lua', 'ui/tutorial.lua', 'ui/connection.lua')
+  Game.UI.initialize(NewPalette(Game.options.colorblind and PALETTE_COLORBLIND_PATH or PALETTE_DEFAULT_PATH))
   love.graphics.setCanvas(loadingCanvas)
   love.graphics.clear()
   --Game.UI.draw()
@@ -130,9 +132,7 @@ function love.load()
     height=BASE_SCREEN_HEIGHT,
   }
 
-  Game.options = DEFAULT_OPTIONS
 
-  LocalSave.Load()
 
   -- TODO: move to place where game actually starts
   loaded = true
@@ -305,8 +305,8 @@ function love.keypressed(key)
 
   -- DEBUG input
   if key == 'u' then
-    Palette = NewPalette('content/palette.png')
-    Game.UI.initialize(NewPalette('content/palette.png'))
+    local palette = NewPalette(Game.options.colorblind and PALETTE_COLORBLIND_PATH or PALETTE_DEFAULT_PATH)
+    Game.UI.initialize(palette)
     dofile('game/data_constants.lua')
   end
 

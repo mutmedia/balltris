@@ -172,6 +172,9 @@ EVENT_CLICKED_TUTORIAL = 'clickedtutorial'
 EVENT_CLEARED_BALL = 'clearedball'
 EVENT_DROPPED_BALL = 'dropedball'
 
+-- Palette
+PALETTE_DEFAULT_PATH = 'content/base_palette.png'
+PALETTE_COLORBLIND_PATH = 'content/colorblind_palette.png'
 
 -- Options
 OPTIONS_SLOMO_DEFAULT = 'default'
@@ -181,5 +184,6 @@ OPTIONS_SLOMO_ALWAYSON = 'always'
 
 DEFAULT_OPTIONS = {
   slomoType = OPTIONS_SLOMO_DEFAULT,
+  colorblind = false,
 }
 

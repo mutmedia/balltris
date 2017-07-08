@@ -48,6 +48,7 @@ Game.radiusChances = RandomBag.New(#BALL_RADIUS_MULTIPLIERS, BALL_CHANCE_MODIFIE
 Game.tutorial = {}
 
 function Game.start(loadGame)
+  Game.sentStats = false
   Game.totalTime = 0
   Game.state:push(STATE_GAME_LOADING)
 

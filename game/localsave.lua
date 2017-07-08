@@ -26,6 +26,8 @@ function serialize (o)
       table.insert(str, ',\n')
     end
     table.insert(str, '}\n')
+  elseif type(o) == 'boolean' then
+    table.insert(str, string.format('%s', o and 'true' or 'false'))
   else
     error('cannot serialize a ' .. type(o))
   end

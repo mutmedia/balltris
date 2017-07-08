@@ -41,7 +41,7 @@ Text{
   color=4,
   width=HOLE_WIDTH,
   getText = function()
-    return 'new high score!'
+    return 'new personal best!'
   end,
 }
 
@@ -114,12 +114,13 @@ Text{
 }
 ]]--
 
+
 Button{
   name='replay button',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=28*UI_HEIGHT_UNIT,
+  y=24*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   lineColor=1,
@@ -131,11 +132,42 @@ Button{
     return 'replay'
   end,
   onPress = function(self, x, y)
-    Backend.SendStats(Game.stats, Game.number)
+    if not Game.sentStats then
+      Backend.SendStats(Game.stats, Game.number)
+      Game.sentStats = true
+    end
     LocalSave.Save(Game)
     Game.start()
   end,
 }
+
+Button{
+  name='leaderboard button',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_OVER),
+  x=BASE_SCREEN_WIDTH/2,
+  y=28*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.8,
+  height=2*UI_HEIGHT_UNIT,
+  color=0,
+  lineColor=1,
+  lineWidth=3,
+  font=FONT_MD,
+  textColor=1,
+  getText = function() 
+    return 'scoreboard'
+  end,
+  onPress = function(self, x, y)
+    if not Game.sentStats then
+      Backend.SendStats(Game.stats, Game.number)
+      Game.sentStats = true
+    end
+    LocalSave.Save(Game)
+    Backend.GetTopPlayers()
+  end,
+}
+
+
 
 Button{
   name='game over back to mainmenu',
@@ -154,7 +186,10 @@ Button{
     return 'quit'
   end,
   onPress = function(self, x, y)
-    Backend.SendStats(Game.stats, Game.number)
+    if not Game.sentStats then
+      Backend.SendStats(Game.stats, Game.number)
+      Game.sentStats = true
+    end
     LocalSave.Save(Game)
     Game.state:push(STATE_GAME_MAINMENU)
   end,
