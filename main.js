@@ -56,11 +56,11 @@ router.get('/top10', async (ctx, next) => {
         _.reduce(
           games, 
           function(best, game) {
-            if (_.isUndefined(best[game.id])) {
-              best[game.id] = game
+            if (_.isUndefined(best[game.userid])) {
+              best[game.userid] = game
             }
-            else if (best[game.id].stats.score < game.stats.score) {
-              best[game.id] = game
+            else if (best[game.userid].stats.score < game.stats.score) {
+              best[game.userid] = game
             }
             return best
           }, {})),
