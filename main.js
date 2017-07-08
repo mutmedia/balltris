@@ -26,7 +26,7 @@ app.use(async (ctx, next) => {
   }
 });
 app.use(cors({
-allowMethods='GET',
+  allowMethods: 'GET',
 }));
 app.use(bodyParser());
 
