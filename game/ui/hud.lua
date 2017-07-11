@@ -146,11 +146,108 @@ Text{
   end,
 }
 
+Custom{
+  name='combo fill',
+  layer=LAYER_HUD,
+  condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
+  --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
+  x=BORDER_THICKNESS/2,
+  y=15.15*UI_HEIGHT_UNIT,
+  radius=UI_HEIGHT_UNIT,
+  width=1*UI_HEIGHT_UNIT,
+  height=9*UI_HEIGHT_UNIT,
+  initialPosition=0,
+  frenzyTime=-1,
+  draw=function(self)
+
+    local NUM_SEGMENTS = Game.comboObjective
+    local maxSize = 1/NUM_SEGMENTS
+    local currentBall = 1
+
+    if self.frenzyTime < 0 and Game.combo >= Game.comboObjective then
+      self.frenzyTime = Game.totalTime
+    end
+
+    if self.frenzyTime > 0 then
+      self.initialPosition = (FRENZY_SPEED * (Game.totalTime-self.frenzyTime)) % NUM_SEGMENTS
+    end
+
+    if self.frenzyTime > 0 and Game.combo < Game.comboObjective then
+      self.initialPosition = 0
+      self.frenzyTime = -1
+    end
+
+
+    Game.comboNumbers:forEach(function(q) 
+      if currentBall > NUM_SEGMENTS then return end
+      color = q.num + 2
+      UI.setColor(color)
+
+      local h = self.height * maxSize
+      local py = h * (currentBall + self.initialPosition)
+      py = (py) % self.height
+      local py1 = py
+      local h1 = h
+      local h2 = 0
+      local py2 = 0
+      if py1 + h > self.height then 
+        h1 = self.height - py
+        h2 = py1 + h - self.height
+        py1 = py1 + h1 -h
+        py2 = h2
+      end
+      -- SUPER DUMB BUT SUPER LAZY
+      if self.frenzyTime > 0 then
+        py1 = py1 + h
+      end
+
+
+      love.graphics.rectangle('fill',
+        self.x - self.width/2,
+        self.y + self.height - py1,
+        self.width,
+        h1, RECTANGLE_BORDER_RADIUS
+        )
+      if h2 > 0 then
+        love.graphics.rectangle('fill',
+          self.x - self.width/2,
+          self.y + self.height - py2,
+          self.width,
+          h2, RECTANGLE_BORDER_RADIUS
+          )
+
+      end
+
+
+      --[[
+        UI.setColor(COLOR_BLACK)
+        love.graphics.rectangle('fill',
+          self.x - self.width/2,
+          self.y + ((NUM_SEGMENTS-currentBall) * (maxFill)) * self.height + maxFill * self.height,
+          self.width,
+          UI_HEIGHT_UNIT * 0.2
+          )
+          ]]--
+      currentBall = currentBall + 1
+    end)
+
+    UI.setColor(COLOR_WHITE)
+    love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
+    love.graphics.rectangle('line', self.x - self.width/2, self.y, self.width, self.height, RECTANGLE_BORDER_RADIUS)
+
+
+    UI.setColor(COLOR_WHITE)
+    love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
+    local w = self.width + 2*BALL_LINES_DISTANCE
+    local h = self.height + 2 * BALL_LINES_DISTANCE
+    love.graphics.rectangle('line', self.x - w/2, self.y - BALL_LINES_DISTANCE, w, h, RECTANGLE_BORDER_RADIUS)
+  end,
+}
 
 Custom{
   name='combometer',
   layer=LAYER_HUD,
-  condition = inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
+  condition = False(),--inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST),
   --condition = And(function() return Game.combo > 0 end, inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED, STATE_GAME_LOST)),
   x=BORDER_THICKNESS/2,
   y=15.15*UI_HEIGHT_UNIT,
@@ -202,14 +299,6 @@ Custom{
     local w = self.width + 2*BALL_LINES_DISTANCE
     local h = self.height + 2 * BALL_LINES_DISTANCE
     love.graphics.rectangle('line', self.x - w/2, self.y - BALL_LINES_DISTANCE, w, h, RECTANGLE_BORDER_RADIUS)
-    --[[ Circular
-    local angle = math.pi * value
-    love.graphics.arc('fill', self.x, self.y, self.radius, 0, -angle)
-    UI.setColor(COLOR_WHITE)
-    love.graphics.arc('line', self.x, self.y + self.lineWidth/2, self.radius + self.lineWidth/2, 0, -math.pi)
-    ]]--
-
-
   end,
 }
 

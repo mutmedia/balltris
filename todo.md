@@ -28,7 +28,7 @@ Effects:
 --------
 - [x] Ball being dropped (similar particle fx to exit?)
 - [x] Balls dissapearing particle effects
-
+- [ ] Screen shake after clearing whites
 - [ ] Next balls changing (POST MVP)
 
 
@@ -38,11 +38,17 @@ High score Improvements
 - [x] Make it more arcade like
 - [ ] Add scores close to player
 - [x] Save name after each new high score (?)
+- [ ] Backup player scores locally and send when connecting again
 
 Gameplay
 --------
 - [x] Balance combo system (make it more predictable and harder)
+- [ ] Test chaining balls adding more to combo
 - [ ] Make having a lot of whites not so bad (?)
+  - [ ] Test making a better progression of combo objectives
+  - [ ] Test making more white balls in the tutorial
+  - [ ] Test making white balls add to combo
+- [ ] Switch combo bar with side fill
 
 Options
 -------

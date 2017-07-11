@@ -29,7 +29,6 @@ Rectangle{
     Game.events.fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
 }
-FRENZY_SPEED = 1000
 Custom{
   name='combo pit color fill',
   layer=LAYER_BACKGROUND,

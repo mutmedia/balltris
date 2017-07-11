@@ -201,6 +201,7 @@ function Game.start(loadGame)
     Game.comboObjectiveCleared = true
   end)
   Game.events.add(EVENT_COMBO_END, function()
+    --[[
     if Game.combo <= 0 then print('CALLING COMBO END EVENT IN A WEIRD CIRUCUNSTANCE') end
     if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
     if Game.combo >= Game.comboObjective then
@@ -211,6 +212,7 @@ function Game.start(loadGame)
     Game.comboNumbers = Queue.New()
     -- Reset on next frame
     Scheduler.add(function() Game.combo = 0 end, 0)
+    ]]--
   end)
 
   Game.state:push(STATE_GAME_RUNNING)
