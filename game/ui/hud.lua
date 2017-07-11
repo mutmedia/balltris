@@ -180,11 +180,11 @@ Custom{
 
     Game.comboNumbers:forEach(function(q) 
       if currentBall > NUM_SEGMENTS then return end
-      color = q.num + 2
+      color = Game.comboObjectiveCleared and COLOR_GRAY or (q.num + 2)
       UI.setColor(color)
 
       local h = self.height * maxSize
-      local py = h * (currentBall + self.initialPosition)
+      local py = h * (currentBall )--+ self.initialPosition)
       py = (py) % self.height
       local py1 = py
       local h1 = h
@@ -201,40 +201,37 @@ Custom{
         py1 = py1 + h
       end
 
-
       love.graphics.rectangle('fill',
         self.x - self.width/2,
         self.y + self.height - py1,
         self.width,
-        h1, RECTANGLE_BORDER_RADIUS
+        h1
         )
       if h2 > 0 then
         love.graphics.rectangle('fill',
           self.x - self.width/2,
           self.y + self.height - py2,
           self.width,
-          h2, RECTANGLE_BORDER_RADIUS
+          h2
           )
-
       end
-
-
-      --[[
-        UI.setColor(COLOR_BLACK)
-        love.graphics.rectangle('fill',
-          self.x - self.width/2,
-          self.y + ((NUM_SEGMENTS-currentBall) * (maxFill)) * self.height + maxFill * self.height,
-          self.width,
-          UI_HEIGHT_UNIT * 0.2
-          )
-          ]]--
       currentBall = currentBall + 1
     end)
+
+    for i=1,NUM_SEGMENTS-1 do
+      UI.setColor(COLOR_BLACK)
+      love.graphics.setLineWidth(3)
+      love.graphics.line(
+        self.x - self.width/2,
+        self.y + self.height * i/NUM_SEGMENTS,
+        self.x + self.width/2,
+        self.y + self.height * i/NUM_SEGMENTS
+        )
+    end
 
     UI.setColor(COLOR_WHITE)
     love.graphics.setLineWidth(BALL_LINE_WIDTH_IN)
     love.graphics.rectangle('line', self.x - self.width/2, self.y, self.width, self.height, RECTANGLE_BORDER_RADIUS)
-
 
     UI.setColor(COLOR_WHITE)
     love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
@@ -256,7 +253,6 @@ Custom{
   height=9*UI_HEIGHT_UNIT,
   draw=function(self)
     local value = (Game.comboTimeLeft - COMBO_TIMEOUT_BUFFER) / (COMBO_MAX_TIMEOUT - COMBO_TIMEOUT_BUFFER)
-    value = value
     local color = COLOR_GREEN
     if value < 1/3 then
       color = COLOR_RED

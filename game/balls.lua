@@ -221,7 +221,7 @@ function Ball:getPosition()
 end
 
 function Ball:getColor()
-  return (self.indestructible and 1 or self.number + 2)
+  return (self.indestructible and 8 or (self.number + 2))
 end
 
 Balls.NewBall = Ball.New

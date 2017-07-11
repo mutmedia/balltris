@@ -29,11 +29,91 @@ Rectangle{
     Game.events.fire(EVENT_RELEASED_PREVIEW, x, y)
   end,
 }
+
 Custom{
   name='combo pit color fill',
   layer=LAYER_BACKGROUND,
   --condition=True(),
   condition=inGameState(STATE_GAME_RUNNING),
+  draw = function(self)
+    local lineSize = HOLE_DEPTH + HOLE_WIDTH/2
+    local position = 0
+    local value = math.clamp((Game.comboTimeLeft - COMBO_TIMEOUT_BUFFER) / (COMBO_MAX_TIMEOUT - COMBO_TIMEOUT_BUFFER), 0, 1)
+    local color = COLOR_GREEN
+    if value < 1/3 then
+      color = COLOR_RED
+    elseif value < 2/3 then
+      color = COLOR_YELLOW
+    end
+    value = value * lineSize
+
+    UI.setColor(color)
+    local hstep = math.min(value, HOLE_WIDTH/2)
+    love.graphics.setLineWidth(BALL_LINES_DISTANCE*2)
+    -- Draw horizontal lines
+    love.graphics.line(
+      BASE_SCREEN_WIDTH/2,
+      HOLE_DEPTH + BALL_LINES_DISTANCE/2,
+      BASE_SCREEN_WIDTH/2 + hstep,
+      HOLE_DEPTH + BALL_LINES_DISTANCE/2
+      )
+    love.graphics.line(
+      BASE_SCREEN_WIDTH/2 - position,
+      HOLE_DEPTH + BALL_LINES_DISTANCE/2,
+      BASE_SCREEN_WIDTH/2 - hstep,
+      HOLE_DEPTH + BALL_LINES_DISTANCE/2
+      )
+    position = position + hstep
+
+    if value >= HOLE_WIDTH/2 then
+      -- Draw arc
+      love.graphics.arc(
+        'line', 
+        'open', 
+        BASE_SCREEN_WIDTH/2 + (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2 - RECTANGLE_BORDER_RADIUS),
+        HOLE_DEPTH + BALL_LINES_DISTANCE/2 - RECTANGLE_BORDER_RADIUS,
+        RECTANGLE_BORDER_RADIUS,
+        0,
+        math.pi/2,
+        10)
+      love.graphics.arc(
+        'line', 
+        'open', 
+        BASE_SCREEN_WIDTH/2 - (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2 - RECTANGLE_BORDER_RADIUS),
+        HOLE_DEPTH + BALL_LINES_DISTANCE/2 - RECTANGLE_BORDER_RADIUS,
+        RECTANGLE_BORDER_RADIUS,
+        0 + math.pi/2,
+        math.pi/2 + math.pi/2,
+        10)
+    end
+
+    --Vertical
+
+    local vstep = math.max(value-HOLE_WIDTH/2, 0)
+    love.graphics.line(
+      BASE_SCREEN_WIDTH/2 + (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+      HOLE_DEPTH - (position - HOLE_WIDTH/2),
+      BASE_SCREEN_WIDTH/2 + (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+      HOLE_DEPTH - (position - HOLE_WIDTH/2 + vstep)
+      )
+    love.graphics.line(
+      BASE_SCREEN_WIDTH/2 - (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+      HOLE_DEPTH - (position - HOLE_WIDTH/2),
+      BASE_SCREEN_WIDTH/2 - (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+      HOLE_DEPTH - (position - HOLE_WIDTH/2 + vstep)
+      )
+
+    --UI.setColor(3)
+    --love.graphics.setLineWidth(BALL_LINES_DISTANCE)
+  end,
+  x=0, y=0, widht=0, height=0
+}
+
+Custom{
+  name='combo pit color fill',
+  layer=LAYER_BACKGROUND,
+  --condition=True(),
+  condition=False(), --inGameState(STATE_GAME_RUNNING),
   initialPosition=0,
   frenzyTime=-1,
   draw = function(self)
@@ -224,7 +304,7 @@ Custom{
       --print('lots of balls')
       local vx, vy = ball.body:getLinearVelocity()
       local center = {ball.body:getX() - vx * (FIXED_DT - Game.extrapolationTime), ball.body:getY() - vy * (FIXED_DT - Game.extrapolationTime)}
-      
+
 
       local radius = ball.radius
       local color = ball:getColor()
