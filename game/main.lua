@@ -401,3 +401,8 @@ function love.mousereleased(x, y, button)
   Game.UI.released(x, y)
 end
 
+function love.focus(f)
+  if Game.inState(STATE_GAME_RUNNING) and f then
+    Game.state:push(STATE_GAME_PAUSED)
+  end
+end

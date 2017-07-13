@@ -257,7 +257,7 @@ function Game.update(dt)
 
   -- NOTE: this might break
   Game.totalTime = Game.totalTime + dt
-  if Game.inState(STATE_GAME_RUNNING, STATE_GAME_LOST, STATE_GAME_PAUSED) and not Game.tutorial.state:peek() then
+  if Game.inState(STATE_GAME_RUNNING, STATE_GAME_LOST) and not Game.tutorial.state:peek() then
     -- To prevent spiral of death
     accumulator = accumulator + dt
     if accumulator > MAX_DT_ACC then
