@@ -23,10 +23,12 @@ function TutorialText(data)
   transData.y=11*UI_HEIGHT_UNIT
   transData.font=FONT_SM
   transData.width=0.9 * HOLE_WIDTH
-  transData.textColor=COLOR_WHITE
   transData.color=COLOR_BLACK
-  transData.height=9 * UI_HEIGHT_UNIT
-  transData.lineColor=COLOR_WHITE
+  transData.height=10 * UI_HEIGHT_UNIT
+  transData.isImportant = data.isImportant or false
+  transData.getLineColor=function(self) 
+    return self.isImportant and COLOR_YELLOW or COLOR_WHITE
+  end
   transData.lineWidth=3
   transData.onPress = function()
     Game.events.fire(EVENT_CLICKED_TUTORIAL)
@@ -43,7 +45,7 @@ TutorialText{
   condition=inTutorialState(LEARN_AIMBALL),
   getText = function()
     return [[
-Drag you finger
+Drag your finger
 in the play area 
 to aim the ball
 ]]
@@ -56,8 +58,8 @@ TutorialText{
   getText = function()
     return [[
 Release your finger 
-from play area 
-or from screen
+from the play area 
+or from the screen
 to drop the ball
 ]]
   end,
@@ -68,7 +70,7 @@ TutorialText{
   condition=inTutorialState(LEARN_SCORE),
   getText = function()
     return [[
-When balls with
+When balls of the
 same color collide
 they are destroyed
 and you score
@@ -81,7 +83,7 @@ TutorialText{
   condition=inTutorialState(LEARN_WHITEBALLS),
   getText = function()
     return [[
-White balls don't 
+Gray balls don't 
 destroy each other
 ]]
   end,
@@ -90,6 +92,7 @@ destroy each other
 TutorialText{
   name='slomo',
   condition=inTutorialState(LEARN_SLOMO),
+  isImportant=true,
   getText = function()
     return [[
 IMPORTANT!
@@ -106,7 +109,7 @@ TutorialText{
     return [[
 Slow motion
 can be changed
-in options menu
+in the options menu
 ]]
   end,
 }
@@ -118,7 +121,7 @@ TutorialText{
     return [[
 Destroy balls
 in quick succession
-to combo
+to increase combo
 ]]
   end,
 }
@@ -129,9 +132,11 @@ TutorialText{
   getText = function()
     return [[
 When the 
-combo meter
+combo timer
 is depleted
-your combo ends
+(no color around
+the play area)
+the combo ends
 ]]
   end,
 }
@@ -142,7 +147,8 @@ TutorialText{
   getText = function()
     return [[
 Releasing a ball
-fills combo meter
+increases the
+combo timer
 ]]
   end,
 }
@@ -153,7 +159,8 @@ TutorialText{
   getText = function()
     return [[
 Balls disappearing
-fills combo meter 
+increases the
+combo timer
 ]]
   end,
 }
@@ -161,12 +168,14 @@ fills combo meter
 TutorialText{
   name='combo clear',
   condition=inTutorialState(LEARN_CLEARCOMBO),
+  isImportant=true,
   getText = function()
     return [[
 IMPORTANT!
-When combo higher
-than 'clear at' value
-all the white balls
+When the combo 
+is higher than
+'clears at' value
+all the gray balls
 disappear
 ]]
   end,
@@ -175,6 +184,7 @@ disappear
 TutorialText{
   name='combo new clearsat',
   condition=inTutorialState(LEARN_NEWCOMBOCLEARSAT),
+  isImportant=true,
   getText = function()
     return [[
 IMPORTANT!
@@ -194,6 +204,18 @@ TutorialText{
 When balls
 pass the line
 you lose
+]]
+  end,
+}
+
+TutorialText{
+  name='same color combo streak',
+  condition=inTutorialState(LEARN_STREAK),
+  getText = function()
+    return [[
+Balls destroyed
+in a group
+gives better combo
 ]]
   end,
 }

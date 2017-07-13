@@ -11,7 +11,7 @@ MVP
 - [ ] Improve tutorial after playtest
 - [x] Finish basic effects
 - [ ] Fix Continue (?)
-- [ ] Improve high score after playtest feedback
+- [x] Improve high score after playtest feedback
 - [ ] Add achievements, see (Achievements)
 - [ ] Music / Sound(?)
 - [ ] More Game Options
@@ -45,10 +45,11 @@ Gameplay
 - [x] Balance combo system (make it more predictable and harder)
 - [ ] Test chaining balls adding more to combo
 - [ ] Make having a lot of whites not so bad (?)
-  - [ ] Test making a better progression of combo objectives
+  - [x] Test making a better progression of combo objectives
   - [ ] Test making more white balls in the tutorial
-  - [ ] Test making white balls add to combo
-- [ ] Switch combo bar with side fill
+  - [x] Test making white balls add to combo
+- [x] Switch combo bar with side fill
+  - [ ] Fix this in tutorial
 
 Options
 -------
@@ -62,6 +63,7 @@ Tutorial
 --------
 - [x] Make tutorial a stack so it is less prone to errors
 - [ ] Make tutorial more spaced
+- [ ] Make the clears at text show when over new cleart at value
 
 DEBUG STUFF / TOOLS
 -------------------

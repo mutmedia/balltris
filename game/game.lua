@@ -31,6 +31,7 @@ Game.combo = 0
 Game.maxCombo = 0
 Game.comboObjective = COMBO_INITIAL_OBJECTIVE
 Game.comboObjectiveCleared = false
+Game.currentObjectiveNumber = 1
 Game.comboNumbers = nil
 
 Game.extrapolationTime = 0
@@ -87,6 +88,7 @@ function Game.start(loadGame)
 
   -- TODO: save this later
   Game.comboObjective = COMBO_INITIAL_OBJECTIVE
+  Game.currentObjectiveNumber = 1
   -- Information that can be saved
   if loadGame then
     Game = loadGame(Game)
@@ -201,18 +203,17 @@ function Game.start(loadGame)
     Game.comboObjectiveCleared = true
   end)
   Game.events.add(EVENT_COMBO_END, function()
-    --[[
     if Game.combo <= 0 then print('CALLING COMBO END EVENT IN A WEIRD CIRUCUNSTANCE') end
     if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
     if Game.combo >= Game.comboObjective then
       Game.comboObjectiveCleared = false
-      Game.comboObjective = Game.comboObjective + COMBO_OBJECTIVE_INCREMENT
+      Game.currentObjectiveNumber = Game.currentObjectiveNumber + 1
+      Game.comboObjective = Game.GetComboObjectiveValue(Game.currentObjectiveNumber)
       Game.events.fire(EVENT_COMBO_NEW_CLEARSAT)
     end
     Game.comboNumbers = Queue.New()
     -- Reset on next frame
     Scheduler.add(function() Game.combo = 0 end, 0)
-    ]]--
   end)
 
   Game.state:push(STATE_GAME_RUNNING)
@@ -221,6 +222,15 @@ function Game.start(loadGame)
   end
   Game.InitilizeStats()
   Game.SetStatsEvents()
+end
+
+function Game.GetComboObjectiveValue(i)
+  local value = 0
+  for x=1,i do
+    local c = math.min(x, #COMBO_OBJECTIVE_INCREMENTS)
+    value = value + COMBO_OBJECTIVE_INCREMENTS[c]
+  end
+  return value
 end
 
 Game.staticFrameCount = 0
@@ -384,6 +394,7 @@ end
 function Game.clearWhiteBalls()
   Game.objects.balls:forEach(function(ball)
     if not ball.indestructible then return end
+    --Game.combo = Game.combo + 1
     Game.ScheduleBallDestruction(ball)
   end)
 end
@@ -508,17 +519,15 @@ function Game.sameColorBallCollision(ball1, ball2)
   if Game.combo == 0 then
     Game.events.fire(EVENT_COMBO_START)
   end
-  if not ball1.willDestroy or not ball2.willDestroy then
-    Game.combo = Game.combo + 1
-    Game.comboNumbers:enqueue({num = ball1.number})
+  if ball1.willDestroy and ball2.willDestroy then
+    return 
   end
+
 
   if not ball1.willDestroy then
     Game.score = Game.score + ComboMultiplier(Game.combo)
     Game.ScheduleBallDestruction(ball1)
     ball1.willDestroy = true
-  end
-  if not ball2.willDestroy then
   end
 
   if not ball2.willDestroy then
@@ -527,6 +536,27 @@ function Game.sameColorBallCollision(ball1, ball2)
     ball2.willDestroy = true
   end
 
+  if not ball1.streakInfo and not ball2.streakInfo then
+    ball1.streakInfo = {
+      count=0
+    }
+    ball2.streakInfo = ball1.streakInfo
+  elseif not ball1.streakInfo then
+    ball1.streakInfo = ball2.streakInfo
+  elseif not ball2.streakInfo then
+    ball2.streakInfo = ball1.streakInfo
+  end
+
+  ball1.streakInfo.count = ball1.streakInfo.count + 1
+  local streakCount = ball1.streakInfo.count
+  Game.combo = Game.combo + streakCount
+  for i=1,streakCount do
+    Game.comboNumbers:enqueue({num = ball1.number})
+  end
+  if streakCount > 1 then
+    print('streak')
+    Game.events.fire(EVENT_STREAK, streakCount)
+  end
   Game.events.fire(EVENT_SCORED)
 end
 

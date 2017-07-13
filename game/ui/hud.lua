@@ -142,7 +142,7 @@ Text{
   color=COLOR_RED,
   width=BORDER_THICKNESS,
   getText = function()
-    return string.format('next combo \nclears at %2d', Game.comboObjective + COMBO_OBJECTIVE_INCREMENT)
+    return string.format('next combo \nclears at %2d', Game.GetComboObjectiveValue(Game.currentObjectiveNumber + 1))
   end,
 }
 

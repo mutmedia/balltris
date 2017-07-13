@@ -141,6 +141,18 @@ function Game.InitializeTutorial()
     end)
   end
 
+  if not Game.tutorial.learned:contains(LEARN_STREAK) then
+    Game.events.schedule(EVENT_STREAK, function(streak)
+      Scheduler.add(
+        function()
+          if Game.tutorial.learned:contains(LEARN_STREAK) then return end
+          Game.tutorial.state:push(LEARN_STREAK)
+          MoveToLearnAfterTimeout()
+        end,
+        TUTORIAL_SCORE_TIMEOUT_AFTERHIT)
+    end)
+  end
+
   if not Game.tutorial.learned:contains(LEARN_WHITEBALLS) then
     Game.events.schedule(EVENT_WHITE_BALLS_HIT, function()
       if Game.tutorial.learned:contains(LEARN_WHITEBALLS) then return end
