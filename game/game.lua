@@ -362,10 +362,6 @@ end
 function Game.inState(...)
   local gameStates = {...}
   for _, gameState in pairs(gameStates) do
-    if gameState ~= 1 and gameState % 2 ~= 0 then
-      print('STATE ERROR: comparing against invalid state')
-    end
-
     if Game.state:peek() == gameState then
       return true
     end

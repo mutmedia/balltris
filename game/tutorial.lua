@@ -9,6 +9,11 @@ local print = function(str)
   print('TUTORIAL: '..(str or ''))
 end
 
+TUTORIAL_TIMES_DROPPED_TO_SLOMO_TUTORIAL = 5
+TUTORIAL_TIMES_SCORED_TO_TUTORIAL = 3
+TUTORIAL_WHITE_HIT_TO_WHITE_TUTORIAL = 2
+TUTORIAL_DROPS_TO_COMBOMETER_DROP_TUTORIAL = 2
+
 function MoveToLearnAfterTimeout()
   Scheduler.add(
     function() 
@@ -105,32 +110,24 @@ function Game.InitializeTutorial()
   end
 
   if not Game.tutorial.learned:contains(LEARN_SLOMO) then
-    Game.events.schedule(EVENT_SAFE_TO_DROP, function()
-      Game.events.schedule(EVENT_SAFE_TO_DROP, function()
-        Game.events.schedule(EVENT_SAFE_TO_DROP, function()
+    Game.events.countdown(EVENT_SAFE_TO_DROP, TUTORIAL_TIMES_DROPPED_TO_SLOMO_TUTORIAL, function()
+      Scheduler.add(
+        function()
+          if Game.tutorial.learned:contains(LEARN_SLOMO) then return end
+          Game.tutorial.state:push(LEARN_SLOMO)
+          MoveToLearnAfterTimeout()
           Game.events.schedule(EVENT_SAFE_TO_DROP, function()
-            Game.events.schedule(EVENT_SAFE_TO_DROP, function()
-              Scheduler.add(
-                function()
-                  if Game.tutorial.learned:contains(LEARN_SLOMO) then return end
-                  Game.tutorial.state:push(LEARN_SLOMO)
-                  MoveToLearnAfterTimeout()
-                  Game.events.schedule(EVENT_SAFE_TO_DROP, function()
-                    if Game.tutorial.learned:contains(LEARN_SLOMOOPTIONS) then return end
-                    Game.tutorial.state:push(LEARN_SLOMOOPTIONS)
-                    MoveToLearnAfterTimeout()
-                  end)
-                end,
-                TUTORIAL_SLOMO_TIMEOUT_AFTERSAFE)
-            end)
+            if Game.tutorial.learned:contains(LEARN_SLOMOOPTIONS) then return end
+            Game.tutorial.state:push(LEARN_SLOMOOPTIONS)
+            MoveToLearnAfterTimeout()
           end)
-        end)
-      end)
+        end,
+        TUTORIAL_SLOMO_TIMEOUT_AFTERSAFE)
     end)
   end
 
   if not Game.tutorial.learned:contains(LEARN_SCORE) then
-    Game.events.schedule(EVENT_SCORED, function()
+    Game.events.countdown(EVENT_SCORED, TUTORIAL_TIMES_SCORED_TO_TUTORIAL, function()
       Scheduler.add(
         function()
           if Game.tutorial.learned:contains(LEARN_SCORE) then return end
@@ -154,7 +151,7 @@ function Game.InitializeTutorial()
   end
 
   if not Game.tutorial.learned:contains(LEARN_WHITEBALLS) then
-    Game.events.schedule(EVENT_WHITE_BALLS_HIT, function()
+    Game.events.countdown(EVENT_WHITE_BALLS_HIT, TUTORIAL_WHITE_HIT_TO_WHITE_TUTORIAL, function()
       if Game.tutorial.learned:contains(LEARN_WHITEBALLS) then return end
       Game.tutorial.state:push(LEARN_WHITEBALLS)
       MoveToLearnAfterTimeout()
@@ -181,7 +178,7 @@ function Game.InitializeTutorial()
     end)
   end
 
-  if not Game.tutorial.learned:contains(LEARN_LOSECOMBO) then
+  if Game.tutorial.learned:contains(LEARN_COMBO) and not Game.tutorial.learned:contains(LEARN_LOSECOMBO) then
     learnToLoseCombo()
   end
 
@@ -207,7 +204,7 @@ end
 
 function learnCombometerDrop()
   print('scheduled combometer drop')
-  Game.events.schedule(EVENT_SAFE_TO_DROP, function()
+  Game.events.countdown(EVENT_SAFE_TO_DROP, TUTORIAL_DROPS_TO_COMBOMETER_DROP_TUTORIAL, function()
     Scheduler.add(
       function()
         if Game.tutorial.learned:contains(LEARN_COMBOMETERDROP) then return end
@@ -225,6 +222,7 @@ function learnCombometerScore()
         if Game.tutorial.learned:contains(LEARN_COMBOMETERSCORE) then return end
         Game.tutorial.state:push(LEARN_COMBOMETERSCORE)
         MoveToLearnAfterTimeout()
+        learnCombometerDrop()
       end, 0)
   end)
 end
@@ -233,10 +231,11 @@ function learnToCombo()
   function learnToComboRecursion()
     Scheduler.add(
       function()
-        if Game.combo > 1 then
+        if Game.combo > 2 then
           if Game.tutorial.learned:contains(LEARN_COMBO) then return end
           Game.tutorial.state:push(LEARN_COMBO)
           MoveToLearnAfterTimeout()
+          learnToLoseCombo()
         else
           Game.events.schedule(EVENT_SCORED, learnToComboRecursion)
         end
@@ -254,7 +253,6 @@ function learnToLoseCombo()
     if Game.tutorial.learned:contains(LEARN_LOSECOMBO) then return end
     Game.tutorial.state:push(LEARN_LOSECOMBO)
     MoveToLearnAfterTimeout()
-    learnCombometerDrop()
     learnCombometerScore()
   end)
 end

@@ -8,6 +8,7 @@ local EVENT_ONCE = 0
 local EVENT_PERMANENT = 1
 
 function addNew(eventName, callback, type)
+  if not callback then callback = function() print('EVENT WARN: default callback being called') end end
   if not Events._callBacks[eventName] then
     Events._callBacks[eventName] = List.New()
   end
@@ -19,12 +20,22 @@ function addNew(eventName, callback, type)
 end
 
 function Events.add(eventName, callback)
-  if not callback then callback = function() print('EVENT WARN: default callback being called') end end
   addNew(eventName, callback, EVENT_PERMANENT)
 end
 
 function Events.schedule(eventName, callback)
   addNew(eventName, callback, EVENT_ONCE)
+end
+
+function Events.countdown(eventName, count, callback)
+  if count <= 0 then print('EVENT ERROR, countdown set to 0 or less') end
+  if count == 1 then
+    Events.schedule(eventName, callback)
+  else
+    Events.schedule(eventName, function()
+      Events.countdown(eventName, count-1, callback)
+    end)
+  end
 end
 
 function Events.fire(eventName, ...)

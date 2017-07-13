@@ -2,6 +2,8 @@ IS_EXTRAPOLATING = false
 love.graphics.clear(0, 255, 0)
 love.graphics.present()
 
+local piefiller = require 'lib/piefiller'
+
 -- Libraries
 require 'lib/math_utils'
 local List = require 'lib/doubly_linked_list'
@@ -57,9 +59,12 @@ local loader
 local Palette
 
 local loadtime = love.timer.getTime()
+local PROFILE = false
+local Pie = {}
 
 -- Behaviour definitions
 function love.load()
+  Pie = piefiller:new()
   love.graphics.clear(255, 0, 255)
   love.graphics.present()
   --print('Time to start loading: '..love.timer.getTime() - loadtime)
@@ -197,6 +202,9 @@ function love.draw()
   if DEBUG_SHOW_FPS then
     love.graphics.print(tostring(love.timer.getFPS( )), 5, 5)
   end
+  if PROFILE then
+    Pie:draw()
+  end
 end
 
 function drawScaled(canvas)
@@ -220,7 +228,13 @@ local watchedFiles = {
 }
 
 function love.update(dt)
+  if PROFILE then 
+    Pie:attach()
+  end
   Game.update(dt)
+  if PROFILE then 
+    Pie:detach()
+  end
   -- Watch Modifiable Files
 
   --[[
@@ -285,6 +299,9 @@ end
 
 -- INPUT
 function love.keypressed(key)
+  if PROFILE then
+    Pie:keypressed(key)
+  end
   if Game.inState(STATE_GAME_USERNAME, STATE_GAME_OVER) then 
     if key == 'backspace' then
       Game.usernameText = Game.usernameText:sub(1, -2)
@@ -303,6 +320,10 @@ function love.keypressed(key)
     end
   end
 
+  if key == 'q' then
+    PROFILE = not PROFILE
+  end
+
   -- DEBUG input
   if key == 'u' then
     local palette = NewPalette(Game.options.colorblind and PALETTE_COLORBLIND_PATH or PALETTE_DEFAULT_PATH)
@@ -315,7 +336,7 @@ function love.keypressed(key)
   end
 
   if key == 's' then
-    TempSave.Save(Game)
+    --TempSave.Save(Game)
   end
 
   if key == 'escape' then
@@ -362,6 +383,9 @@ function love.keypressed(key)
 end
 
 function love.mousepressed(x, y)
+  if PROFILE then
+    Pie:mousepressed(x, y)
+  end
   Game.UI.pressed(x, y)
 end
 
