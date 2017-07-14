@@ -113,7 +113,7 @@ end
 function Backend.SetUser(rawUserData)
 end
 
-function Backend.SendStats(stats, gamenumber)
+function Backend.SendStats(stats, gamenumber, isOver)
   if Backend.isOffline then return end
   print('Sending stats')
   local data = {
@@ -121,6 +121,8 @@ function Backend.SendStats(stats, gamenumber)
     userid=Backend.userData.id,
     game=gamenumber,
     stats=stats,
+    version=VERSION,
+    --over=isOver or false,
   }
   print(json.encode(data))
   --print(BACKEND_PATH..'/'..Backend.userData.username)

@@ -18,6 +18,10 @@ MVP
 - [ ] Improve game icon
 - [ ] Credits
 
+Credits
+=======
+- [ ] Link to twitter
+
 After MVP
 =========
 - [ ] Better server security

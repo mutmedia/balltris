@@ -1,5 +1,6 @@
 -- Misc
 TITLE = 'BallTris'
+VERSION='0.6.5'
 
 -- Online things
 USERNAME_PATTERN = '^[a-zA-Z0-9]*$'

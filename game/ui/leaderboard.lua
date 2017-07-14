@@ -43,7 +43,6 @@ Text{
   end,
 }
 
-
 local leaderBoardThing = function(func)
   return function(num)
     return function(obj)
