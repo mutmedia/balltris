@@ -47,10 +47,10 @@ High score Improvements
 Gameplay
 --------
 - [x] Balance combo system (make it more predictable and harder)
-- [ ] Test chaining balls adding more to combo
-- [ ] Make having a lot of whites not so bad (?)
+- [x] Test chaining balls adding more to combo
+- [x] Make having a lot of whites not so bad (?)
   - [x] Test making a better progression of combo objectives
-  - [ ] Test making more white balls in the tutorial
+  - [ ] Test making more white balls in the tutorial -- LATER
   - [x] Test making white balls add to combo
 - [x] Switch combo bar with side fill
   - [ ] Fix this in tutorial

@@ -71,6 +71,14 @@ Game.options = ]])
   table.insert(savestrings, serialize(game.options))
 end
 
+-- Achievements
+if game.achievements then
+  table.insert(savestrings, [[
+Game.achievements = {}
+Game.achievements.achievedNumsRaw = 
+]])
+  table.insert(savestrings, serialize(game.achievements.achievedNums))
+end
 
 local savestring = table.concat(savestrings)
 --print(savestring)

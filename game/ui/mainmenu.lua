@@ -56,10 +56,10 @@ Button{
   color=0,
   lineColor=1,
   lineWidth=3,
-  font=FONT_MD,
+  font=FONT_SM,
   textColor=1,
   getText = function() 
-    return 'new'
+    return 'new game'
   end,
   onPress = function(self, x, y)
     TempSave.Clear()
@@ -67,6 +67,7 @@ Button{
   end,
 }
 
+--[[
 Button{
   name='continue button',
   layer=LAYER_MENUS,
@@ -89,6 +90,27 @@ Button{
     -- Game.start(TempSave.CreateLoadFunc())
   end,
 }
+]]--
+
+Button{
+  name='continue button',
+  layer=LAYER_MENUS,
+  condition=And(inGameState(STATE_GAME_MAINMENU)),
+  x=BASE_SCREEN_WIDTH/2,
+  y=24*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.8,
+  height=2*UI_HEIGHT_UNIT,
+  color=0,
+  lineColor=COLOR_WHITE,
+  lineWidth=3,
+  font=FONT_SM,
+  getText = function() 
+    return 'achievements'
+  end,
+  onPress = function(self, x, y)
+    Game.state:push(STATE_GAME_ACHIEVEMENTS)
+  end,
+}
 
 Button{
   name='leaderboard button',
@@ -101,10 +123,10 @@ Button{
   color=0,
   lineColor=1,
   lineWidth=3,
-  font=FONT_MD,
+  font=FONT_SM,
   textColor=1,
   getText = function() 
-    return 'scoreboard'
+    return 'leaderboard'
   end,
   onPress = function(self, x, y)
     Backend.GetTopPlayers()
@@ -139,7 +161,7 @@ Button{
   color=0,
   lineColor=1,
   lineWidth=3,
-  font=FONT_MD,
+  font=FONT_SM,
   textColor=1,
   getText = function() 
     return 'options'

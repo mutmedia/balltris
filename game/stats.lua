@@ -6,7 +6,7 @@ function Game.InitilizeStats()
     whiteCleared = 0,
     ballsCleared = 0,
     bestCombo = 0,
-    bestObjective = 0,
+    timesCleared = 0,
     slomoTime = 0,
     score = 0,
     frequency = 0
@@ -35,7 +35,7 @@ function Game.SetStatsEvents()
   end)
 
   Game.events.add(EVENT_COMBO_CLEARED, function()
-    Game.stats.bestObjective = Game.comboObjective
+    Game.stats.timesCleared = Game.currentObjectiveNumber
   end)
 
   Game.events.add(EVENT_BALLS_TOO_HIGH, function()

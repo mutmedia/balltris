@@ -16,6 +16,7 @@ Game = {}
 Game.UI = require 'ui'
 Game.events = require 'lib/events'
 Game.tutorial = {}
+Game.achievements = {}
 
 Game.objects = {}
 Game.isOffline = true
@@ -33,6 +34,7 @@ Game.comboObjective = COMBO_INITIAL_OBJECTIVE
 Game.comboObjectiveCleared = false
 Game.currentObjectiveNumber = 1
 Game.comboNumbers = nil
+Game.comboList = {}
 
 Game.extrapolationTime = 0
 Game.timeScale = TIME_SCALE_SLOMO
@@ -212,6 +214,8 @@ function Game.start(loadGame)
       Game.events.fire(EVENT_COMBO_NEW_CLEARSAT)
     end
     Game.comboNumbers = Queue.New()
+    table.insert(Game.comboList, Game.combo)
+    
     -- Reset on next frame
     Scheduler.add(function() Game.combo = 0 end, 0)
   end)
@@ -222,6 +226,7 @@ function Game.start(loadGame)
   end
   Game.InitilizeStats()
   Game.SetStatsEvents()
+  Game.InitializeAchievements()
 end
 
 function Game.GetComboObjectiveValue(i)
@@ -407,6 +412,7 @@ function Game.gameOver()
   Game.state:push(STATE_GAME_OVER)
   TempSave.Clear()
   LocalSave.Save(Game)
+  Game.events.fire(EVENT_GAME_OVER)
 end
 
 function Game.setHighScore(score)

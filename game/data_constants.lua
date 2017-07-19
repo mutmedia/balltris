@@ -1,6 +1,6 @@
 -- Misc
 TITLE = 'BallTris'
-VERSION='0.6.5'
+VERSION='0.7.0'
 
 -- Online things
 USERNAME_PATTERN = '^[a-zA-Z0-9]*$'
@@ -34,7 +34,6 @@ BALL_MAX_RADIUS = BALL_BASE_RADIUS * BALL_RADIUS_MULTIPLIERS[#BALL_RADIUS_MULTIP
 BALL_LINES_DISTANCE = 12 * BASE_SCREEN_WIDTH/1080
 BALL_LINE_WIDTH_OUT = 4 * BASE_SCREEN_WIDTH/1080
 BALL_LINE_WIDTH_IN = 4 * BASE_SCREEN_WIDTH/1080
-
 
 BALL_STRETCH_NORMALIZER = 1/3000
 BALL_STRETCH_FACTOR = 1.08
@@ -104,6 +103,8 @@ STATE_GAME_LEADERBOARD_LOADING = 1024 --when in leaderboard screen loading
 STATE_GAME_USERNAME_LOADING = 2048 --when in user name input screen loading
 STATE_GAME_FIRST_CONNECTION = 4096 --when connecting to server for first time
 STATE_GAME_LEADERBOARD_STATS = 8192 --when looking at a players stats on the leaderboard
+STATE_GAME_ACHIEVEMENTS = 16384 -- when viewing achievements
+STATE_GAME_OVER_ACHIEVEMENTS  = 32768 -- When everything ends
 
 -- Tutorial states
 LEARN_AIMBALL = 'aim ball'
@@ -137,6 +138,7 @@ TUTORIALS_TO_LEARN = {
   LEARN_GAMELOSE,
   LEARN_STREAK,
 }
+
 -- Tutorial things
 TUTORIAL_MIN_TIME = 1.5
 TUTORIAL_SCORE_TIMEOUT_AFTERHIT = 0.1 * TIME_SCALE_REGULAR
@@ -156,6 +158,7 @@ GAME_LAYERS = {
   LAYER_HUD,
   LAYER_MENUS,
 }
+
 -- Events
 EVENT_MOVED_PREVIEW = 'previewMoved'
 EVENT_RELEASED_PREVIEW = 'previewReleased'
@@ -177,6 +180,7 @@ EVENT_CLICKED_TUTORIAL = 'clickedtutorial'
 EVENT_CLEARED_BALL = 'clearedball'
 EVENT_DROPPED_BALL = 'dropedball'
 EVENT_STREAK = 'samecolorstreak'
+EVENT_GAME_OVER = 'gameover'
 
 -- Palette
 PALETTE_DEFAULT_PATH = 'content/base_palette.png'
@@ -192,4 +196,7 @@ DEFAULT_OPTIONS = {
   slomoType = OPTIONS_SLOMO_DEFAULT,
   colorblind = false,
 }
+
+-- More data
+require 'data_achievements'
 

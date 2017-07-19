@@ -30,6 +30,20 @@ Text{
 }
 
 Text{
+  name='achievement',
+  layer=LAYER_HUD,
+  condition=function() return Game.achievements.displaying ~= nil end,
+  x=BASE_SCREEN_WIDTH/2,
+  y=-UI_HEIGHT_UNIT,
+  font=FONT_SM,
+  color=COLOR_GREEN,
+  width=BASE_SCREEN_WIDTH,
+  getText = function()
+    return (Game.achievements.displaying or 'achievement')..'!'
+  end,
+}
+
+Text{
   name='nextballs',
   layer=LAYER_HUD,
   condition=inGameState(STATE_GAME_RUNNING),

@@ -120,16 +120,16 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=24*UI_HEIGHT_UNIT,
+  y=20*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   lineColor=1,
   lineWidth=3,
-  font=FONT_MD,
+  font=FONT_SM,
   textColor=1,
   color=COLOR_BLACK,
   getText = function() 
-    return 'replay'
+    return 'play again'
   end,
   onPress = function(self, x, y)
     if not Game.sentStats then
@@ -138,6 +138,30 @@ Button{
     end
     LocalSave.Save(Game)
     Game.start()
+  end,
+}
+
+Button{
+  name='achievements button',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_OVER),
+  x=BASE_SCREEN_WIDTH/2,
+  y=24*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.8,
+  height=2*UI_HEIGHT_UNIT,
+  lineColor=COLOR_WHITE,
+  getTextColor=function()
+    return Game.achievements.achievedThisGameNums:count() > 0 and COLOR_GREEN or COLOR_WHITE
+  end,
+  lineWidth=3,
+  font=FONT_SM,
+  color=COLOR_BLACK,
+  getText = function() 
+    return 'achievements'
+  end,
+  onPress = function(self, x, y)
+    LocalSave.Save(Game)
+    Game.state:push(STATE_GAME_ACHIEVEMENTS)
   end,
 }
 
@@ -152,10 +176,10 @@ Button{
   color=0,
   lineColor=1,
   lineWidth=3,
-  font=FONT_MD,
+  font=FONT_SM,
   textColor=1,
   getText = function() 
-    return 'scoreboard'
+    return 'leaderboard'
   end,
   onPress = function(self, x, y)
     if not Game.sentStats then
@@ -179,11 +203,11 @@ Button{
   height=2*UI_HEIGHT_UNIT,
   lineColor=1,
   lineWidth=3,
-  font=FONT_MD,
+  font=FONT_SM,
   textColor=1,
   color=COLOR_BLACK,
   getText = function() 
-    return 'quit'
+    return 'main menu'
   end,
   onPress = function(self, x, y)
     if not Game.sentStats then
@@ -194,7 +218,4 @@ Button{
     Game.state:push(STATE_GAME_MAINMENU)
   end,
 }
-
-
-
 

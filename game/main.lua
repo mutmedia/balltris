@@ -21,6 +21,7 @@ local TempSave = require 'tempsave'
 local LocalSave = require 'localsave'
 local Balls = require 'balls'
 require 'tutorial'
+require 'achievements'
 require 'stats'
 require 'data_constants'
 
@@ -93,7 +94,7 @@ function love.load()
 
   -- Loading UI
   loadtime = love.timer.getTime()
-  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua', 'ui/leaderboard.lua', 'ui/username.lua', 'ui/options.lua', 'ui/tutorial.lua', 'ui/connection.lua')
+  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua', 'ui/leaderboard.lua', 'ui/username.lua', 'ui/options.lua', 'ui/tutorial.lua', 'ui/connection.lua', 'ui/achievements.lua')
   Game.UI.initialize(NewPalette(Game.options.colorblind and PALETTE_COLORBLIND_PATH or PALETTE_DEFAULT_PATH))
   love.graphics.setCanvas(loadingCanvas)
   love.graphics.clear()
@@ -144,6 +145,8 @@ function love.load()
   love.keyboard.setTextInput(false)
   Game.state:push(STATE_GAME_MAINMENU)
   Game.InitializeTutorial()
+
+  Game.InitializeAchievements()
   Backend.Init()
 end
 
@@ -326,9 +329,9 @@ function love.keypressed(key)
 
   -- DEBUG input
   if key == 'u' then
+    dofile('game/data_constants.lua')
     local palette = NewPalette(Game.options.colorblind and PALETTE_COLORBLIND_PATH or PALETTE_DEFAULT_PATH)
     Game.UI.initialize(palette)
-    dofile('game/data_constants.lua')
   end
 
   if key == 'l' then
