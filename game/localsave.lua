@@ -89,9 +89,9 @@ if errorstr then
   return 
 end
 
-print('Save file contents: ////')
-print(savestring)
-print('////////////////////////')
+--print('Save file contents: ////')
+--print(savestring)
+--print('////////////////////////')
 
 local s, err = file:write(savestring)
 if err then

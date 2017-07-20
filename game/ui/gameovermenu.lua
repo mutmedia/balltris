@@ -8,12 +8,12 @@ Text{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=06*UI_HEIGHT_UNIT,
-  font=FONT_LG,
+  y=02*UI_HEIGHT_UNIT,
+  font=FONT_MD,
   color=7,
   width=HOLE_WIDTH,
   getText = function()
-    return 'game\nover'
+    return 'game over'
   end,
 }
 
@@ -22,7 +22,7 @@ Text{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=11*UI_HEIGHT_UNIT,
+  y=06*UI_HEIGHT_UNIT,
   font=FONT_MD,
   color=1,
   width=HOLE_WIDTH,
@@ -36,7 +36,7 @@ Text{
   layer=LAYER_MENUS,
   condition=And(inGameState(STATE_GAME_OVER), function() return Game.newHighScore end),
   x=BASE_SCREEN_WIDTH/2,
-  y=14.5*UI_HEIGHT_UNIT,
+  y=09.5*UI_HEIGHT_UNIT,
   font=FONT_SM,
   color=4,
   width=HOLE_WIDTH,
@@ -66,7 +66,7 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OVER),
   x=BASE_SCREEN_WIDTH/2,
-  y=17*UI_HEIGHT_UNIT,
+  y=12*UI_HEIGHT_UNIT,
   font=FONT_SM,
   height=1.5*UI_HEIGHT_UNIT,
   color=COLOR_BLACK,
@@ -95,8 +95,27 @@ Button{
   end
 }
 
-
-
+Text{
+  name='invalid username',
+  layer=LAYER_MENUS,
+  condition=And(
+    inGameState(STATE_GAME_OVER), 
+    function() 
+      return not Backend.CheckUsername(Game.usernameText)
+    end),
+  x=BASE_SCREEN_WIDTH/2,
+  y=14*UI_HEIGHT_UNIT,
+  font=FONT_SM,
+  color=COLOR_RED,
+  width=HOLE_WIDTH*1.4,
+  cursorF=0.5,
+  transitionTime = 0,
+  lastCursorSwap = 0,
+  showCursor = true,
+  getText= function(self)
+    return 'a-z 0-9 only\n3 to 10 characters'
+  end,
+}
 
 --[[
 Text{
@@ -123,15 +142,17 @@ Button{
   y=20*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
-  lineColor=1,
+  getLineColor=function()
+      return Backend.CheckUsername(Game.usernameText) and COLOR_WHITE or COLOR_GRAY
+  end,
   lineWidth=3,
   font=FONT_SM,
-  textColor=1,
   color=COLOR_BLACK,
   getText = function() 
     return 'play again'
   end,
   onPress = function(self, x, y)
+    if not Backend.CheckUsername(Game.usernameText) then return end
     if not Game.sentStats then
       Backend.SendStats(Game.stats, Game.number)
       Game.sentStats = true
@@ -173,15 +194,17 @@ Button{
   y=28*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
-  color=0,
-  lineColor=1,
+  color=COLOR_BLACK,
+  getLineColor=function()
+      return Backend.CheckUsername(Game.usernameText) and COLOR_WHITE or COLOR_GRAY
+  end,
   lineWidth=3,
   font=FONT_SM,
-  textColor=1,
   getText = function() 
     return 'leaderboard'
   end,
   onPress = function(self, x, y)
+    if not Backend.CheckUsername(Game.usernameText) then return end
     if not Game.sentStats then
       Backend.SendStats(Game.stats, Game.number)
       Game.sentStats = true
@@ -201,15 +224,17 @@ Button{
   y=32*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
-  lineColor=1,
+  getLineColor=function()
+      return Backend.CheckUsername(Game.usernameText) and COLOR_WHITE or COLOR_GRAY
+  end,
   lineWidth=3,
   font=FONT_SM,
-  textColor=1,
   color=COLOR_BLACK,
   getText = function() 
     return 'main menu'
   end,
   onPress = function(self, x, y)
+    if not Backend.CheckUsername(Game.usernameText) then return end
     if not Game.sentStats then
       Backend.SendStats(Game.stats, Game.number)
       Game.sentStats = true

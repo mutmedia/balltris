@@ -13,7 +13,7 @@ ACHIEVEMENTS_PER_PAGE = 5
 GAME_ACHIEVEMENTS = {
   -- Important Page
   {
-    name = 'Strategist',
+    name = 'Thinker',
     description = 'Spend most of your game in slow motion (70%)',
     event = EVENT_GAME_OVER,
     condition = function()
@@ -21,22 +21,18 @@ GAME_ACHIEVEMENTS = {
     end,
   },
   {
-    name = 'Bad Meta',
+    name = 'Bad Strategy',
     description = 'Lose a game during your first combo higher than 30',
     event = EVENT_BALLS_TOO_HIGH,
     condition = function()
-      if not Game.comboList[1] then return false end
-      for k, v in ipairs(Game.comboList) do
-        if v > 30 then
-          return k == #Game.comboList
-        end
-      end
+      print('game lost in a combo of', Game.combo)
+      return Game.combo > 30
     end,
   },
   {
-    name = 'Good Meta',
+    name = 'Good Strategy',
     description = 'Make two combos of at least 30 in a single game',
-    event = EVENT_BALLS_TOO_HIGH,
+    event = EVENT_GAME_OVER,
     condition = function()
       if not Game.comboList[1] then return false end
       local combo30count = 0

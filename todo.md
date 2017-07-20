@@ -44,7 +44,7 @@ High score Improvements
 - [x] Save name after each new high score (?)
 - [ ] Backup player scores locally and send when connecting again
 - [ ] Save local games
-- [ ] Constrain username for highscore
+- [x] Constrain username for highscore
 - [ ] Pretty names for stats
 
 Gameplay

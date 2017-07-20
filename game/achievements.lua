@@ -22,24 +22,25 @@ function Game.InitializeAchievements()
   Game.achievements.achievedThisGameNums = Set.New()
   -- setup events for not achieved
   for num, achievement in ipairs(GAME_ACHIEVEMENTS) do
-    --print('scheduling', achievement.name, 'for event', achievement.event)
+    print('scheduling', achievement.name, 'for event', achievement.event)
     if Game.achievements.achievedNums:contains(num) then 
-      return 
-    end
-
-    local function achievementRecursion(...)
-      if achievement.condition(...) then
-        Game.achievements.achievedNums:add(num)
-        Game.achievements.achievedThisGameNums:add(num)
-        Game.achievements.displaying = achievement.name
-        Scheduler.add(function()
-          Game.achievements.displaying = nil
-        end, 1)
+      print('already has this achievement')
     else
+
+      local function achievementRecursion(...)
+        if achievement.condition(...) then
+          Game.achievements.achievedNums:add(num)
+          Game.achievements.achievedThisGameNums:add(num)
+          Game.achievements.displaying = achievement.name
+          Scheduler.add(function()
+            Game.achievements.displaying = nil
+          end, 1)
+        else
+          Game.events.schedule(achievement.event, achievementRecursion)
+        end
+      end
+
       Game.events.schedule(achievement.event, achievementRecursion)
     end
   end
-
-  Game.events.schedule(achievement.event, achievementRecursion)
-end
 end
