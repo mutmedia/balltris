@@ -10,7 +10,7 @@ Text{
   color=COLOR_YELLOW,
   width=HOLE_WIDTH*1.4,
   getText= function()
-    return 'Achievements'
+    return 'achievements'
   end,
 }
 

@@ -94,7 +94,7 @@ function love.load()
 
   -- Loading UI
   loadtime = love.timer.getTime()
-  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua', 'ui/leaderboard.lua', 'ui/username.lua', 'ui/options.lua', 'ui/tutorial.lua', 'ui/connection.lua', 'ui/achievements.lua')
+  Game.UI.setFiles('ui/base.lua', 'ui/hud.lua', 'ui/mainmenu.lua', 'ui/game.lua', 'ui/pausemenu.lua', 'ui/gameovermenu.lua', 'ui/leaderboard.lua', 'ui/username.lua', 'ui/options.lua', 'ui/tutorial.lua', 'ui/connection.lua', 'ui/achievements.lua', 'ui/credits.lua')
   Game.UI.initialize(NewPalette(Game.options.colorblind and PALETTE_COLORBLIND_PATH or PALETTE_DEFAULT_PATH))
   love.graphics.setCanvas(loadingCanvas)
   love.graphics.clear()

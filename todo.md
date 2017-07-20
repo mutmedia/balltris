@@ -33,16 +33,19 @@ Effects:
 - [x] Ball being dropped (similar particle fx to exit?)
 - [x] Balls dissapearing particle effects
 - [ ] Screen shake after clearing whites
-- [ ] Next balls changing (POST MVP)
+- [ ] Next balls changing (AFTER MVP)
 
 
 High score Improvements
 -----------------------
 - [x] Make it async so there are no stupid delays
 - [x] Make it more arcade like
-- [ ] Add scores close to player
+- [ ] Add scores close to player (AFTER MVP)
 - [x] Save name after each new high score (?)
 - [ ] Backup player scores locally and send when connecting again
+- [ ] Save local games
+- [ ] Constrain username for highscore
+- [ ] Pretty names for stats
 
 Gameplay
 --------
@@ -53,7 +56,7 @@ Gameplay
   - [ ] Test making more white balls in the tutorial -- LATER
   - [x] Test making white balls add to combo
 - [x] Switch combo bar with side fill
-  - [ ] Fix this in tutorial
+  - [x] Fix this in tutorial
 
 Options
 -------

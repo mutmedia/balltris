@@ -3,6 +3,20 @@ local Backend = require 'backend'
 local LocalSave = require 'localsave'
 local NewPalette = require 'palette'
 
+Text{
+  name='options title',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_OPTIONS),
+  x=BASE_SCREEN_WIDTH/2,
+  y=2*UI_HEIGHT_UNIT,
+  font=FONT_MD,
+  color=COLOR_YELLOW,
+  width=HOLE_WIDTH*1.4,
+  getText= function()
+    return 'options'
+  end,
+}
+
 Button{
   name='go online',
   layer=LAYER_MENUS,

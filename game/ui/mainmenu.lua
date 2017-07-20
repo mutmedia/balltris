@@ -24,8 +24,8 @@ BlinkingText{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
-  y=11*UI_HEIGHT_UNIT,
-  font=FONT_MD,
+  y=8*UI_HEIGHT_UNIT,
+  font=FONT_XL,
   width=HOLE_WIDTH,
   getText = function()
     return 'synth'
@@ -37,7 +37,7 @@ BlinkingText{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
-  y=14*UI_HEIGHT_UNIT,
+  y=11*UI_HEIGHT_UNIT,
   font=FONT_XL,
   width=HOLE_WIDTH,
   getText = function()
@@ -50,7 +50,7 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
-  y=20*UI_HEIGHT_UNIT,
+  y=16*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   color=0,
@@ -97,7 +97,7 @@ Button{
   layer=LAYER_MENUS,
   condition=And(inGameState(STATE_GAME_MAINMENU)),
   x=BASE_SCREEN_WIDTH/2,
-  y=24*UI_HEIGHT_UNIT,
+  y=20*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   color=0,
@@ -117,7 +117,7 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
-  y=28*UI_HEIGHT_UNIT,
+  y=24*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   color=0,
@@ -155,7 +155,7 @@ Button{
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_MAINMENU),
   x=BASE_SCREEN_WIDTH/2,
-  y=32*UI_HEIGHT_UNIT,
+  y=28*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   color=0,
@@ -171,4 +171,24 @@ Button{
   end,
 }
 
+Button{
+  name='credits button',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_MAINMENU),
+  x=BASE_SCREEN_WIDTH/2,
+  y=32*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.8,
+  height=2*UI_HEIGHT_UNIT,
+  color=0,
+  lineColor=1,
+  lineWidth=3,
+  font=FONT_SM,
+  textColor=1,
+  getText = function() 
+    return 'credits'
+  end,
+  onPress = function(self, x, y)
+    Game.state:push(STATE_GAME_CREDITS)
+  end,
+}
 

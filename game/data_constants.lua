@@ -105,6 +105,7 @@ STATE_GAME_FIRST_CONNECTION = 4096 --when connecting to server for first time
 STATE_GAME_LEADERBOARD_STATS = 8192 --when looking at a players stats on the leaderboard
 STATE_GAME_ACHIEVEMENTS = 16384 -- when viewing achievements
 STATE_GAME_OVER_ACHIEVEMENTS  = 32768 -- When everything ends
+STATE_GAME_CREDITS = 65535 -- Displaying game credits
 
 -- Tutorial states
 LEARN_AIMBALL = 'aim ball'
@@ -195,6 +196,23 @@ OPTIONS_SLOMO_ALWAYSON = 'always'
 DEFAULT_OPTIONS = {
   slomoType = OPTIONS_SLOMO_DEFAULT,
   colorblind = false,
+}
+
+-- Credits
+CREDITS_DEVELOPER = 'Gustavo Guimaraes (mut)'
+CREDITS_MUSIC = 'Yuri Galindo (bay)'
+CREDITS_SPECIAL_THANKS = {
+  'Edson Guimaraes (pai)',
+  'Lígia Guimaraes',
+  'Gabriel Ilharco (aco)',
+  'Josué Montalvão (Josu)',
+  'Vinicius Canaã (vcanaa)',
+  'Daniel Cardoso (Calango)',
+  'Luiz Felipeh (wakazu)',
+  'Luiz Henrique (hikk)',
+  'Francisco Castro (chico)',
+  'Marina Ballarin',
+  'Felipe Ballarin',
 }
 
 -- More data
