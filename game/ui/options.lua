@@ -81,15 +81,23 @@ Button{
   font=FONT_SM,
   textColor=1,
   getText = function() 
-    return 'slo-mo: '..Game.options.slomoType
+    local slomoName = 'default'
+    if Game.options.slomoType == OPTIONS_SLOMO_HOLD then
+      slomoName = 'hold'
+    elseif Game.options.slomoType == OPTIONS_SLOMO_RELEASE then
+      slomoName = 'release'
+    elseif Game.options.slomoType == OPTIONS_SLOMO_ALWAYSON then
+      slomoName = 'always'
+    end
+    return 'slo-mo: '..slomoName
   end,
   onPress = function(self, x, y)
-    if Game.options.slomoType == OPTIONS_SLOMO_DEFAULT then
-      Game.options.slomoType = OPTIONS_SLOMO_REVERSE
-    elseif Game.options.slomoType == OPTIONS_SLOMO_REVERSE then
+    if Game.options.slomoType == OPTIONS_SLOMO_HOLD then
+      Game.options.slomoType = OPTIONS_SLOMO_RELEASE
+    elseif Game.options.slomoType == OPTIONS_SLOMO_RELEASE then
       Game.options.slomoType = OPTIONS_SLOMO_ALWAYSON
     elseif Game.options.slomoType == OPTIONS_SLOMO_ALWAYSON then
-      Game.options.slomoType = OPTIONS_SLOMO_DEFAULT
+      Game.options.slomoType = OPTIONS_SLOMO_HOLD
     end
     LocalSave.Save(Game)
   end,

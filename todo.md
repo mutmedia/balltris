@@ -79,4 +79,5 @@ DEBUG STUFF / TOOLS
 
 MISC
 ----
+- [ ] Close game with ESC
 

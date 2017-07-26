@@ -25,7 +25,7 @@ GAME_ACHIEVEMENTS = {
     description = 'Lose a game during your first combo higher than 30',
     event = EVENT_BALLS_TOO_HIGH,
     condition = function()
-      print('game lost in a combo of', Game.combo)
+      --print('game lost in a combo of', Game.combo)
       return Game.combo > 30
     end,
   },
@@ -51,7 +51,6 @@ GAME_ACHIEVEMENTS = {
     condition = function()
       if not Game.comboList[1] then return false end
       for _, v in ipairs(Game.comboList) do
-        print(v)
         if v >= 20 then
           return true
         end

@@ -9,18 +9,27 @@ function Game.InitilizeStats()
     timesCleared = 0,
     slomoTime = 0,
     score = 0,
-    frequency = 0
+    frequency = 0,
+    slomoType = 'none',
   }
 end
 
 function Game.SetEndGameStats()
   Game.stats.slomoTime = Game.slomoPlayTime/Game.playTime * 100
   Game.stats.frequency = Game.stats.totalBalls/Game.playTimeScaled
+  if Game.options.slomoType == OPTIONS_SLOMO_HOLD then
+    Game.stats.slomoType = 'hold'
+  elseif Game.options.slomoType == OPTIONS_SLOMO_RELEASE then
+    Game.stats.slomoType = 'rellease'
+  elseif Game.options.slomoType == OPTIONS_SLOMO_ALWAYSON then
+    Game.stats.slomoType = 'always'
+  end
+
 end
 
 function Game.SetStatsEvents()
   Game.events.add(EVENT_DROPPED_BALL, function()
-      Game.stats.totalBalls = Game.stats.totalBalls + 1
+    Game.stats.totalBalls = Game.stats.totalBalls + 1
   end)
 
   Game.events.add(EVENT_CLEARED_BALL, function(ball)

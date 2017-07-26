@@ -6,3 +6,4 @@
 build/
 server/
 node_modules
+game/password.lua

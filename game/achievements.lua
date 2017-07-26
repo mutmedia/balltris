@@ -7,10 +7,9 @@ end
 
 function Game.InitializeAchievements()
   if not Game.achievements.achievedNums then
-    print('Setting loaded things')
+    --print('Setting loaded things')
     Game.achievements.achievedNums = Set.New()
-    print(Game.achievements.achievedNumsRaw._count)
-    if Game.achievements.achievedNumsRaw._count then 
+    if Game.achievements.achievedNumsRaw then 
       for k, v in pairs(Game.achievements.achievedNumsRaw) do
         if k ~= "_count" then 
           print(k)

@@ -9,7 +9,7 @@ local print = function(str)
   print('TUTORIAL: '..(str or ''))
 end
 
-TUTORIAL_TIMES_DROPPED_TO_SLOMO_TUTORIAL = 5
+--TUTORIAL_TIMES_DROPPED_TO_SLOMO_TUTORIAL = 5
 TUTORIAL_TIMES_SCORED_TO_TUTORIAL = 3
 TUTORIAL_WHITE_HIT_TO_WHITE_TUTORIAL = 2
 TUTORIAL_DROPS_TO_COMBOMETER_DROP_TUTORIAL = 2
@@ -109,6 +109,7 @@ function Game.InitializeTutorial()
     end)
   end
 
+  --[[
   if not Game.tutorial.learned:contains(LEARN_SLOMO) then
     Game.events.countdown(EVENT_SAFE_TO_DROP, TUTORIAL_TIMES_DROPPED_TO_SLOMO_TUTORIAL, function()
       Scheduler.add(
@@ -125,6 +126,7 @@ function Game.InitializeTutorial()
         TUTORIAL_SLOMO_TIMEOUT_AFTERSAFE)
     end)
   end
+  ]]--
 
   if not Game.tutorial.learned:contains(LEARN_SCORE) then
     Game.events.countdown(EVENT_SCORED, TUTORIAL_TIMES_SCORED_TO_TUTORIAL, function()

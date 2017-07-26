@@ -180,13 +180,11 @@ Text{
   width=HOLE_WIDTH,
   getText = function()
     local str = ''
-    local stats = Backend.top10Data[Game.selectedLeaderboardGame].stats
-    for k, v in pairs(stats) do
-      if k == 'frequency' then
-        str = str..string.format('%s\n', k)
-      else
-        str = str..string.format('%s\n', k)
-      end
+    for _, v in pairs(LEADERBOARD_STATS) do
+      local statStr = ''
+      statStr = statStr..v.name
+      statStr = statStr..'\n'
+      str = str..statStr
     end
     return str
   end,
@@ -206,18 +204,20 @@ Text{
   getText = function()
     local str = ''
     local stats = Backend.top10Data[Game.selectedLeaderboardGame].stats
-    for k, v in pairs(stats) do
-      if k == 'frequency' then
-        str = str..string.format('%4.2f\n', v)
+    for _, v in pairs(LEADERBOARD_STATS) do
+      local stat = stats[v.key]
+      if stat then
+        local statStr = ''
+        statStr = statStr..string.format(v.text, stat)
+        statStr = statStr..'\n'
+        str = str..statStr
       else
-        str = str..string.format('%d\n', v)
+        str = str..'nil\n'
       end
     end
     return str
   end,
 }
-
-
 
 Text{
   name='top10 error',

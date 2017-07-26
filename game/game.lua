@@ -35,6 +35,7 @@ Game.comboObjectiveCleared = false
 Game.currentObjectiveNumber = 1
 Game.comboNumbers = nil
 Game.comboList = {}
+Game.scoreList = {}
 
 Game.extrapolationTime = 0
 Game.timeScale = TIME_SCALE_SLOMO
@@ -128,6 +129,8 @@ function Game.start(loadGame)
   Game.playTimeScaled = 0
   Game.slomoPlayTime = 0
   Game.number = (Game.number or 0) + 1
+  Game.comboList = {}
+
   --
   -- End of information that can be saved
 
@@ -137,8 +140,8 @@ function Game.start(loadGame)
     if Game.objects.ballPreview then
       Game.objects.ballPreview.drawStyle = 'line'
       Game.objects.ballPreview.position.x = math.clamp(x, BORDER_THICKNESS + Game.objects.ballPreview.radius + 1, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + Game.objects.ballPreview.radius) - 1)
-      Game.timeScale = Game.options.slomoType == OPTIONS_SLOMO_REVERSE and TIME_SCALE_REGULAR or TIME_SCALE_SLOMO
-    elseif Game.options.slomoType == OPTIONS_SLOMO_DEFAULT then
+      Game.timeScale = Game.options.slomoType == OPTIONS_SLOMO_RELEASE and TIME_SCALE_REGULAR or TIME_SCALE_SLOMO
+    elseif Game.options.slomoType == OPTIONS_SLOMO_HOLD then
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
         -- HACK: didnt want to implement proper UI hold just for this
         -- TODO: implement ui.hold
@@ -152,7 +155,7 @@ function Game.start(loadGame)
   Game.events.add(EVENT_RELEASED_PREVIEW, function()
     Game.ReleaseBall()
     Game.timeScale = TIME_SCALE_REGULAR
-    if Game.options.slomoType == OPTIONS_SLOMO_REVERSE then
+    if Game.options.slomoType == OPTIONS_SLOMO_RELEASE then
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
         if Game.inState(STATE_GAME_RUNNING) and not love.mouse.isDown(1) then
           Game.timeScale = TIME_SCALE_SLOMO
@@ -215,7 +218,7 @@ function Game.start(loadGame)
     end
     Game.comboNumbers = Queue.New()
     table.insert(Game.comboList, Game.combo)
-    
+
     -- Reset on next frame
     Scheduler.add(function() Game.combo = 0 end, 0)
   end)

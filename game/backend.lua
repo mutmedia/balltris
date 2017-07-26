@@ -4,6 +4,8 @@ local Request = require 'lib/async/request'
 local Load = require 'lib/load'
 local Scheduler = require 'lib/scheduler'
 
+local CreatePassword = require 'password' or function() return 'no password' end
+
 local USER_DATA_FILE_PATH = 'user_data.lua'
 --local BACKEND_PATH = 'http://localhost:1234'
 local BACKEND_PATH = 'https://balltris.herokuapp.com'
@@ -23,9 +25,9 @@ function Backend.Init()
     print('No user set')
     Backend.ConnectFirstTime()
   else
-      Backend.userData = {
-        id = rawUserData.id
-      }
+    Backend.userData = {
+      id = rawUserData.id
+    }
     Backend.isOffline = false
   end
 end
@@ -124,6 +126,15 @@ function Backend.SendStats(stats, gamenumber, isOver)
     version=VERSION,
     --over=isOver or false,
   }
+  local password = CreatePassword(json.encode({
+        username=Game.usernameText,
+        userid=Backend.userData.id,
+        game=gamenumber,
+        stats=stats,
+        version=VERSION,
+    }))
+  data.password = password
+  print(password)
   print(json.encode(data))
   --print(BACKEND_PATH..'/'..Backend.userData.username)
   Async(function()

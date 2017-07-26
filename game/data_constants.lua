@@ -129,10 +129,9 @@ TUTORIALS_TO_LEARN = {
   LEARN_COMBO,
   LEARN_LOSECOMBO,
   LEARN_CLEARCOMBO,
-  LEARN_SLOMO,
+  --LEARN_SLOMO, LEARN_SLOMOOPTIONS,
   LEARN_SCORE,
   LEARN_WHITEBALLS,
-  LEARN_SLOMOOPTIONS,
   LEARN_COMBOMETERDROP,
   LEARN_COMBOMETERSCORE,
   LEARN_NEWCOMBOCLEARSAT,
@@ -188,14 +187,63 @@ PALETTE_DEFAULT_PATH = 'content/base_palette.png'
 PALETTE_COLORBLIND_PATH = 'content/colorblind_palette.png'
 
 -- Options
-OPTIONS_SLOMO_DEFAULT = 'default'
-OPTIONS_SLOMO_REVERSE = 'reverse'
+OPTIONS_SLOMO_HOLD = 'default'
+OPTIONS_SLOMO_RELEASE = 'reverse'
 OPTIONS_SLOMO_ALWAYSON = 'always'
 
-
 DEFAULT_OPTIONS = {
-  slomoType = OPTIONS_SLOMO_DEFAULT,
+  slomoType = OPTIONS_SLOMO_ALWAYSON,
   colorblind = false,
+}
+
+-- Stats
+LEADERBOARD_STATS = {
+  {
+    key = 'timesCleared',
+    name = 'total clears',
+    text = '%d',
+  },
+  {
+    key = 'whiteCleared',
+    name = 'grays cleared',
+    text = '%d',
+  },
+  {
+    key = 'slomoTime',
+    name = 'slomo %',
+    text = '%d',
+  },
+  {
+    key = 'slomoType',
+    name = 'slomo',
+    text = '%s'
+  },
+  {
+    key = 'frequency',
+    name = 'frequency',
+    text = '%4.2f /sec',
+  },
+
+
+  {
+    key = 'totalBalls',
+    name = 'balls',
+    text = '%d',
+  },
+  {
+    key = 'bestCombo',
+    name = 'best combo',
+    text = '%d',
+  },
+  --ballsCleared = {
+  --name = 'balls',
+  --text = '%d',
+  --},
+  --score = {
+  --name = 'balls',
+  --text = '%d',
+  --},
+
 }
 
 -- Credits
@@ -213,6 +261,7 @@ CREDITS_SPECIAL_THANKS = {
   'Francisco Castro (chico)',
   'Marina Ballarin',
   'Felipe Ballarin',
+  'You',
 }
 
 -- More data

@@ -1,4 +1,4 @@
-IS_EXTRAPOLATING = false
+IS_EXTRAPOLATING = true
 love.graphics.clear(0, 255, 0)
 love.graphics.present()
 
@@ -268,7 +268,9 @@ end
 
 function love.textinput(t)
   if Game.inState(STATE_GAME_USERNAME, STATE_GAME_OVER) then
-    Game.usernameText = Game.usernameText..t
+    if string.len(Game.usernameText) < 10 then
+      Game.usernameText = Game.usernameText..t
+    end
   end
 end
 
