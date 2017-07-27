@@ -4,6 +4,7 @@ local Request = require 'lib/async/request'
 local Load = require 'lib/load'
 local Scheduler = require 'lib/scheduler'
 local Checksum = require 'checksum'
+local LocalGames = require 'localgames'
 
 local CreatePassword = require 'password' or function() return 'no password' end
 
@@ -64,6 +65,8 @@ function Backend.ConnectFirstTime()
 end
 
 function Backend.SendStats(stats, gamenumber, isOver)
+  LocalGames.AddNew(stats, gamenumber)
+  --TODO: iterate on all local games not synced
   if Backend.isOffline then return end
   print('Sending stats')
   local data = {

@@ -1,4 +1,3 @@
-local Load = require 'lib/load'
 local Checksum = require 'checksum'
 local LocalSave = {}
 
