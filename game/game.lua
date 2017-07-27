@@ -130,6 +130,8 @@ function Game.start(loadGame)
   Game.slomoPlayTime = 0
   Game.number = (Game.number or 0) + 1
   Game.comboList = {}
+  Game.comboObjectiveCleared = false
+  Game.currentObjectiveNumber = 1
 
   --
   -- End of information that can be saved

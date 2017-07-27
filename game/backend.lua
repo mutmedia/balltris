@@ -8,7 +8,7 @@ local CreatePassword = require 'password' or function() return 'no password' end
 
 local USER_DATA_FILE_PATH = 'user_data.lua'
 --local BACKEND_PATH = 'http://localhost:1234'
-local BACKEND_PATH = 'https://balltris.herokuapp.com'
+local BACKEND_PATH = 'http://localhost:8080'
 
 local Backend = {}
 
@@ -126,19 +126,15 @@ function Backend.SendStats(stats, gamenumber, isOver)
     version=VERSION,
     --over=isOver or false,
   }
-  local password = CreatePassword(json.encode({
-        username=Game.usernameText,
-        userid=Backend.userData.id,
-        game=gamenumber,
-        stats=stats,
-        version=VERSION,
-    }))
+  local passwordData = data.userid..data.game
+  local password = CreatePassword(passwordData)
   data.password = password
-  print(password)
-  print(json.encode(data))
+  print('sending data: ', json.encode(data))
   --print(BACKEND_PATH..'/'..Backend.userData.username)
   Async(function()
-    local _, response = Request.Post(BACKEND_PATH..'/games', data)
+    local ok, response = Request.Post(BACKEND_PATH..'/games', data)
+    if ok then
+    end
   end)
 end
 
