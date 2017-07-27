@@ -1,8 +1,8 @@
 local Load = require 'lib/load'
-
+local Checksum = require 'checksum'
 local LocalSave = {}
 
-local SAVE_PATH = 'local_data.lua'
+local SAVE_PATH = 'local_data_v'..VERSION..'.lua'
 
 local error = function(str)
   print('LOCAL SAVE ERROR: '..(str or ''))
@@ -30,59 +30,44 @@ Game.highscore = ]])
 Game.usernameText = '%s' 
 ]]
       , game.usernameText))
-end
+  end
 
--- TUTORIAL
-if game.tutorial then
-  table.insert(savestrings, [[
+  -- TUTORIAL
+  if game.tutorial then
+    table.insert(savestrings, [[
 Game.tutorial = {}
 Game.tutorial.learnedRaw = {
 ]])
-  for k, v in pairs(game.tutorial.learned) do
-    table.insert(savestrings, string.format("\t'%s',\n", k))
+    for k, v in pairs(game.tutorial.learned) do
+      table.insert(savestrings, string.format("\t'%s',\n", k))
+    end
+    table.insert(savestrings, '}\n')
   end
-  table.insert(savestrings, '}\n')
-end
 
--- OPTIONS
-if game.options then
-  table.insert(savestrings, [[
+  -- OPTIONS
+  if game.options then
+    table.insert(savestrings, [[
 Game.options = ]])
-  table.insert(savestrings, serialize(game.options))
-end
+    table.insert(savestrings, serialize(game.options))
+  end
 
--- Achievements
-if game.achievements then
-  table.insert(savestrings, [[
+  -- Achievements
+  if game.achievements then
+    table.insert(savestrings, [[
 Game.achievements = {}
 Game.achievements.achievedNumsRaw = 
 ]])
-  table.insert(savestrings, serialize(game.achievements.achievedNums))
-end
+    table.insert(savestrings, serialize(game.achievements.achievedNums))
+  end
 
-local savestring = table.concat(savestrings)
---print(savestring)
-
-local file, errorstr = love.filesystem.newFile(SAVE_PATH, 'w') 
-if errorstr then 
-  error(errorstr)
-  return 
-end
-
---print('Save file contents: ////')
---print(savestring)
---print('////////////////////////')
-
-local s, err = file:write(savestring)
-if err then
-  error(err)
-end
+  local savestring = table.concat(savestrings)
+  Checksum.SaveWith(SAVE_PATH, savestring)
 end
 
 function LocalSave.Load()
-  local ok = Load.luafile(SAVE_PATH)
+  local ok = Checksum.LoadWith(SAVE_PATH)
   if not ok then
-    error('Could not find save file')
+    error('Could not load save file')
   end
 end
 
