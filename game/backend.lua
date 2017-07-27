@@ -3,12 +3,13 @@ local Async = require 'lib/async'
 local Request = require 'lib/async/request'
 local Load = require 'lib/load'
 local Scheduler = require 'lib/scheduler'
+local Checksum = require 'checksum'
 
 local CreatePassword = require 'password' or function() return 'no password' end
 
-local USER_DATA_FILE_PATH = 'user_data.lua'
---local BACKEND_PATH = 'http://localhost:1234'
+local USER_DATA_FILE_PATH = 'user_data_v'..VERSION..'.lua'
 local BACKEND_PATH = 'http://localhost:8080'
+--local BACKEND_PATH = 'https://balltris.herokuapp.com'
 
 local Backend = {}
 
@@ -20,7 +21,7 @@ end
 function Backend.Init()
   Backend.isOffline = true
 
-  local ok, rawUserData = Load.luafile(USER_DATA_FILE_PATH)
+  local ok, rawUserData = Checksum.LoadWith(USER_DATA_FILE_PATH)
   if not ok or not rawUserData.id then 
     print('No user set')
     Backend.ConnectFirstTime()
@@ -40,8 +41,9 @@ function Backend.ConnectFirstTime()
   Async(function()
     Game.state:push(STATE_GAME_FIRST_CONNECTION)
     Game.backendConnectionError = nil
+    print('-----------OS', love.system.getOS())
     local ok, response = Request.Post(BACKEND_PATH..'/users', {
-        username='',
+        os=love.system.getOS(),
       })
     if not ok then 
       Game.backendConnectionError = response 
@@ -49,70 +51,16 @@ function Backend.ConnectFirstTime()
       Backend.userData = {
         id = response._id
       }
-      SaveUserDataToFile(Backend.userData)
+      local userDataFile = string.format([[
+  return {
+    id='%s'
+    }
+  ]], Backend.userData.id)
+      Checksum.SaveWith(USER_DATA_FILE_PATH, userDataFile)
       Game.state:push(STATE_GAME_MAINMENU)
       Backend.isOffline = false
     end
   end)
-end
-
-function Backend.TryCreateUser(username)
-  Game.highscore.number = {}
-  Async(function()
-    Game.usernameErrorMsg = nil
-    Game.state:push(STATE_GAME_USERNAME_LOADING)
-    local exists, _ = Request.Get(BACKEND_PATH..'/users/'..username)
-    if exists then
-      Game.usernameErrorMsg = 'name already taken'
-      Game.state:push(STATE_GAME_USERNAME)
-      Scheduler.add(function() Game.usernameErrorMsg = nil end, 4) -- invalid username will be displayed for 4 seconds
-      return 
-    else
-      local success, response = Request.Post(BACKEND_PATH..'/users', {
-          username=username,
-          score=0,
-        })
-      if success then 
-        print('Created new user:', json.encode(response))
-        local userData = {username=username, score=0} 
-        Backend.SetUser(userData)
-        Game.state:push(STATE_GAME_MAINMENU)
-        print('Crated new user: '..username)
-        if Game.highscore.stats then
-          Backend.SendStats(Game.highscore.stats, Game.highscore.number)
-        end
-        return
-      else
-        Game.usernameErrorMsg = response
-        Game.state:push(STATE_GAME_USERNAME)
-        Scheduler.add(function() Game.usernameErrorMsg = nil end, 4) -- invalid username will be displayed for 4 seconds
-        print('Error creating new user: '..response)
-        return
-      end
-    end
-  end)
-end
-
-function SaveUserDataToFile(userData)
-  local userDataFile = string.format([[
-  return {
-    id='%s'
-    }
-  ]], userData.id)
-
-  local file, errorstr = love.filesystem.newFile(USER_DATA_FILE_PATH, 'w') 
-  if errorstr then 
-    print('SAVE USER ERROR: '..errorstr)
-    return 
-  end
-
-  local s, err = file:write(userDataFile)
-  if err then
-    print('SAVE USER ERROR: '..err)
-  end
-end
-
-function Backend.SetUser(rawUserData)
 end
 
 function Backend.SendStats(stats, gamenumber, isOver)

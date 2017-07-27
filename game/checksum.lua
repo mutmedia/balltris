@@ -1,3 +1,4 @@
+require 'data_constants'
 local Load = require 'lib/load'
 local Serialize = require 'lib/serialize'
 local SecretHash = require 'password' or function() return 'no hash' end
@@ -62,12 +63,11 @@ end
 
 function LoadWithChecksum(path)
   local data = love.filesystem.read(path)
-  if not data then return false end
+  if not data then return false, 'no such file' end
   if DoChecksum(path, data) then
-    Load.luafile(path)
-    return true
+    return Load.luafile(path)
   end
-  return false
+  return false, 'failed checksum' 
 end
 
 return {
