@@ -233,7 +233,7 @@ function learnToCombo()
   function learnToComboRecursion()
     Scheduler.add(
       function()
-        if Game.combo > 2 then
+        if Game.combo >= 2 then
           if Game.tutorial.learned:contains(LEARN_COMBO) then return end
           Game.tutorial.state:push(LEARN_COMBO)
           MoveToLearnAfterTimeout()

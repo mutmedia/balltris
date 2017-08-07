@@ -172,9 +172,8 @@ TutorialText{
   getText = function()
     return [[
 IMPORTANT!
-When the combo 
-is higher than
-'clears at' value
+When the combo bar
+is filled with color
 all the gray balls
 disappear
 ]]

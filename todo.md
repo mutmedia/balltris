@@ -57,6 +57,7 @@ Gameplay
   - [x] Test making white balls add to combo
 - [x] Switch combo bar with side fill
   - [x] Fix this in tutorial
+- [ ] Remove fast motion when throwing ball in always slo
 
 Options
 -------
@@ -71,6 +72,7 @@ Tutorial
 - [x] Make tutorial a stack so it is less prone to errors
 - [ ] Make tutorial more spaced
 - [ ] Make the clears at text show when over new cleart at value
+- [ ] Combo tutorial is very bad if first good combo happens after game ends
 
 DEBUG STUFF / TOOLS
 -------------------

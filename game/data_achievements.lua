@@ -32,16 +32,14 @@ GAME_ACHIEVEMENTS = {
   {
     name = 'Good Strategy',
     description = 'Make two combos of at least 30 in a single game',
-    event = EVENT_GAME_OVER,
+    event = EVENT_SCORED,
     condition = function()
+      local comboValue = 10
       if not Game.comboList[1] then return false end
-      local combo30count = 0
-      for _, v in ipairs(Game.comboList) do
-        if v >= 30 then
-          combo30count = combo30count + 1
-        end
+      if not Game.comboList[1] >= 10 then return false end
+      if Game.combo > 10  then
       end
-      return combo30count > 1
+      
     end,
   },
   {

@@ -275,7 +275,7 @@ function love.textinput(t)
 end
 
 function ComboMultiplier(combo)
-  return combo
+  return combo + 1
 end
 
 
@@ -349,6 +349,8 @@ function love.keypressed(key)
       Game.state:push(STATE_GAME_PAUSED)
     elseif Game.inState(STATE_GAME_PAUSED) then
       Game.state:push(STATE_GAME_RUNNING)
+    elseif Game.inState(STATE_GAME_OPTIONS) then
+      Game.state:pop()
     end
   end
 
