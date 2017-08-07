@@ -1,5 +1,9 @@
 require 'ui/base'
+local LocalGames = require 'localgames'
 local Backend = require 'backend'
+local Serialize = require 'lib/serialize'
+
+local SHOW_LOCAL_LEADERBOARD = false
 
 Text{
   name='leaderboard title',
@@ -11,7 +15,7 @@ Text{
   color=4,
   width=HOLE_WIDTH*1.4,
   getText= function()
-    return 'top players'
+    return SHOW_LOCAL_LEADERBOARD and 'your games' or 'top players'
   end,
 }
 
@@ -53,7 +57,7 @@ local leaderBoardThing = function(func)
       obj.y = 2*(num + 2) * UI_HEIGHT_UNIT
       if not obj.color then
         obj.getColor= obj.getColor or function(self)
-          return Backend.top10Data[self.number].userid == Backend.userData.id and COLOR_GREEN 
+          return (not SHOW_LOCAL_LEADERBOARD) and GetTop10()[self.number].userid == Backend.userData.id and COLOR_GREEN 
           or COLOR_BLUE
         end
       end
@@ -61,7 +65,7 @@ local leaderBoardThing = function(func)
         function() return Backend.top10Error == nil end ,
         inGameState(STATE_GAME_LEADERBOARD),
         function(self)
-          return (Backend.top10Data[self.number] and true or false) 
+          return (GetTop10()[self.number] and true or false) 
         end,
         function() return not Backend.isOffline end
         )
@@ -75,6 +79,11 @@ local leaderBoardThing = function(func)
       return func(obj)
     end
   end
+end
+
+
+function GetTop10()
+  return SHOW_LOCAL_LEADERBOARD and LocalGames.GetTop10() or Backend.top10Data
 end
 
 for i=1,10 do
@@ -93,7 +102,7 @@ for i=1,10 do
     font=FONT_SM,
     width=HOLE_WIDTH,
     getText= function(self)
-      local gameData = Backend.top10Data[self.number]
+      local gameData = GetTop10()[self.number]
       return string.format('%-10s', gameData.username)
     end,
   }
@@ -103,7 +112,7 @@ for i=1,10 do
     x=BASE_SCREEN_WIDTH/2 + HOLE_WIDTH/3.5,
     font=FONT_SM,
     getText= function(self)
-      local gameData = Backend.top10Data[self.number]
+      local gameData = GetTop10()[self.number]
       return string.format('%5d', gameData.stats.score)
     end,
   }
@@ -121,12 +130,12 @@ Text{
   y=6*UI_HEIGHT_UNIT, 
   font=FONT_SM,
   getColor = function(self)
-    return Backend.top10Data[Game.selectedLeaderboardGame].userid == Backend.userData.id and COLOR_GREEN 
+    return (not SHOW_LOCAL_LEADERBOARD) and GetTop10()[Game.selectedLeaderboardGame].userid == Backend.userData.id and COLOR_GREEN 
     or COLOR_BLUE
   end,
   width=BORDER_THICKNESS,
   getText = function()
-    local gameData = Backend.top10Data[Game.selectedLeaderboardGame]
+    local gameData = GetTop10()[Game.selectedLeaderboardGame]
     return string.format('%-10s', gameData.username)
   end,
 }
@@ -141,12 +150,12 @@ Text{
   y=6*UI_HEIGHT_UNIT, 
   font=FONT_SM,
   getColor = function(self)
-    return Backend.top10Data[Game.selectedLeaderboardGame].userid == Backend.userData.id and COLOR_GREEN 
+    return (not SHOW_LOCAL_LEADERBOARD) and GetTop10()[Game.selectedLeaderboardGame].userid == Backend.userData.id and COLOR_GREEN 
     or COLOR_BLUE
   end,
   width=BORDER_THICKNESS,
   getText = function()
-    local gameData = Backend.top10Data[Game.selectedLeaderboardGame]
+    local gameData = GetTop10()[Game.selectedLeaderboardGame]
     return string.format('%5d', gameData.stats.score)
   end,
 }
@@ -203,7 +212,7 @@ Text{
   width=HOLE_WIDTH,
   getText = function()
     local str = ''
-    local stats = Backend.top10Data[Game.selectedLeaderboardGame].stats
+    local stats = GetTop10()[Game.selectedLeaderboardGame].stats
     for _, v in pairs(LEADERBOARD_STATS) do
       local stat = stats[v.key]
       if stat then
@@ -233,6 +242,7 @@ Text{
   end,
 }
 
+--[[
 Button{
   name='retry',
   layer=LAYER_MENUS,
@@ -259,6 +269,29 @@ Button{
     --end
   end,
 }
+]]--
+
+Button{
+  name='local/global',
+  layer=LAYER_MENUS,
+  condition=inGameState(STATE_GAME_LEADERBOARD, STATE_GAME_LEADERBOARD_LOADING, STATE_GAME_LEADERBOARD_STATS),
+  x=BASE_SCREEN_WIDTH/2,
+  y=32*UI_HEIGHT_UNIT,
+  width=HOLE_WIDTH * 0.8,
+  height=2*UI_HEIGHT_UNIT,
+  color=0,
+  lineColor=1,
+  lineWidth=3,
+  font=FONT_SM,
+  textColor=1,
+  getText = function() 
+    return SHOW_LOCAL_LEADERBOARD and 'show global' or 'show local'
+  end,
+  onPress = function(self, x, y)
+    SHOW_LOCAL_LEADERBOARD = not SHOW_LOCAL_LEADERBOARD
+  end,
+}
+
 
 Button{
   name='back',

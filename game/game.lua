@@ -232,6 +232,20 @@ function Game.start(loadGame)
   Game.InitilizeStats()
   Game.SetStatsEvents()
   Game.InitializeAchievements()
+  Game.InitializeSFX()
+end
+
+function Game.InitializeSFX()
+  Game.events.add(EVENT_COMBO_CLEARED, function()
+    local sfx = love.audio.newSource("content/clear.wav", "static")
+    love.audio.play(sfx)
+  end)
+  Game.events.add(EVENT_CLEARED_BALL, function() 
+    local sfx = love.audio.newSource("content/goodsound1.wav", "static")
+    local pitchIncrement = math.clamp(Game.combo/Game.comboObjective, 0, 1)
+    sfx:setPitch(1 + 1 * pitchIncrement)
+    love.audio.play(sfx)
+  end)
 end
 
 function Game.GetComboObjectiveValue(i)
@@ -333,7 +347,7 @@ function Game.update(dt)
         Game.events.fire(EVENT_COMBO_TIMEOUT)
       end
 
-      if Game.objects.ballPreview then
+      if Game.objects.ballPreview or Game.inState(STATE_GAME_LOST) then
         Game.comboTimeLeft = math.max(Game.comboTimeLeft - FIXED_DT, 0)
       end
       Game.timeSinceLastCombo = math.max(Game.timeSinceLastCombo + FIXED_DT, 0)

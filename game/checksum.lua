@@ -12,7 +12,6 @@ local error = function(str)
 end
 
 local function LazyLoad()
-  if {} then print('hahaha') end
   if checksums then return end
   local ok
   ok, checksums = Load.luafile(CHECKSUMS_PATH)

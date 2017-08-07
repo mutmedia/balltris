@@ -68,24 +68,28 @@ function Backend.SendStats(stats, gamenumber, isOver)
   LocalGames.AddNew(stats, gamenumber)
   --TODO: iterate on all local games not synced
   if Backend.isOffline then return end
-  print('Sending stats')
-  local data = {
-    username=Game.usernameText,
-    userid=Backend.userData.id,
-    game=gamenumber,
-    stats=stats,
-    version=VERSION,
-    --over=isOver or false,
-  }
-  local passwordData = data.userid..data.game
-  local password = CreatePassword(passwordData)
-  data.password = password
-  print('sending data: ', json.encode(data))
-  --print(BACKEND_PATH..'/'..Backend.userData.username)
-  Async(function()
-    local ok, response = Request.Post(BACKEND_PATH..'/games', data)
-    if ok then
-    end
+  LocalGames.ForEach(function(game)
+    if game.synced then return end
+    print('Sending stats for game '..game.game)
+    local data = {
+      username=game.username,
+      userid=Backend.userData.id,
+      game=game.game,
+      stats=game.stats,
+      version=game.version,
+      --over=isOver or false,
+    }
+    local passwordData = data.userid..data.game
+    local password = CreatePassword(passwordData)
+    data.password = password
+    print('sending data: ', json.encode(data))
+    --print(BACKEND_PATH..'/'..Backend.userData.username)
+    Async(function()
+      local ok, response = Request.Post(BACKEND_PATH..'/games', data)
+      if ok then
+        game.synced = true
+      end
+    end)
   end)
 end
 

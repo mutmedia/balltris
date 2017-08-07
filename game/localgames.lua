@@ -41,4 +41,25 @@ function LocalGames.AddNew(stats, gamenumber, use)
   SaveAll()
 end
 
+function LocalGames.ForEach(func)
+  for _, v in ipairs(localGames) do
+    if not v.synced then
+      func(v)
+    end
+  end
+  SaveAll()
+end
+
+function LocalGames.GetTop10()
+  LazyLoad()
+  table.sort(localGames, function(a, b) 
+    return a.stats.score > b.stats.score 
+  end)
+  local top10 = {}
+  for i=1,10 do
+    table.insert(top10, localGames[i])
+  end
+  return top10
+end
+
 return LocalGames
