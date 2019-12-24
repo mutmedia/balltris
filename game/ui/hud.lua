@@ -337,11 +337,11 @@ Text{
   height=2*1.1*MAX_RADIUS,
   drawMode='line',
   pressed = function(self, x, y)
-    self.color = {0, 255, 0, 255}
+    self.color = {0, 1, 0, 1}
   end,
   released = function(self, x, y)
     game.events.fire(EVENT_PRESSED_SWITCH)
-    self.color = {255, 0, 0, 255}
+    self.color = {1, 0, 0, 1}
   end,
 }]]--
 

@@ -264,6 +264,8 @@ CREDITS_SPECIAL_THANKS = {
   'You',
 }
 
+CREDITS_TWITTER = 'https://twitter.com/mutmedia'
+
 -- More data
 require 'data_achievements'
 

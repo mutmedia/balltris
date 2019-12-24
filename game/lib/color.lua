@@ -1,5 +1,5 @@
 function GetColorFromHSV(h, s, v, a)
-  local a = a or 255
+  local a = a or 1
 
   local c = v * s
   local x = c * (1-math.abs((h/60)%2 -1))
@@ -17,9 +17,9 @@ function GetColorFromHSV(h, s, v, a)
 
   local rr, gg, bb = unpack(HSVtoRGBt[hdiv + 1])
 
-  local r = (rr + m) * 255
-  local g = (gg + m) * 255
-  local b = (bb + m) * 255
+  local r = (rr + m) * 1
+  local g = (gg + m) * 1
+  local b = (bb + m) * 1
 
   return {r, g, b, a}
 end

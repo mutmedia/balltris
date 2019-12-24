@@ -171,8 +171,8 @@ function Game.start(loadGame)
         end
       end)
     end
-
   end)
+
   Game.events.add(EVENT_ON_BALLS_STATIC,  function()
     Game.events.schedule(EVENT_NEW_BALL, function()
       TempSave.Save(Game)
@@ -182,6 +182,7 @@ function Game.start(loadGame)
       --Game.events.fire(EVENT_COMBO_END)
     end
   end)
+
   Game.events.add(EVENT_COMBO_TIMEOUT, function()
     Game.events.schedule(EVENT_NEW_BALL, function()
       TempSave.Save(Game)
@@ -191,26 +192,32 @@ function Game.start(loadGame)
     end
     --Game.validateHeight()
   end)
+
   Game.events.add(EVENT_SAFE_TO_DROP, function()
     Game.IncrementComboTimeout(COMBO_INCREMENT_DROP)
     Game.GetNextBall()
   end)
+
   Game.events.add(EVENT_NEW_BALL_INGAME, function()
     --Game.IncrementComboTimeout()
   end)
+
   Game.events.add(EVENT_BALLS_TOO_HIGH, Game.lose)
+
   Game.events.add(EVENT_SCORED, function() 
     Game.timeSinceLastCombo = 0
     if Game.combo >= Game.comboObjective and not Game.comboObjectiveCleared and not Game.inState(STATE_GAME_LOST, STATE_GAME_OVER) then
       Game.events.fire(EVENT_COMBO_CLEARED)
     end
   end)
+
   Game.events.add(EVENT_COMBO_CLEARED, function()
     Game.clearWhiteBalls()
     Game.comboObjectiveCleared = true
   end)
+
   Game.events.add(EVENT_COMBO_END, function()
-    if Game.combo <= 0 then print('CALLING COMBO END EVENT IN A WEIRD CIRUCUNSTANCE') end
+    if Game.combo <= 0 then print('CALLING COMBO END EVENT IN A WEIRD CIRCUMSTANCE') end
     if Game.combo > Game.maxCombo then Game.maxCombo = Game.combo end
     if Game.combo >= Game.comboObjective then
       Game.comboObjectiveCleared = false
@@ -221,8 +228,9 @@ function Game.start(loadGame)
     Game.comboNumbers = Queue.New()
     table.insert(Game.comboList, Game.combo)
 
-    -- Reset on next frame
-    Scheduler.add(function() Game.combo = 0 end, 0)
+    -- Reset on next frame ?
+    --Scheduler.add(function() Game.combo = 0 end, 0)
+    Game.combo = 0
   end)
 
   Game.state:push(STATE_GAME_RUNNING)
@@ -232,7 +240,7 @@ function Game.start(loadGame)
   Game.InitilizeStats()
   Game.SetStatsEvents()
   Game.InitializeAchievements()
-  Game.InitializeSFX()
+  --Game.InitializeSFX()
 end
 
 function Game.InitializeSFX()
@@ -240,6 +248,7 @@ function Game.InitializeSFX()
     local sfx = love.audio.newSource("content/clear.wav", "static")
     love.audio.play(sfx)
   end)
+
   Game.events.add(EVENT_CLEARED_BALL, function() 
     local sfx = love.audio.newSource("content/goodsound1.wav", "static")
     local pitchIncrement = math.clamp(Game.combo/Game.comboObjective, 0, 1)

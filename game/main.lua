@@ -1,5 +1,5 @@
 IS_EXTRAPOLATING = true
-love.graphics.clear(0, 255, 0)
+love.graphics.clear(0, 1, 0)
 love.graphics.present()
 
 local piefiller = require 'lib/piefiller'
@@ -63,10 +63,14 @@ local loadtime = love.timer.getTime()
 local PROFILE = false
 local Pie = {}
 
+local canvasSettings = {
+  format = 'normal',
+}
+
 -- Behaviour definitions
 function love.load()
   Pie = piefiller:new()
-  love.graphics.clear(255, 0, 255)
+  love.graphics.clear(1, 0, 1)
   love.graphics.present()
   --print('Time to start loading: '..love.timer.getTime() - loadtime)
   -- Initializing logic
@@ -86,9 +90,10 @@ function love.load()
 
   -- Game Canvas
   loadtime = love.timer.getTime()
-  loadingCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
 
-  love.graphics.clear(255, 0, 255)
+  loadingCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, canvasSettings)
+
+  love.graphics.clear(1, 0, 1)
   love.graphics.present()
   --print('Time to loading canvas: \t\t'..love.timer.getTime() - loadtime)
 
@@ -103,12 +108,12 @@ function love.load()
   love.graphics.present()
   --print('Time to present load: \t\t\t'..love.timer.getTime() - loadtime)
 
-  love.graphics.clear(0, 255, 255)
+  love.graphics.clear(0, 1, 1)
 
   loadtime = love.timer.getTime()
-  gameCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
-  auxCanvas1 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
-  auxCanvas2 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, 'normal', 0)
+  gameCanvas = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, canvasSettings)
+  auxCanvas1 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, canvasSettings)
+  auxCanvas2 = love.graphics.newCanvas(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, canvasSettings)
   --print('Time to load other canvases: \t\t'..love.timer.getTime() - loadtime)
 
 
@@ -138,8 +143,6 @@ function love.load()
     height=BASE_SCREEN_HEIGHT,
   }
 
-
-
   -- TODO: move to place where game actually starts
   loaded = true
   love.keyboard.setTextInput(false)
@@ -150,16 +153,15 @@ function love.load()
   Backend.Init()
 end
 
-local bv = 0
 function love.draw() 
   love.graphics.setCanvas()
   -- TODO: Make this a proper state so there is a loading scene
   love.graphics.setNewFont(12)
-  local b = love.graphics.getBlendMode()
+  local blendMode = love.graphics.getBlendMode()
 
   -- Move to new canvas
   love.graphics.setCanvas(gameCanvas)
-  love.graphics.clear(0, 0, 0, 255)
+  love.graphics.clear(0, 0, 0, 1)
   --love.graphics.translate(Game.UI.deltaX, Game.UI.deltaY)
   --love.graphics.scale(Game.UI.scaleX, Game.UI.scaleY)
 
@@ -168,7 +170,7 @@ function love.draw()
 
   -- Next balls
 
-  love.graphics.setBlendMode(b)
+  love.graphics.setBlendMode(blendMode)
 
   love.graphics.setShader()
 
@@ -179,28 +181,28 @@ function love.draw()
 
   GaussianBlurEffect:apply(gameCanvas, auxCanvas1)
 
-  love.graphics.setBlendMode(b)
+  love.graphics.setBlendMode(blendMode)
 
   love.graphics.setCanvas(auxCanvas2)
   love.graphics.clear()
-  love.graphics.setColor(255, 255, 255)
+  love.graphics.setColor(1, 1, 1)
   love.graphics.setShader(Shaders.Glow)
 
   love.graphics.draw(gameCanvas)
   love.graphics.setBlendMode('add')
   love.graphics.draw(auxCanvas1)
-  love.graphics.setBlendMode(b)
+  love.graphics.setBlendMode(blendMode)
 
   love.graphics.setShader()
 
-  CRTEffect:apply(auxCanvas2, gameCanvas)
+  --CRTEffect:apply(auxCanvas2, gameCanvas)
 
   -- Final draw
   love.graphics.setShader(Shaders.GammaCorrect)
   drawScaled(gameCanvas)
   love.graphics.setShader()
 
-  love.graphics.setColor(0, 255, 0)
+  love.graphics.setColor(0, 1, 0)
   love.graphics.setNewFont(10*2)
   if DEBUG_SHOW_FPS then
     love.graphics.print(tostring(love.timer.getFPS( )), 5, 5)

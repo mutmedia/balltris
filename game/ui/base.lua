@@ -58,7 +58,7 @@ Custom = (UI.object)
 --local DEBUG_UI = true
 
 MAIN_UI_FONT = 'content/Neon.ttf'
-UI.DEFAULT_FONT_COLOR = {255, 255, 255}
+UI.DEFAULT_FONT_COLOR = {1, 1, 1}
 
 COLOR_BLACK = 0
 COLOR_WHITE = 1

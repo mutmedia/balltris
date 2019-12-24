@@ -9,8 +9,8 @@ local LocalGames = require 'localgames'
 local CreatePassword = require 'password' or function() return 'no password' end
 
 local USER_DATA_FILE_PATH = 'user_data_v'..VERSION..'.lua'
-local BACKEND_PATH = 'http://localhost:8080'
---local BACKEND_PATH = 'https://balltris.herokuapp.com'
+--local BACKEND_PATH = 'http://localhost:8080'
+local BACKEND_PATH = 'https://balltris.herokuapp.com'
 
 local Backend = {}
 

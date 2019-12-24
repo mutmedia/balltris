@@ -89,7 +89,7 @@ Button{
     return 'twitter'
   end,
   onPress = function()
-    love.system.openURL('https://twitter.com/ghust1995')
+    love.system.openURL(CREDITS_TWITTER)
   end
 }
 Button{

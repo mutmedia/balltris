@@ -34,7 +34,7 @@ function CRTEffect:apply(sourceCanvas, targetCanvas)
 
   love.graphics.setCanvas(self._canvas)
   love.graphics.clear()
-  love.graphics.setColor(255, 255, 255)
+  love.graphics.setColor(1, 1, 1)
   love.graphics.draw(sourceCanvas)
 
   love.graphics.setShader(self._distortShader)
@@ -42,7 +42,7 @@ function CRTEffect:apply(sourceCanvas, targetCanvas)
   self._distortShader:send('distortion', EFFECT_CRT_DISTORTION)
   love.graphics.setCanvas(targetCanvas)
   love.graphics.clear()
-  love.graphics.setColor(255, 255, 255)
+  love.graphics.setColor(1, 1, 1)
   love.graphics.draw(self._canvas)
 
   love.graphics.setCanvas(originalCanvas)

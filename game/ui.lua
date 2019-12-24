@@ -352,7 +352,7 @@ function UI.initialize(palette)
       UI._loveSetColor(r, g, b, a)
       return
     end
-    UI._loveSetColor(0, 0, 0, 255)
+    UI._loveSetColor(0, 0, 0, 1)
   end
   ]]--
 end

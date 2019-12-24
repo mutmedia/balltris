@@ -16,7 +16,7 @@ function ParticleSystem.New(params)
 
   -- functions
   ps.scaleOverLifeTime = params.scaleOverLifeTime or function(k) return 1-k end
-  ps.colorOverLifeTime = params.colorOverLifeTime or ParticleSystemUtils.RGBGradient({255, 255, 255, 255}, {0, 0, 0, 0})
+  ps.colorOverLifeTime = params.colorOverLifeTime or ParticleSystemUtils.RGBGradient({1, 1, 1, 1}, {0, 0, 0, 0})
   ps.getInitialPosition = params.getInitialPosition or function() return Vector.New() end
   ps.getInitialVelocity = params.getInitialVelocity or ParticleSystemUtils.RandomRadialUnitVector
   ps.particleDraw = params.particleDraw or ParticleSystemUtils.CircularParticlesDraw(10)

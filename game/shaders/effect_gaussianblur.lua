@@ -35,19 +35,19 @@ function GaussianBlurEffect:apply(sourceCanvas, targetCanvas)
 
   love.graphics.setCanvas(self._canvasH)
   love.graphics.clear()
-  love.graphics.setColor(255, 255, 255)
+  love.graphics.setColor(1, 1, 1)
   self._shader:send('offset_direction', {1 / love.graphics.getWidth(), 0})
   love.graphics.draw(sourceCanvas, 0, 0, 0, 1 / self._scale)
 
   love.graphics.setCanvas(self._canvasV)
   love.graphics.clear()
-  love.graphics.setColor(255, 255, 255)
+  love.graphics.setColor(1, 1, 1)
   self._shader:send('offset_direction', {0, 1 / love.graphics.getHeight()})
   love.graphics.draw(self._canvasH)
 
   love.graphics.setCanvas(targetCanvas)
   love.graphics.clear()
-  love.graphics.setColor(255, 255, 255)
+  love.graphics.setColor(1, 1, 1)
   love.graphics.draw(self._canvasV, 0, 0, 0, self._scale)
 
   love.graphics.setCanvas(originalCanvas)

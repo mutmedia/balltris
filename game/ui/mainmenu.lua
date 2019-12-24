@@ -28,7 +28,7 @@ BlinkingText{
   font=FONT_XL,
   width=HOLE_WIDTH,
   getText = function()
-    return 'synth'
+    return 'ball'
   end,
 }
 
@@ -41,7 +41,7 @@ BlinkingText{
   font=FONT_XL,
   width=HOLE_WIDTH,
   getText = function()
-    return 'balls'
+    return 'tris'
   end,
 }
 
