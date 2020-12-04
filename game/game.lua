@@ -138,13 +138,18 @@ function Game.start(loadGame)
 
   -- Events
   Game.events.clear()
+  Game.holding = false
+  Game.canGetNextBall = false
   Game.events.add(EVENT_MOVED_PREVIEW, function(x, y, dx, dy)
+    Game.holding = true
     if Game.objects.ballPreview then
       Game.objects.ballPreview.drawStyle = 'line'
       Game.objects.ballPreview.position.x = math.clamp(x, BORDER_THICKNESS + Game.objects.ballPreview.radius + 1, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + Game.objects.ballPreview.radius) - 1)
       Game.timeScale = Game.options.slomoType == OPTIONS_SLOMO_RELEASE and TIME_SCALE_REGULAR or TIME_SCALE_SLOMO
     else
-      Game.GetNextBall()
+      if Game.canGetNextBall then
+        Game.GetNextBall()
+      end
       if Game.options.slomoType == OPTIONS_SLOMO_HOLD then
         Game.events.schedule(EVENT_SAFE_TO_DROP, function()
           -- HACK: didnt want to implement proper UI hold just for this
@@ -158,7 +163,15 @@ function Game.start(loadGame)
   end)
 
   Game.events.add(EVENT_RELEASED_PREVIEW, function()
-    Game.ReleaseBall()
+    Game.holding = false
+    if Game.objects.ballPreview then
+      if Game.objects.ballPreview.holdTime > PREVIEW_HOLD_TIME then
+        Game.ReleaseBall()
+        Game.canGetNextBall = false
+      else
+        Game.objects.ballPreview.holdTime = 0
+      end
+    end
     Game.timeScale = TIME_SCALE_REGULAR
     if Game.options.slomoType == OPTIONS_SLOMO_RELEASE then
       Game.events.schedule(EVENT_SAFE_TO_DROP, function()
@@ -198,6 +211,7 @@ function Game.start(loadGame)
 
   Game.events.add(EVENT_SAFE_TO_DROP, function()
     Game.IncrementComboTimeout(COMBO_INCREMENT_DROP)
+    Game.canGetNextBall = true
   end)
 
   Game.events.add(EVENT_NEW_BALL_INGAME, function()
@@ -306,6 +320,9 @@ function Game.update(dt)
       if Game.timeScale == TIME_SCALE_SLOMO then
         Game.slomoPlayTime = Game.slomoPlayTime + unscaledDT
       end
+      if Game.objects.ballPreview and Game.holding then
+        Game.objects.ballPreview.holdTime = Game.objects.ballPreview.holdTime + unscaledDT
+      end
       Game.SetEndGameStats()
     end
 
@@ -358,9 +375,7 @@ function Game.update(dt)
         Game.events.fire(EVENT_COMBO_TIMEOUT)
       end
 
-      if Game.objects.ballPreview or Game.inState(STATE_GAME_LOST) then
-        Game.comboTimeLeft = math.max(Game.comboTimeLeft - FIXED_DT, 0)
-      end
+      Game.comboTimeLeft = math.max(Game.comboTimeLeft - FIXED_DT, 0)
       Game.timeSinceLastCombo = math.max(Game.timeSinceLastCombo + FIXED_DT, 0)
 
       pf = pf + 1
@@ -390,6 +405,7 @@ function Game.update(dt)
       Game.objects.ballPreview.position.y + BASE_SCREEN_HEIGHT,
       previewRaycastCallback)
   end
+
 
   gf = gf + 1
 end

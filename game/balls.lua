@@ -17,7 +17,8 @@ function Balls.NewBallPreview(initialData)
     position = initialData.position or  Vector.New(BASE_SCREEN_WIDTH/2, MIN_DISTANCE_TO_TOP - radius),
     radius = initialData.radius or radius,
     indestructible = initialData.indestructible or false,
-    getColor = Ball.getColor
+    getColor = Ball.getColor,
+    holdTime = 0
   }
 end
 

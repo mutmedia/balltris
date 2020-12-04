@@ -306,7 +306,7 @@ Custom{
   name='ball preview',
   layer=LAYER_GAME,
   condition = function() return Game.objects.ballPreview end,
-  transitionInTime=0.08,
+  transitionInTime=0.8,
   transitionIn=function(self, dt) 
     return {
       visibility=dt
@@ -319,7 +319,12 @@ Custom{
       local radius = Game.objects.ballPreview.radius
       local color = Game.objects.ballPreview:getColor()
 
-      DrawBall(color, center, radius, 0, {1, 1}, self.visibility)
+      local hold = Game.objects.ballPreview.holdTime / PREVIEW_HOLD_TIME
+      local b = 0.25
+      local k = b + hold * (0.7-b)
+      if hold > 1 then k = 1 end
+      
+      DrawBall(color, center, radius, 0, {1, 1}, k * k)
     end
   end,
 }

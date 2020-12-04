@@ -240,6 +240,12 @@ function love.update(dt)
   if PROFILE then 
     Pie:detach()
   end
+
+  if love.mouse.isDown(1) then
+    local x, y = love.mouse.getPosition()
+    Game.UI.moved(x, y, 0, 0)
+
+  end
   -- Watch Modifiable Files
 
   --[[
@@ -399,11 +405,7 @@ function love.mousepressed(x, y)
 end
 
 function love.mousemoved(x, y, dx, dy)
-  -- TODO: move this
-  if Game.objects.ballPreview then
-    Game.objects.ballPreview.drawStyle = 'none'
-  end
-  Game.UI.moved(x, y, dx, dy)
+    Game.UI.moved(x, y, dx, dy)
 end
 
 function love.mousereleased(x, y, button)
