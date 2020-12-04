@@ -195,7 +195,7 @@ function love.draw()
 
   love.graphics.setShader()
 
-  --CRTEffect:apply(auxCanvas2, gameCanvas)
+  CRTEffect:apply(auxCanvas2, gameCanvas)
 
   -- Final draw
   love.graphics.setShader(Shaders.GammaCorrect)

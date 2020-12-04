@@ -12,7 +12,7 @@ MVP
 - [x] Finish basic effects
 - [ ] Fix Continue (?)
 - [x] Improve high score after playtest feedback
-- [ ] Add achievements, see (Achievements)
+- [x] Add achievements, see (Achievements)
 - [ ] Music / Sound(?)
 - [ ] More Game Options
 - [ ] Improve game icon
@@ -20,7 +20,7 @@ MVP
 
 Credits
 =======
-- [ ] Link to twitter
+- [x] Link to twitter
 
 After MVP
 =========
@@ -57,7 +57,7 @@ Gameplay
   - [x] Test making white balls add to combo
 - [x] Switch combo bar with side fill
   - [x] Fix this in tutorial
-- [ ] Remove fast motion when throwing ball in always slo
+- [ ] ~~Remove fast motion when throwing ball in always slo~~
 
 Options
 -------

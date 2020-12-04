@@ -14,7 +14,7 @@ function Balls.NewBallPreview(initialData)
   local radius = initialData.indestructible and WHITE_BALL_SIZE or Game.GetBallRadius()
   return {
     number = initialData.number or Game.GetBallNumber(), --TODO: make white ball have a number
-    position = initialData.position or  Vector.New(BASE_SCREEN_WIDTH/2, radius + PREVIEW_PADDING),
+    position = initialData.position or  Vector.New(BASE_SCREEN_WIDTH/2, MIN_DISTANCE_TO_TOP - radius),
     radius = initialData.radius or radius,
     indestructible = initialData.indestructible or false,
     getColor = Ball.getColor

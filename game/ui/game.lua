@@ -11,6 +11,42 @@ Rectangle{
   color=2,
 }
 
+Custom{
+  name='scanline',
+  layer=LAYER_GAME,
+  condition=inGameState(STATE_GAME_RUNNING),
+  -- //height=60,
+  count=2,
+  width=BASE_SCREEN_WIDTH,
+  lineWidth=2,
+  speed=200,
+  visibility=0.25,
+  draw=function(self)
+    local y = Game.totalTime * self.speed 
+    UI.setColor(8, self.visibility) 
+    love.graphics.setLineWidth(self.lineWidth or 1)
+    local height = 400
+      local pos = y  % (BASE_SCREEN_HEIGHT)
+      love.graphics.rectangle(
+        'fill',
+        0,
+        pos,
+        self.width,
+        height,
+        RECTANGLE_BORDER_RADIUS)
+      local overflow = pos + height - BASE_SCREEN_HEIGHT
+      if overflow > 0 then
+        love.graphics.rectangle(
+          'fill',
+          0,
+          0,
+          self.width,
+          overflow,
+          RECTANGLE_BORDER_RADIUS)
+      end
+  end
+}
+
 Rectangle{
   name='gamebox',
   layer=LAYER_GAME,
@@ -247,13 +283,13 @@ Rectangle{
 
 
 
-function DrawBall(color, center, radius, rotation, scale)
+function DrawBall(color, center, radius, rotation, scale, visibility)
   love.graphics.push()
   love.graphics.translate(center[1], center[2])
   love.graphics.rotate(rotation or 0)
   scale = scale or {1, 1}
   love.graphics.scale(scale[1] or 1, scale[2] or 1)
-  UI.setColor(color)
+  UI.setColor(color, visibility or 1)
   love.graphics.setLineWidth(BALL_LINE_WIDTH_OUT)
   radius = radius * BALL_DRAW_SCALE
   arcEnd = 2 * math.pi - BALL_NEON_GAP * math.pi / radius
@@ -269,17 +305,25 @@ end
 Custom{
   name='ball preview',
   layer=LAYER_GAME,
-  condition = inGameState(STATE_GAME_RUNNING),
-  draw=function()
+  condition = function() return Game.objects.ballPreview end,
+  transitionInTime=0.08,
+  transitionIn=function(self, dt) 
+    return {
+      visibility=dt
+    }
+  end,
+  visibility=1,
+  draw=function(self)
     if Game.objects.ballPreview then
       local center = {Game.objects.ballPreview.position.x, Game.objects.ballPreview.position.y}
       local radius = Game.objects.ballPreview.radius
       local color = Game.objects.ballPreview:getColor()
 
-      DrawBall(color, center, radius)
+      DrawBall(color, center, radius, 0, {1, 1}, self.visibility)
     end
   end,
 }
+
 
 Custom{
   name='ball preview laser raycast',

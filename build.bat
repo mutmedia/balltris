@@ -1,4 +1,4 @@
-SET LOVE_ANDROID=C:\Users\gusta\Desktop\games\love-android-sdl2
+SET LOVE_ANDROID=C:\Users\gusta\Desktop\gamedev\love-android-sdl2
 SET LOVE_PATH=C:\Program Files\LOVE
 
 rd /s /q build

@@ -143,14 +143,17 @@ function Game.start(loadGame)
       Game.objects.ballPreview.drawStyle = 'line'
       Game.objects.ballPreview.position.x = math.clamp(x, BORDER_THICKNESS + Game.objects.ballPreview.radius + 1, BASE_SCREEN_WIDTH - (BORDER_THICKNESS + Game.objects.ballPreview.radius) - 1)
       Game.timeScale = Game.options.slomoType == OPTIONS_SLOMO_RELEASE and TIME_SCALE_REGULAR or TIME_SCALE_SLOMO
-    elseif Game.options.slomoType == OPTIONS_SLOMO_HOLD then
-      Game.events.schedule(EVENT_SAFE_TO_DROP, function()
-        -- HACK: didnt want to implement proper UI hold just for this
-        -- TODO: implement ui.hold
-        if Game.inState(STATE_GAME_RUNNING) and love.mouse.isDown(1) then
-          Game.timeScale = TIME_SCALE_SLOMO
-        end
-      end)
+    else
+      Game.GetNextBall()
+      if Game.options.slomoType == OPTIONS_SLOMO_HOLD then
+        Game.events.schedule(EVENT_SAFE_TO_DROP, function()
+          -- HACK: didnt want to implement proper UI hold just for this
+          -- TODO: implement ui.hold
+          if Game.inState(STATE_GAME_RUNNING) and love.mouse.isDown(1) then
+            Game.timeScale = TIME_SCALE_SLOMO
+          end
+        end)
+      end
     end
   end)
 
@@ -195,7 +198,6 @@ function Game.start(loadGame)
 
   Game.events.add(EVENT_SAFE_TO_DROP, function()
     Game.IncrementComboTimeout(COMBO_INCREMENT_DROP)
-    Game.GetNextBall()
   end)
 
   Game.events.add(EVENT_NEW_BALL_INGAME, function()
