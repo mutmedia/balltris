@@ -184,8 +184,8 @@ EVENT_STREAK = 'samecolorstreak'
 EVENT_GAME_OVER = 'gameover'
 
 -- Palette
-PALETTE_DEFAULT_PATH = 'content/base_palette.png'
-PALETTE_COLORBLIND_PATH = 'content/colorblind_palette.png'
+PALETTE_DEFAULT_PATH = 'content/palette_base.png'
+PALETTE_CALANGO_PATH = 'content/palette_calango.png'
 
 -- Options
 OPTIONS_SLOMO_HOLD = 'default'
@@ -194,7 +194,7 @@ OPTIONS_SLOMO_ALWAYSON = 'always'
 
 DEFAULT_OPTIONS = {
   slomoType = OPTIONS_SLOMO_HOLD,
-  colorblind = false,
+  calango = false,
   audio = false
 }
 

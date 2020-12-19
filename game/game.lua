@@ -261,18 +261,19 @@ function Game.start(loadGame)
 end
 
 function Game.InitializeSFX()
+  local clearSFX = love.audio.newSource("content/clear.wav", "static")
+  local destroySFX = love.audio.newSource("content/wheum.wav", "static")
+
   Game.events.add(EVENT_COMBO_CLEARED, function()
     if not Game.options.audio then return end
-    local sfx = love.audio.newSource("content/clear.wav", "static")
-    love.audio.play(sfx)
+    --love.audio.play(sfx)
   end)
 
   Game.events.add(EVENT_CLEARED_BALL, function() 
     if not Game.options.audio then return end
-    local sfx = love.audio.newSource("content/goodsound1.wav", "static")
     local pitchIncrement = math.clamp(Game.combo/Game.comboObjective, 0, 1)
-    sfx:setPitch(1 + 1 * pitchIncrement)
-    love.audio.play(sfx)
+    destroySFX:setPitch(1 + 1 * pitchIncrement)
+    --love.audio.play(destroySFX)
   end)
 end
 

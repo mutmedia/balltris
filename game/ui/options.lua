@@ -39,7 +39,7 @@ Button{
 }
 
 Button{
-  name='go online',
+  name='palette',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OPTIONS),
   x=BASE_SCREEN_WIDTH/2,
@@ -52,17 +52,17 @@ Button{
   font=FONT_SM,
   textColor=1,
   getText = function() 
-    return 'colorblind '..(Game.options.colorblind and 'on' or 'off')
+    return 'palette: '..(Game.options.calango and 'gafa' or 'calango')
   end,
   onPress = function()
-    if not Game.options.colorblind then
-      local palette = NewPalette(PALETTE_COLORBLIND_PATH)
+    if not Game.options.calango then
+      local palette = NewPalette(PALETTE_CALANGO_PATH)
       Game.UI.initialize(palette)
     else
       local palette = NewPalette(PALETTE_DEFAULT_PATH)
       Game.UI.initialize(palette)
     end
-    Game.options.colorblind = not Game.options.colorblind
+    Game.options.calango = not Game.options.calango
     LocalSave.Save(Game)
   end
 }
@@ -79,7 +79,6 @@ Button{
   lineColor=1,
   lineWidth=3,
   font=FONT_SM,
-  textColor=1,
   getText = function() 
     local slomoName = 'default'
     if Game.options.slomoType == OPTIONS_SLOMO_HOLD then
@@ -104,7 +103,7 @@ Button{
 }
 
 Button{
-  name='reset tutorial',
+  name='toggle audio',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OPTIONS),
   x=BASE_SCREEN_WIDTH/2,
@@ -112,41 +111,43 @@ Button{
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   color=COLOR_BLACK,
-  getLineColor=function()
-    return not Game.IsTutorialReset() and COLOR_WHITE or COLOR_GRAY
-  end,
+  lineColor=COLOR_WHITE,
   lineWidth=3,
   font=FONT_SM,
-  getText = function() 
-    return 'reset tutorial'
+  getText = function(self) 
+    return 'audio: '..(Game.options.audio and 'on' or 'off')
   end,
   onPress = function(self, x, y)
-    Game.ResetTutorial()
+    Game.options.audio = not Game.options.audio
   end,
 }
 
 Button{
-  name='skip tutorial',
+  name='reset/skip tutorial',
   layer=LAYER_MENUS,
   condition=inGameState(STATE_GAME_OPTIONS),
   x=BASE_SCREEN_WIDTH/2,
   y=28*UI_HEIGHT_UNIT,
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
-  color=0,
-  getLineColor=function()
-    return not Game.IsTutorialOver() and COLOR_WHITE or COLOR_GRAY
+  color=COLOR_BLACK,
+  skipTutorial=function() 
+    return not Game.IsTutorialOver()
   end,
+  lineColor=COLOR_WHITE,
   lineWidth=3,
   font=FONT_SM,
-  getText = function() 
-    return 'skip tutorial'
+  getText = function(self) 
+    return self.skipTutorial() and 'skip tutorial' or 'reset tutorial'
   end,
   onPress = function(self, x, y)
-    Game.SkipTutorial()
+    if self.skipTutorial() then 
+      Game.SkipTutorial()
+    else
+      Game.ResetTutorial()
+    end
   end,
 }
-
 
 Button{
   name='Back',
