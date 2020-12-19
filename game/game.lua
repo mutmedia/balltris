@@ -200,6 +200,7 @@ function Game.start(loadGame)
   end)
 
   Game.events.add(EVENT_COMBO_TIMEOUT, function()
+    Game.comboTimeLeft = 0
     Game.events.schedule(EVENT_NEW_BALL, function()
       TempSave.Save(Game)
     end)
@@ -256,16 +257,18 @@ function Game.start(loadGame)
   Game.InitilizeStats()
   Game.SetStatsEvents()
   Game.InitializeAchievements()
-  --Game.InitializeSFX()
+  Game.InitializeSFX()
 end
 
 function Game.InitializeSFX()
   Game.events.add(EVENT_COMBO_CLEARED, function()
+    if not Game.options.audio then return end
     local sfx = love.audio.newSource("content/clear.wav", "static")
     love.audio.play(sfx)
   end)
 
   Game.events.add(EVENT_CLEARED_BALL, function() 
+    if not Game.options.audio then return end
     local sfx = love.audio.newSource("content/goodsound1.wav", "static")
     local pitchIncrement = math.clamp(Game.combo/Game.comboObjective, 0, 1)
     sfx:setPitch(1 + 1 * pitchIncrement)
@@ -371,11 +374,14 @@ function Game.update(dt)
 
 
       -- Make sure this will trigger only once
-      if Game.comboTimeLeft <= FIXED_DT and Game.comboTimeLeft > 0 then
-        Game.events.fire(EVENT_COMBO_TIMEOUT)
+      if Game.canGetNextBall then
+        if Game.comboTimeLeft <= (-COMBO_TIMEOUT_BUFFER + FIXED_DT) and Game.comboTimeLeft > -COMBO_TIMEOUT_BUFFER then
+          Game.events.fire(EVENT_COMBO_TIMEOUT)
+        end
+
+        Game.comboTimeLeft = math.max(Game.comboTimeLeft - FIXED_DT, -COMBO_TIMEOUT_BUFFER)
       end
 
-      Game.comboTimeLeft = math.max(Game.comboTimeLeft - FIXED_DT, 0)
       Game.timeSinceLastCombo = math.max(Game.timeSinceLastCombo + FIXED_DT, 0)
 
       pf = pf + 1

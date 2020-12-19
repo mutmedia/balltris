@@ -3,7 +3,7 @@ local Game = require 'game'
 local LocalSave = require 'localsave'
 local Set = require 'lib/set'
 local Stack = require 'lib/stack'
-require 'test/stack'
+-- require 'test/stack'
 
 local print = function(str)
   print('TUTORIAL: '..(str or ''))

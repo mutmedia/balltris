@@ -173,7 +173,7 @@ function UI.rectangle(params)
         RECTANGLE_BORDER_RADIUS) 
     end
     if self.lineWidth or self.lineColor then
-      UI.setColor(self.lineColor, self.visibility)
+      UI.setColor((self.getLineColor and self:getLineColor()) or self.lineColor, self.visibility)
       love.graphics.setLineWidth(self.lineWidth or 1)
       love.graphics.rectangle(
         'line',

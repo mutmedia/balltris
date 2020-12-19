@@ -3,7 +3,11 @@ local LocalGames = require 'localgames'
 local Backend = require 'backend'
 local Serialize = require 'lib/serialize'
 
-local SHOW_LOCAL_LEADERBOARD = false
+local SHOW_LOCAL_LEADERBOARD = true
+
+function showLeaderboardCondition() 
+  return SHOW_LOCAL_LEADERBOARD or Backend.top10Error == nil 
+end
 
 Text{
   name='leaderboard title',
@@ -62,7 +66,7 @@ local leaderBoardThing = function(func)
         end
       end
       local basecondition = And(
-        function() return Backend.top10Error == nil end ,
+        showLeaderboardCondition,
         inGameState(STATE_GAME_LEADERBOARD),
         function(self)
           return (GetTop10()[self.number] and true or false) 
@@ -83,6 +87,7 @@ end
 
 
 function GetTop10()
+  print("aaaa")
   return SHOW_LOCAL_LEADERBOARD and LocalGames.GetTop10() or Backend.top10Data
 end
 
@@ -231,7 +236,7 @@ Text{
 Text{
   name='top10 error',
   layer=LAYER_MENUS,
-  condition=And(function() return Backend.top10Error ~= nil end ,inGameState(STATE_GAME_LEADERBOARD)),
+  condition=And(Not(showLeaderboardCondition), inGameState(STATE_GAME_LEADERBOARD)),
   x = BASE_SCREEN_WIDTH/2,
   y=8*UI_HEIGHT_UNIT,
   font = FONT_SM,

@@ -338,19 +338,19 @@ function love.keypressed(key)
   end
 
   -- DEBUG input
-  if key == 'u' then
-    dofile('game/data_constants.lua')
-    local palette = NewPalette(Game.options.colorblind and PALETTE_COLORBLIND_PATH or PALETTE_DEFAULT_PATH)
-    Game.UI.initialize(palette)
-  end
+  -- if key == 'u' then
+    -- dofile('game/data_constants.lua')
+    -- -- local palette = NewPalette(Game.options.colorblind and PALETTE_COLORBLIND_PATH or PALETTE_DEFAULT_PATH)
+    -- Game.UI.initialize(palette)
+  -- end
 
-  if key == 'l' then
-    Game.lose()
-  end
+  -- if key == 'l' then
+    -- Game.lose()
+  -- end
 
-  if key == 's' then
+  -- if key == 's' then
     --TempSave.Save(Game)
-  end
+  -- end
 
   if key == 'escape' then
     if Game.inState(STATE_GAME_RUNNING) then

@@ -13,5 +13,4 @@ DESIGN
 - As bolas do next balls podem ser equidistantes
 -pode ser só "next" em vez de "next balls"
 - manu box more spaced out (really close to the line)
-- 
 

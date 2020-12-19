@@ -14,7 +14,7 @@ Rectangle{
 Custom{
   name='scanline',
   layer=LAYER_GAME,
-  condition=inGameState(STATE_GAME_RUNNING),
+  condition=True(),
   -- //height=60,
   count=2,
   width=BASE_SCREEN_WIDTH,
@@ -74,7 +74,7 @@ Custom{
   draw = function(self)
     local lineSize = HOLE_DEPTH + HOLE_WIDTH/2
     local position = 0
-    local value = math.clamp((Game.comboTimeLeft - COMBO_TIMEOUT_BUFFER) / (COMBO_MAX_TIMEOUT - COMBO_TIMEOUT_BUFFER), 0, 1)
+    local value = math.clamp((Game.comboTimeLeft) / (COMBO_MAX_TIMEOUT), 0, 1)
     local color = COLOR_GREEN
     if value < 1/3 then
       color = COLOR_RED
@@ -83,25 +83,41 @@ Custom{
     end
     value = value * lineSize
 
+    --Vertical
     UI.setColor(color)
-    local hstep = math.min(value, HOLE_WIDTH/2)
     love.graphics.setLineWidth(BALL_LINES_DISTANCE*2)
+
+    -- local vstep = math.max(value-HOLE_WIDTH/2, 0)
+    local vstep = math.min(value, HOLE_DEPTH)
+    love.graphics.line(
+      BASE_SCREEN_WIDTH/2 + (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+      0,
+      BASE_SCREEN_WIDTH/2 + (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+      vstep
+      )
+    love.graphics.line(
+      BASE_SCREEN_WIDTH/2 - (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+      0,
+      BASE_SCREEN_WIDTH/2 - (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
+      vstep
+      )
+
+    local hstep = math.max(value-HOLE_DEPTH, 0)
     -- Draw horizontal lines
     love.graphics.line(
-      BASE_SCREEN_WIDTH/2,
+      BASE_SCREEN_WIDTH/2 - HOLE_WIDTH/2,
       HOLE_DEPTH + BALL_LINES_DISTANCE/2,
-      BASE_SCREEN_WIDTH/2 + hstep,
+      BASE_SCREEN_WIDTH/2 - HOLE_WIDTH/2 + hstep,
       HOLE_DEPTH + BALL_LINES_DISTANCE/2
       )
     love.graphics.line(
-      BASE_SCREEN_WIDTH/2 - position,
+      BASE_SCREEN_WIDTH/2 + HOLE_WIDTH/2,
       HOLE_DEPTH + BALL_LINES_DISTANCE/2,
-      BASE_SCREEN_WIDTH/2 - hstep,
+      BASE_SCREEN_WIDTH/2 + HOLE_WIDTH/2 - hstep,
       HOLE_DEPTH + BALL_LINES_DISTANCE/2
       )
-    position = position + hstep
 
-    if value >= HOLE_WIDTH/2 then
+    if value >= HOLE_DEPTH then
       -- Draw arc
       love.graphics.arc(
         'line', 
@@ -123,21 +139,7 @@ Custom{
         10)
     end
 
-    --Vertical
-
-    local vstep = math.max(value-HOLE_WIDTH/2, 0)
-    love.graphics.line(
-      BASE_SCREEN_WIDTH/2 + (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
-      HOLE_DEPTH - (position - HOLE_WIDTH/2),
-      BASE_SCREEN_WIDTH/2 + (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
-      HOLE_DEPTH - (position - HOLE_WIDTH/2 + vstep)
-      )
-    love.graphics.line(
-      BASE_SCREEN_WIDTH/2 - (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
-      HOLE_DEPTH - (position - HOLE_WIDTH/2),
-      BASE_SCREEN_WIDTH/2 - (HOLE_WIDTH/2 + BALL_LINES_DISTANCE/2),
-      HOLE_DEPTH - (position - HOLE_WIDTH/2 + vstep)
-      )
+    
 
     --UI.setColor(3)
     --love.graphics.setLineWidth(BALL_LINES_DISTANCE)
@@ -278,7 +280,9 @@ Rectangle{
   width=HOLE_WIDTH,
   height=1,
   lineWidth=2,
-  lineColor=COLOR_WHITE,
+  getLineColor=function()
+    return Game.canGetNextBall and COLOR_WHITE or COLOR_GRAY
+  end
 }
 
 
