@@ -14,7 +14,7 @@
     "koa": "^2.13.0",
     "koa-bodyparser": "^3.2.0",
     "koa-router": "^7.4.0",
-    "mongodb": "^2.2.36"
+    "mongodb": "^3.1.13"
   },
   "engines": {
     "node": "7.10.0"
