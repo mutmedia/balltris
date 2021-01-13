@@ -311,7 +311,14 @@ UI._loveSetColor = love.graphics.setColor
 function UI.initialize(palette)
   print('UI: Initializing')
   -- Adjust to current screen size
-  local screenWidth, screenHeight = love.window.getMode()
+  local sx, sy, screenWidth, screenHeight = love.window.getSafeArea()
+  local orientation = love.window.getDisplayOrientation()
+  if  oritentation == 'landscape' or
+      orientation == 'lanscapeflipped' then
+        local aux = screenWidth
+        screenWidth = screenHeight
+        screenHeight = aux
+  end
   local aspectRatio = screenWidth/screenHeight
   local drawWidth, drawHeight
   if aspectRatio > ASPECT_RATIO then
@@ -326,7 +333,8 @@ function UI.initialize(palette)
   --print('drawHeight'..drawHeight)
 
   UI.deltaX = (screenWidth-drawWidth)/2
-  UI.deltaY = (screenHeight-drawHeight)
+  --UI.deltaY = (screenHeight-drawHeight)
+  UI.deltaY = sy
   UI.scaleX = drawWidth/BASE_SCREEN_WIDTH
   UI.scaleY = drawHeight/BASE_SCREEN_HEIGHT 
 

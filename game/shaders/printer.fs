@@ -1,11 +1,3 @@
-#ifdef GL_ES 
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-#endif
-
 //Image texture2
 uniform float k; // From 0 to 1 representing how much of the animation is complete
 const float height = 0.300;

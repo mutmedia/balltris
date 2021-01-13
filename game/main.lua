@@ -31,7 +31,7 @@ function IsInsideScreen(x, y)
 end
 
 -- Variables
-local DEBUG_SHOW_FPS = true
+local DEBUG_SHOW_FPS = false
 
 local lastDroppedBall
 
@@ -151,6 +151,10 @@ function love.load()
 
   Game.InitializeAchievements()
   Backend.Init()
+end
+
+function love.resize(w, h) 
+  Game.UI.initialize(NewPalette(Game.options.calango and PALETTE_CALANGO_PATH or PALETTE_DEFAULT_PATH))
 end
 
 function love.draw() 

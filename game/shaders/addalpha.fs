@@ -1,11 +1,3 @@
-#ifdef GL_ES 
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-#endif
-
 //Image texture2
 
 vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)

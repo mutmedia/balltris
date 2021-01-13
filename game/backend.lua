@@ -1,3 +1,5 @@
+require 'data_constants'
+
 local json = require 'lib/json'
 local Async = require 'lib/async'
 local Request = require 'lib/async/request'
@@ -10,7 +12,8 @@ local CreatePassword = require 'password' or function() return 'no password' end
 
 local USER_DATA_FILE_PATH = 'user_data_v'..VERSION..'.lua'
 --local BACKEND_PATH = 'http://localhost:8080'
-local BACKEND_PATH = 'https://balltris.herokuapp.com'
+--local BACKEND_PATH = 'http://balltris.herokuapp.com'
+local BACKEND_PATH = 'http://balltris.glitch.me/'
 
 local Backend = {}
 
@@ -99,7 +102,7 @@ function Backend.GetTopPlayers()
       return 
     end
     Game.state:push(STATE_GAME_LEADERBOARD_LOADING)
-    local ok, top10Data = Request.Get(BACKEND_PATH..'/top10')
+    local ok, top10Data = Request.Get(BACKEND_PATH..'/top10/'..VERSION)
     if not ok then
       print('error: '..top10Data)
       Backend.top10Error = 'Could not connect\nto game server.'

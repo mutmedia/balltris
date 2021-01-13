@@ -1,11 +1,3 @@
-#ifdef GL_ES 
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-#endif
-
 #define PI (3.14159265)
 
 uniform float pixel_size;
@@ -40,7 +32,7 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)
   }
 
   vec2 fade_coords;
-  fade_coords.x = (uv.x) * 2.0 - 1.0;
+  fade_coords.x = 0.0;
   fade_coords.y = (uv.y) * -2.0 + 1.0;
   float fade_value = ((1.0 - abs(fade_coords.x)) + (1.0 - abs(fade_coords.y))) / 2.0;
   scanline_is_active -= fade_value * center_fade;

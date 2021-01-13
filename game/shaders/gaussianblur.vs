@@ -1,11 +1,3 @@
-#ifdef GL_ES
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-#endif
-
 varying vec2 coordinate6b;
 varying vec2 coordinate5b;
 varying vec2 coordinate4b;

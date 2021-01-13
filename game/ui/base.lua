@@ -19,10 +19,10 @@ function FadeOutTween(k)
 end
 
 local fadeTime = 0.6
-local fadeShader = love.graphics.newShader('shaders/printer.fs')
+--local fadeShader = love.graphics.newShader('shaders/printer.fs')
 function WithFade(uielem)
   return function(obj)
-    obj.shader = obj.shader or fadeShader
+    --obj.shader = obj.shader or fadeShader
     obj.transitionInTime = obj.transitionInTime or obj.transitionTime or fadeTime
     obj.transitionIn = obj.transitionIn or function(self, p)
       local k = FadeInTween(p)

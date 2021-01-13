@@ -21,6 +21,7 @@ function love.conf(t)
   t.window.msaa = 0                   -- The number of samples to use with multi-sampled antialiasing (number)
   t.window.display = 1                -- Index of the monitor to show the window in (number)
   t.window.highdpi = false            -- Enable high-dpi mode for the window on a Retina display (boolean)
+  t.window.usedpiscale = false
   t.window.x = nil                    -- The x-coordinate of the window's position in the specified display (number)
   t.window.y = nil                    -- The y-coordinate of the window's position in the specified display (number)
 

@@ -16,6 +16,7 @@ local function LazyLoad()
   ok, localGames = Checksum.LoadWith(LOCAL_GAMES_PATH)
   if not ok then
     error('could not load local files')
+    localGames = {}
   end
 end
 
@@ -52,12 +53,13 @@ end
 
 function LocalGames.GetTop10()
   LazyLoad()
-  table.sort(localGames, function(a, b) 
+  local games = localGames or {}
+  table.sort(games, function(a, b) 
     return a.stats.score > b.stats.score 
   end)
   local top10 = {}
   for i=1,10 do
-    table.insert(top10, localGames[i])
+    table.insert(top10, games[i])
   end
   return top10
 end

@@ -129,8 +129,8 @@ Button{
     return 'leaderboard'
   end,
   onPress = function(self, x, y)
-    Backend.GetTopPlayers()
-    --if Game.highscore.stats then
+    Game.state:push(STATE_GAME_LEADERBOARD)
+    --if not Game.highscore.sentStats then
       --Backend.SendStats(Game.highscore.stats, Game.highscore.number)
     --end
 end,

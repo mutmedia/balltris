@@ -66,8 +66,8 @@ local leaderBoardThing = function(func)
         end
       end
       local basecondition = And(
-        showLeaderboardCondition,
         inGameState(STATE_GAME_LEADERBOARD),
+        showLeaderboardCondition,
         function(self)
           return (GetTop10()[self.number] and true or false) 
         end,
@@ -79,7 +79,6 @@ local leaderBoardThing = function(func)
         obj.condition = basecondition
       end
 
-
       return func(obj)
     end
   end
@@ -87,7 +86,6 @@ end
 
 
 function GetTop10()
-  print("aaaa")
   return SHOW_LOCAL_LEADERBOARD and LocalGames.GetTop10() or Backend.top10Data
 end
 
@@ -236,7 +234,7 @@ Text{
 Text{
   name='top10 error',
   layer=LAYER_MENUS,
-  condition=And(Not(showLeaderboardCondition), inGameState(STATE_GAME_LEADERBOARD)),
+  condition=And(inGameState(STATE_GAME_LEADERBOARD), Not(showLeaderboardCondition)),
   x = BASE_SCREEN_WIDTH/2,
   y=8*UI_HEIGHT_UNIT,
   font = FONT_SM,
@@ -285,7 +283,9 @@ Button{
   width=HOLE_WIDTH * 0.8,
   height=2*UI_HEIGHT_UNIT,
   color=0,
-  lineColor=1,
+  getLineColor = function() 
+    return (SHOW_LOCAL_LEADERBOARD and Backend.isOffline) and COLOR_GRAY or COLOR_WHITE
+  end,
   lineWidth=3,
   font=FONT_SM,
   textColor=1,
@@ -293,6 +293,10 @@ Button{
     return SHOW_LOCAL_LEADERBOARD and 'show global' or 'show local'
   end,
   onPress = function(self, x, y)
+    if SHOW_LOCAL_LEADERBOARD then
+      if Backend.isOffline then return end
+      Backend.GetTopPlayers()
+    end
     SHOW_LOCAL_LEADERBOARD = not SHOW_LOCAL_LEADERBOARD
   end,
 }

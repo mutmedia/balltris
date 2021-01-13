@@ -7,6 +7,11 @@ MVP
 - [x] Make a tutorial
 
 - [ ] Open to more playtesters
+  - [ ] Bennett
+  - [ ] Laura
+  - [ ] Frank
+  - [ ] Dylan
+  - [ ] Winnie
 
 - [ ] Improve tutorial after playtest
 - [x] Finish basic effects
@@ -33,7 +38,7 @@ Effects:
 - [x] Ball being dropped (similar particle fx to exit?)
 - [x] Balls dissapearing particle effects
 - [ ] Screen shake after clearing whites
-- [ ] Next balls changing (AFTER MVP)
+- [ ] Next balls changing animation (AFTER MVP)
 
 
 High score Improvements
@@ -43,7 +48,7 @@ High score Improvements
 - [ ] Add scores close to player (AFTER MVP)
 - [x] Save name after each new high score (?)
 - [ ] Backup player scores locally and send when connecting again
-- [ ] Save local games
+- [x] Save local games
 - [x] Constrain username for highscore
 - [ ] Pretty names for stats
 
@@ -78,6 +83,7 @@ DEBUG STUFF / TOOLS
 -------------------
 - [ ] Make debug print tell file (just rename print function to print('filename:', ...)
 - [ ] Make ui loader load entire folder
+- [ ] Submit crash report to server
 
 MISC
 ----

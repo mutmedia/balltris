@@ -14,7 +14,7 @@ Rectangle{
 Custom{
   name='scanline',
   layer=LAYER_GAME,
-  condition=True(),
+  condition=False(),
   -- //height=60,
   count=2,
   width=BASE_SCREEN_WIDTH,
@@ -385,24 +385,24 @@ Custom{
   name='next balls',
   layer=LAYER_GAME,
   condition = inGameState(STATE_GAME_RUNNING),
+  distanceBetweenBalls = 2 * UI_HEIGHT_UNIT,
+  initialHeight = 4 * UI_HEIGHT_UNIT,
   draw=function(self)
     local ballPreviewNum = 1
-    local ballPreviewHeight = 5*UI_HEIGHT_UNIT
+    local ballPreviewHeightTop = self.initialHeight
     local ballPreviewX = BASE_SCREEN_WIDTH - (BORDER_THICKNESS)/2
     love.graphics.setLineWidth(1)
     Game.objects.nextBallPreviews:forEach(function(nextBallPreview)
-      --ballPreviewHeight = ballPreviewHeight + nextBallPreview.radius
 
-      local center = {ballPreviewX, ballPreviewHeight}
       local radius = nextBallPreview.radius
+      local center = {ballPreviewX, ballPreviewHeightTop + radius}
       local color = nextBallPreview:getColor()
 
       DrawBall(color, center, radius)
 
-
       ballPreviewNum = ballPreviewNum + 1
 
-      ballPreviewHeight = ballPreviewHeight + 5*UI_HEIGHT_UNIT
+      ballPreviewHeightTop = ballPreviewHeightTop + 2 * radius + self.distanceBetweenBalls
     end)
   end
 }

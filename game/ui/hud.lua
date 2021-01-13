@@ -49,11 +49,11 @@ Text{
   condition=inGameState(STATE_GAME_RUNNING),
   x=-BORDER_THICKNESS/2,
   y=2*UI_HEIGHT_UNIT,
-  font=FONT_SM,
+  font=FONT_MD,
   color=1,
   width=BORDER_THICKNESS,
   getText = function()
-    return 'next balls'
+    return 'next'
   end,
 }
 
@@ -62,11 +62,11 @@ Button{
   name='open menu',
   layer=LAYER_HUD,
   condition=inGameState(STATE_GAME_RUNNING, STATE_GAME_PAUSED),
-  x=BORDER_THICKNESS/2,
+  x=BORDER_THICKNESS/2 - 3,
   y=2*UI_HEIGHT_UNIT,
   width=0.8*BORDER_THICKNESS,
   height=2*UI_HEIGHT_UNIT,
-  lineWidth = 5,
+  lineWidth = 3,
   lineColor=1,
   font=FONT_MD,
   textColor=1,

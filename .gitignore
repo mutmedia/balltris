@@ -4,6 +4,7 @@
 *.exe
 *.lnk
 build/
+android/
 server/
 node_modules
 game/password.lua
