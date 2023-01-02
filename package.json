@@ -10,7 +10,7 @@
   "author": "ghust1995",
   "license": "ISC",
   "dependencies": {
-    "config": "^1.31.0",
+    "config": "^3.3.8",
     "koa": "^2.13.0",
     "koa-bodyparser": "^3.2.0",
     "koa-router": "^7.4.0",
